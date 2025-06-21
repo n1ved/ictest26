@@ -1,0 +1,241 @@
+import React, { useEffect, useState } from "react";
+import bcrypt from 'bcryptjs';
+
+export default function AdminDashboard() {
+  const [tables, setTables] = useState([]);
+  const [selectedTable, setSelectedTable] = useState("");
+  const [rows, setRows] = useState([]);
+  const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addForm, setAddForm] = useState({});
+  const [editRowIdx, setEditRowIdx] = useState(null);
+  const [editForm, setEditForm] = useState({});
+
+  // Fetch all table names from Supabase
+  useEffect(() => {
+    const fetchTables = async () => {
+      try {
+        const { data, error } = await window.supabase
+          .rpc('list_tables');
+        if (error) throw error;
+        setTables(data);
+      } catch (err) {
+        setError("Failed to fetch tables");
+      }
+    };
+    fetchTables();
+  }, []);
+
+  // Fetch rows and columns for selected table
+  useEffect(() => {
+    if (!selectedTable) return;
+    setLoading(true);
+    setError("");
+    const fetchRows = async () => {
+      try {
+        const { data, error } = await window.supabase.from(selectedTable).select("*");
+        if (error) throw error;
+        setRows(data);
+        if (data && data.length > 0) {
+          setColumns(Object.keys(data[0]));
+        } else {
+          setColumns([]);
+        }
+      } catch (err) {
+        setError("Failed to fetch table data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRows();
+  }, [selectedTable]);
+
+  // Handle Add Row
+  const handleAddRow = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      let insertData = { ...addForm };
+      // If adding to login table, hash password if present
+      if (selectedTable === 'login') {
+        if (insertData.password) {
+          const salt = await bcrypt.genSalt(10);
+          const hash = await bcrypt.hash(insertData.password, salt);
+          insertData.password_hash = hash;
+          delete insertData.password;
+        }
+        // If password_hash is present and not already hashed (not likely, but for safety)
+        else if (insertData.password_hash && insertData.password_hash.length < 30) {
+          const salt = await bcrypt.genSalt(10);
+          const hash = await bcrypt.hash(insertData.password_hash, salt);
+          insertData.password_hash = hash;
+        }
+      }
+      const { error } = await window.supabase.from(selectedTable).insert([insertData]);
+      if (error) throw error;
+      setShowAddForm(false);
+      setAddForm({});
+      // Refresh rows
+      const { data } = await window.supabase.from(selectedTable).select("*");
+      setRows(data);
+    } catch (err) {
+      setError("Failed to add row: " + (err.message || err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Edit Row
+  const handleEditRow = (idx) => {
+    setEditRowIdx(idx);
+    setEditForm(rows[idx]);
+  };
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      // Find primary key (assume first column is PK)
+      const pk = columns[0];
+      const pkValue = editForm[pk];
+      let updateData = { ...editForm };
+      delete updateData[pk];
+      // If editing login table, hash password if present
+      if (selectedTable === 'login') {
+        if (updateData.password) {
+          const salt = await bcrypt.genSalt(10);
+          const hash = await bcrypt.hash(updateData.password, salt);
+          updateData.password_hash = hash;
+          delete updateData.password;
+        } else if (updateData.password_hash && updateData.password_hash.length < 30) {
+          const salt = await bcrypt.genSalt(10);
+          const hash = await bcrypt.hash(updateData.password_hash, salt);
+          updateData.password_hash = hash;
+        }
+      }
+      const { error } = await window.supabase.from(selectedTable).update(updateData).eq(pk, pkValue);
+      if (error) throw error;
+      setEditRowIdx(null);
+      setEditForm({});
+      // Refresh rows
+      const { data } = await window.supabase.from(selectedTable).select("*");
+      setRows(data);
+    } catch (err) {
+      setError("Failed to update row: " + (err.message || err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Delete Row
+  const handleDeleteRow = async (idx) => {
+    if (!window.confirm("Are you sure you want to delete this row?")) return;
+    setLoading(true);
+    setError("");
+    try {
+      const pk = columns[0];
+      const pkValue = rows[idx][pk];
+      const { error } = await window.supabase.from(selectedTable).delete().eq(pk, pkValue);
+      if (error) throw error;
+      // Refresh rows
+      const { data } = await window.supabase.from(selectedTable).select("*");
+      setRows(data);
+    } catch (err) {
+      setError("Failed to delete row: " + (err.message || err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Render
+  return (
+    <div style={{ minHeight: '100vh', background: '#0a1833', color: '#e6eaff', padding: 0, margin: 0 }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '48px 24px' }}>
+        <h2 style={{ color: '#e6eaff', fontWeight: 800, fontSize: '2.2rem', letterSpacing: 1.2, marginBottom: 32, marginTop: 48, paddingTop: 32, textShadow: '0 2px 8px #00336655', textAlign: 'center', borderBottom: '2px solid #375a7f', paddingBottom: 18, background: 'none' }}>Admin Dashboard</h2>
+        <div style={{ background: '#14244a', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.18)', padding: '2rem', marginBottom: 32 }}>
+          {error && <div style={{ color: '#fff', background: '#003366', borderRadius: 6, padding: '0.5rem 1rem', marginBottom: 16 }}>{error}</div>}
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ color: '#b3c6e0', fontWeight: 600, fontSize: '1.08rem', marginRight: 12 }}>Select Table: </label>
+            <select value={selectedTable} onChange={e => setSelectedTable(e.target.value)} style={{ padding: '0.7rem 1.2rem', borderRadius: 8, border: '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff', fontWeight: 600, letterSpacing: 0.5 }}>
+              <option value="">-- Select Table --</option>
+              {tables.map((t) => (
+                <option key={t.table_name} value={t.table_name}>{t.table_name}</option>
+              ))}
+            </select>
+          </div>
+          {selectedTable && !loading && (
+            <button onClick={() => { setShowAddForm(!showAddForm); setAddForm({}); }} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.7rem 2rem', fontWeight: 700, marginBottom: 18, cursor: 'pointer', fontSize: '1.08rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s' }}>{showAddForm ? 'Cancel' : 'Add Row'}</button>
+          )}
+          {showAddForm && (
+            <form onSubmit={handleAddRow} style={{ marginBottom: 24, background: '#001a33', padding: 18, borderRadius: 8 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+                {columns.map(col => (
+                  <div key={col} style={{ flex: '1 1 180px', minWidth: 120 }}>
+                    <label style={{ color: '#b3c6e0', fontWeight: 600, fontSize: 14 }}>{col}</label>
+                    <input
+                      type="text"
+                      value={addForm[col] || ''}
+                      onChange={e => setAddForm({ ...addForm, [col]: e.target.value })}
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: 6, border: '1.5px solid #375a7f', background: '#00224d', color: '#fff', marginTop: 4 }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <button type="submit" style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.7rem 2rem', fontWeight: 700, marginTop: 18, cursor: 'pointer', fontSize: '1.08rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s' }}>Save</button>
+            </form>
+          )}
+          {loading && <div>Loading...</div>}
+          {selectedTable && !loading && (
+            <div style={{ overflowX: 'auto' }}>
+              <h3 style={{ color: '#fff', fontWeight: 700, marginBottom: 18, fontSize: '1.25rem', letterSpacing: 0.7, textAlign: 'center', textShadow: '0 2px 8px #00336655', borderBottom: '1.5px solid #375a7f', paddingBottom: 10, marginTop: 18 }}>Table: {selectedTable}</h3>
+              <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%', background: '#001a33', color: '#fff', marginBottom: 24 }}>
+                <thead>
+                  <tr>
+                    {columns.map(col => <th key={col} style={{ background: '#003366', color: '#b3c6e0', fontWeight: 700, fontSize: '1.08rem', letterSpacing: 0.5 }}>{col}</th>)}
+                    <th style={{ background: '#003366', color: '#b3c6e0', fontWeight: 700, fontSize: '1.08rem', letterSpacing: 0.5, minWidth: 220, width: 220, textAlign: 'center' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, idx) => (
+                    <tr key={idx} style={{ background: '#00224d', verticalAlign: 'middle' }}>
+                      {editRowIdx === idx ? (
+                        columns.map(col => (
+                          <td key={col}>
+                            <input
+                              type="text"
+                              value={editForm[col] || ''}
+                              onChange={e => setEditForm({ ...editForm, [col]: e.target.value })}
+                              style={{ width: '100%', padding: '0.3rem', borderRadius: 6, border: '1.5px solid #375a7f', background: '#001a33', color: '#fff' }}
+                            />
+                          </td>
+                        ))
+                      ) : (
+                        columns.map(col => <td key={col}>{String(row[col])}</td>)
+                      )}
+                      <td style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', minWidth: 220, width: 220, borderBottom: 'none', height: '100%' }}>
+                        {editRowIdx === idx ? (
+                          <>
+                            <button onClick={handleSaveEdit} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.5rem 1.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1.05rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 90, width: 100 }}>Save</button>
+                            <button onClick={() => { setEditRowIdx(null); setEditForm({}); }} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.5rem 1.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1.05rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 90, width: 100 }}>Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            <button onClick={() => handleEditRow(idx)} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.5rem 1.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1.05rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 90, width: 100 }}>Edit</button>
+                            <button onClick={() => handleDeleteRow(idx)} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.5rem 1.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1.05rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 90, width: 100 }}>Delete</button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,158 @@
+.gala-night-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    width: 100%;
+    max-width: 1200px;
+    margin-left: 300px;
+    margin-right: auto;
+}
+
+.gala-night-container h1 {
+    font-size: 40px;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.gala-night-container p {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.gala-night-container .highlight {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffcc00; /* Highlight color */
+    margin-bottom: 10px;
+}
+
+.gala-night-container .performances {
+    margin-top: 20px;
+}
+
+.gala-night-container .performances h2 {
+    font-size: 28px;
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.gala-night-container .performances ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-left: 0;
+    list-style-type: none;
+}
+
+.gala-night-container .performances li {
+    font-size: 18px;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: calc(50% - 20px); /* Two columns */
+}
+
+.gala-night-container .performances li img {
+    width: 500px; /* Increased size */
+    height: 500px; /* Increased size */
+    border-radius: 50%; /* Make round */
+    margin-bottom: 10px;
+    object-fit: cover; /* Ensure image covers the area */
+}
+
+.gala-night-container .performances li span {
+    font-size: 18px;
+}
+
+.performer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.performer-image {
+    width: 200px; /* Increased size */
+    height: 200px; /* Increased size */
+    border-radius: 50%; /* Make round */
+    margin-right: 15px;
+    object-fit: cover; /* Ensure image covers the area */
+}
+
+@media screen and (max-width: 900px) {
+    .gala-night-container {
+        padding: 20px;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .gala-night-container h1 {
+        font-size: 32px;
+    }
+
+    .gala-night-container p {
+        font-size: 16px;
+    }
+
+    .gala-night-container .performances h2 {
+        font-size: 24px;
+    }
+
+    .gala-night-container .performances li {
+        font-size: 16px;
+        width: 100%; /* Single column on smaller screens */
+    }
+
+    .gala-night-container .performances li img {
+        width: 300px; /* Increased size */
+        height: 300px; /* Increased size */
+        border-radius: 50%; /* Make round */
+        margin-bottom: 10px;
+        object-fit: cover; /* Ensure image covers the area */
+    }
+
+    .performer-image {
+        width: 120px; /* Adjusted size */
+        height: 120px; /* Adjusted size */
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .gala-night-container {
+        padding: 15px;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .gala-night-container h1 {
+        font-size: 24px;
+    }
+
+    .gala-night-container p {
+        font-size: 14px;
+    }
+
+    .gala-night-container .performances h2 {
+        font-size: 20px;
+    }
+
+    .gala-night-container .performances li {
+        font-size: 14px;
+        width: 100%; /* Single column on smaller screens */
+    }
+
+    .performer-image {
+        width: 100px; /* Adjusted size */
+        height: 100px; /* Adjusted size */
+    }
+}

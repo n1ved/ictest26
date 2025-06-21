@@ -1,0 +1,125 @@
+.registration-fees-bg , .bank_details{
+    display: flex;
+    flex-direction: column;
+    color: white;
+    margin-top: 20px;
+}
+
+.register {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 50px;
+    align-items: center;
+    margin-left: 40px;
+    margin-bottom: 50px;
+}
+.bank-details{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 200px;
+}
+.bank-details-container{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}
+.bank-details-container img{
+    width: 200px;
+    height: 200px;
+}
+.bank-details-box{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.bank-details p{
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    margin: 0px;
+    padding: 0px;
+}
+
+.fees-box {
+    display: flex;
+    align-items: center;
+}
+
+.fees-box p {
+    padding: 0px;
+    margin-left: auto;
+    padding-left: 15px;
+    margin-top: 25px;
+}
+
+.fees-box h2 {
+    font-size: 24px;
+    height: 24px;
+}
+
+@media (max-width: 1450px) {
+    .register {
+        width: 80%;
+        flex-grow: 1;
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 680px) {
+    .registration-fees-bg {
+        margin-top: 20px;
+    }
+
+    .registration-fees-bg h1 {
+        letter-spacing: 1px;
+        line-height: 1.8rem;
+        font-size: 26px;
+    }
+
+    .register {
+        flex-direction: column; /* Changes the layout to column */
+        width: 100%;
+        gap: 2px; /* Adjust the gap between the two columns */
+        align-items: center;
+        margin-left: 0; /* Remove the left margin */
+    }
+
+    .column {
+        width: 90%; /* Make columns take more space in mobile view */
+    }
+
+    .fees-box h2 {
+        letter-spacing: 1px;
+        line-height: 1.5rem;
+        font-size: 22px;
+    }
+
+    .fees-box p {
+        font-size: 16px; /* Adjust font size for better mobile readability */
+    }
+
+    .bank-details-container{
+        padding: 20px;
+        flex-direction: column-reverse;
+        box-sizing: border-box;
+        gap: 20px;
+    }
+}

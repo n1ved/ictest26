@@ -1,0 +1,80 @@
+.paper-form-container {
+  background: #00224d;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.add-paper-title {
+  color: #b3c6e0;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.paper-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.paper-form input[type="text"],
+.paper-form input[type="number"],
+.paper-form select {
+  margin-bottom: 16px;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #375a7f;
+  font-size: 16px;
+  background: #001a33;
+  color: #fff;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  color: #b3c6e0;
+  font-weight: 500;
+  width: 100%;
+}
+.paper-form input[type="checkbox"] {
+  margin-right: 8px;
+}
+.paper-form input[type="file"] {
+  margin-bottom: 20px;
+  width: 100%;
+  color: #fff;
+}
+.paper-form button[type="submit"] {
+  background: #003366;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.9rem 0;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 12px;
+  transition: background 0.2s;
+}
+.paper-form button[type="submit"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.paper-success {
+  color: #7fff7f;
+  font-weight: 600;
+  margin-top: 8px;
+  text-align: center;
+}
+.paper-error {
+  color: #ff7f7f;
+  font-weight: 600;
+  margin-top: 8px;
+  text-align: center;
+}

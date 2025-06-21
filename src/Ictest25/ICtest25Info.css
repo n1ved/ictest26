@@ -1,0 +1,323 @@
+.info-container {
+    display: flex;
+    flex-direction: column;
+    padding-left: 300px;
+    width: 100%;
+    max-width: calc(100vw - 300px);
+    overflow: hidden;
+    justify-content: start;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    text-wrap: wrap;
+    box-sizing: border-box; /* Added to include padding in width calculation */
+}
+
+.button-container {
+    justify-content: flex-start;
+}
+
+.instruction-content {
+    line-height: 1.5;
+    text-wrap: wrap;
+}
+a:active {
+    color: white;
+}
+a:visited {
+    color: white;
+}
+a:focus {
+    color: white;
+}
+.instruction-content a {
+    text-decoration: underline;
+}
+.info-bg,
+.info-bg-m {
+    width: 100%;
+    padding: 200px 0;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.info-main {
+    margin: 0;
+    width: 100vw;
+    box-sizing: border-box;
+    background: linear-gradient(
+            to right,
+            rgba(0, 40, 80, 1) 60%,
+            rgba(0, 40, 80, 0.8),
+            rgba(0, 40, 80, 0.6)
+        ),
+        url("../assets/collegeImage.jpeg");
+
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    color: white;
+    display: flex;
+    flex-direction: row;
+}
+
+.ic25-navigation {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;
+    justify-content: flex-start; /* Align items to the left */ /* Sidebar background color */
+    /* Add padding for spacing */
+    padding: 15vh 30px 5vh;
+    width: 250px; /* Fixed width for the sidebar */
+    height: 100vh;
+    overflow-y: scroll;
+    position: fixed; /* Full height of the viewport */
+}
+.ic25-navigation .navigation-btn,
+.ic25-navigation h4 {
+    display: flex;
+    align-items: flex-start; /* Align icon and text vertically */
+    justify-content: flex-start;
+    text-align: left;
+    width: 90%;
+    text-decoration: none; /* Remove underline from links */
+    color: white; /* White text color */
+    font-size: 20px; /* Adjust font size */
+    font-weight: bold;
+    padding: 10px;
+    cursor: pointer; /* Add spacing between items */
+    transition: all;
+}
+
+.ic25-navigation h4 {
+    cursor: default;
+    font-weight: bolder;
+    margin: 0;
+}
+
+.ic25-navigation hr {
+    width: 80%;
+    margin: 10px 10px;
+    justify-self: flex-start;
+    align-self: flex-start;
+}
+
+.navigation-btn:hover {
+    background-color: #2a3b6f; /* Change background on hover */
+    color: white;
+    border-radius: 8px; /* Rounded corners for hover effect */
+    transition: all;
+}
+
+.navigation-btn-active {
+    background-color: rgba(248, 248, 248, 0.5);
+    color: black !important;
+    border-radius: 8px;
+    transition: all;
+}
+
+.navigation-btn-active:hover {
+    background-color: rgba(248, 248, 248, 0.7);
+    color: black !important;
+    border-radius: 8px;
+    transition: all;
+}
+
+.venue-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+}
+.venue-pic-container {
+    width: 25vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+}
+
+.venue-pic-container img {
+    width: 100%;
+    border-radius: 30px;
+}
+
+.venue-details h3 {
+    font-size: 28px;
+    margin-top: 0;
+}
+.info-bg-m {
+    display: none;
+}
+
+
+.hotel-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 30px;
+    border-radius: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+.hotel-text{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+}
+
+.session-card{
+    padding: 50px 0;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.session-card img{
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+}
+
+.session-details{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.session-details h3{
+    margin: 0;
+    font-size: 24px;
+    font-weight: bolder;
+}
+
+.session-details h4{
+    margin: 15px 0;
+    font-size: 18px;
+}
+.session-details p{
+    margin: 5px 0;
+    font-size: 16px;
+    font-style: italic;
+}
+
+.schedule-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-left: 300px;
+    width: 100%;
+    max-width: calc(100vw - 300px);
+    overflow: hidden;
+    min-height: 100vh;
+    color: white;
+}
+
+.day-schedule {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+.schedule-table {
+    width: 90%;
+    max-width: 1200px;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.schedule-table th, .schedule-table td {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px;
+    text-align: left;
+}
+
+.schedule-table th {
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: bold;
+}
+
+.schedule-table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.schedule-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.speaker-description {
+    font-size: 0.9em;
+    color: #b0b0b0;
+}
+
+h3 {
+    margin-top: 0;
+    color: #007bff;
+}
+
+@media screen and (max-width: 680px) {
+    .ic25-navigation {
+        display: none;
+    }
+
+    .info-bg {
+        display: none;
+    }
+    .info-bg-m {
+        display: flex;
+    }
+    .info-container {
+        padding: 0 50px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .venue-container {
+        flex-direction: column;
+    }
+    .venue-pic-container {
+        width: 80vw;
+    }
+
+    .accommodation-container{
+        width: 100%;
+        grid-template-columns: 1fr;
+    }
+
+    .session-card{
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .session-details{
+        align-items: center;
+    }
+    .session-details p{
+        text-align: center;
+    }
+
+    .schedule-container {
+        padding-left: 50px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .schedule-table {
+        width: 100%;
+        font-size: 14px;
+    }
+}

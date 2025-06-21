@@ -1,0 +1,146 @@
+.accommodation-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center; /* Center the main content */
+    padding-left: 300px;
+    width: calc(100% - 300px); /* Adjust width to prevent overlap */
+    overflow: hidden;
+    min-height: 100vh;
+    color: white;
+}
+
+.accommodation-container p{
+    font-size: 20px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.accommodation-title {
+    font-size: 40px;
+    color: #007bff;
+    margin-bottom: 15px;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+}
+
+.hotel-grid {
+    width: 90%;
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Ensure only two cards per row */
+    gap: 20px;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.hotel-card {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.3); /* Matches instruction-section */
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center; /* Center the text */
+    align-items: center; /* Center the content */
+}
+
+.hotel-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.hotel-info {
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the content */
+}
+
+.hotel-info h3 {
+    font-size: 22px;
+    color: #ffffff;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.hotel-address {
+    font-size: 18px;
+    font-weight: bold;
+    color: #cccccc;
+    margin-top: 10px;
+}
+
+.hotel-description {
+    font-size: 16px;
+    color: #dddddd;
+    line-height: 1.6;
+    max-width: 90%;
+    margin: 10px auto;
+}
+
+button {
+    display: flex;
+    align-items: center; /* Align text and icon vertically */
+    justify-content: center;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.map-icon {
+    margin-left: 8px; /* Add some space between text and icon */
+}
+
+/* Responsive Design */
+@media screen and (max-width: 900px) {
+    .accommodation-container {
+        padding-left: 50px;
+        width: calc(100% - 50px); /* Adjust width to prevent overlap */
+        box-sizing: border-box;
+    }
+
+    .hotel-grid {
+        grid-template-columns: 1fr; /* Single column on smaller screens */
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .accommodation-container {
+        padding-left: 20px;
+        width: calc(100% - 20px); /* Adjust width to prevent overlap */
+        box-sizing: border-box;
+    }
+
+    .accommodation-title {
+        font-size: 24px;
+    }
+
+    .hotel-info h3 {
+        font-size: 18px;
+    }
+
+    .hotel-address {
+        font-size: 16px;
+    }
+
+    .hotel-description {
+        font-size: 14px;
+    }
+
+    .hotel-grid {
+        width: 100%;
+        font-size: 14px;
+    }
+}

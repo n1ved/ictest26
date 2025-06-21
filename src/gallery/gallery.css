@@ -1,0 +1,96 @@
+.gallery-container {
+    padding: 2rem;
+    background: linear-gradient(to right ,rgba(0,40,80,1) 60%,rgba(0,40,80,.8) ,rgba(0,40,80,.5)),url('../assets/collegeImage.jpeg');
+    min-height: 100vh;
+    padding-bottom: 100px;
+} 
+
+.gallery-title {
+    text-align: center;
+    font-size: 40px ;
+    color: white; 
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    padding-top: 80px;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2.5rem;
+}
+
+.gallery-item {
+    overflow: hidden;
+    border-radius: 1rem;
+    max-width: 300px; /* Limit width of each item */
+    margin: 0 400px; /* Center items horizontally */
+}
+
+/* Optional: Add a media query for mobile view adjustments */
+@media (max-width: 680px) {
+    .gallery-item {
+        margin: 0 10px; /* Adjust margins for smaller screens */
+    }
+}
+.gallery-image {
+    width: 100%; /* Full width of container */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: cover; 
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover .gallery-image {
+    transform: scale(1.05);
+}
+
+.gallery-container p {
+      color: white;
+      letter-spacing: 1px;
+      padding-top: 2rem;
+      padding-left: 1rem;
+      padding-bottom: 1rem;
+      padding-right: 1rem;
+      font-size:20px ;
+      margin: 0px;
+}
+   
+
+.gallery-container a {
+    color: white;   
+}
+
+@media (max-width:680px) {
+    .gallery-container {
+        padding: 2rem;
+        background: linear-gradient(to right ,rgba(0,40,80,1) 40%,rgba(0,40,80,.8) ,rgba(0,40,80,.5)),url('../assets/collegeImage.jpeg');
+        padding-bottom: 100px;
+    } 
+   
+   .gallery-title {
+        text-align: center;
+        font-size: 26px ;
+        color: white; 
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        padding-top: 90px;
+   }
+   
+   .gallery-grid {
+       display: grid;
+       grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+       gap: 1rem;
+   }
+   
+@media (max-width: 680px) {
+    .gallery-container p {
+        color: #fff;
+        letter-spacing: 1px;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        padding-right: 0;
+        font-size: 18px;
+        margin: 0;
+    }
+}
+}

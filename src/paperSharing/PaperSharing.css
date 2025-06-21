@@ -1,0 +1,25 @@
+.paper-sharing{
+    align-items: flex-start !important;
+    padding-left: 9rem;
+}
+
+@media (max-width:680px) {
+    .paper-sharing{
+        align-items: flex-start !important;
+        padding-left: 20px;
+    }
+    .sharing{
+        box-sizing: border-box;
+        width: 390px;
+        overflow-x: scroll;
+
+    }
+    p{
+        display: block;
+    }
+    a{
+        color: white;
+    }
+
+
+}

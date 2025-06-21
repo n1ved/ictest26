@@ -1,0 +1,213 @@
+.dashboard {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 100px;
+    background: linear-gradient(
+            to right,
+            rgba(0, 40, 80, 1) 60%,
+            rgba(0, 40, 80, 0.8),
+            rgba(0, 40, 80, 0.5)
+        ),
+        url("../assets/collegeImage.jpeg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100vw;
+}
+.dashboard h1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 3.5rem;
+    font-size: 40px;
+    margin-top: 150px;
+}
+.dashboard h2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 3.5rem;
+    font-size: 28px;
+    margin: 0px;
+    margin-bottom: 20px;
+}
+.dashboard h3 {
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+    color: white;
+    letter-spacing: 1px;
+    padding-top: 1.5rem;
+    padding-right: 9rem;
+    padding-left: 9rem;
+    font-size: 22px;
+    margin: 0px;
+}
+.blinking-buttons,
+.non-blinking-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+.dashboard a {
+    text-decoration: none;
+    text-align: center;
+    color: black !important;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    letter-spacing: 1px;
+    padding: 0.9rem;
+    font-size: 16px;
+    margin: 0px;
+    background-color: #87ceeb;
+    border-radius: 2rem;
+    animation: blink 2s infinite ease-in-out;
+}
+@keyframes blink {
+    0% {
+        border-color: white;
+        box-shadow: 0px 0px 25px 0px #87ceeb;
+        opacity: 1;
+    }
+    50% {
+        border-color: black;
+        box-shadow: 0px 0px 0px 0px black;
+        opacity: 0.25;
+    }
+    100% {
+        border-color: white;
+        box-shadow: 0px 0px 25px 0px #87ceeb;
+        opacity: 1;
+    }
+}
+.dashboard p {
+    display: flex;
+    flex-direction: column;
+    text-align: justify;
+    letter-spacing: 1.5px;
+    color: white;
+    padding-top: 0.6rem;
+    padding-bottom: 1rem;
+    padding-right: 9rem;
+    padding-left: 9rem;
+    font-size: 17px;
+    margin: 0px;
+}
+.dashboard button {
+    padding: 0.9rem 1.5rem;
+    background-color: transparent;
+    color: var(--light-blue);
+    border-radius: 3rem;
+    border: 1px solid var(--light-blue);
+    text-transform: uppercase;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+.dashboard button:hover {
+    background-color: var(--light-blue);
+    color: white;
+    border-color: (--light-blue);
+}
+.absolute-position-tag {
+    color: white;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 5px;
+    rotate: -90deg;
+    position: absolute;
+    top: 35rem;
+    left: 1rem;
+}
+.number-specific {
+    font-family: sans-serif;
+    font-weight: bold;
+}
+
+@media (max-width: 680px) {
+    .dashboard {
+        padding-top: 150px;
+        width: 100vw;
+        box-sizing: border-box;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding-bottom: 100px;
+        background: linear-gradient(
+                to right,
+                rgba(0, 40, 80, 1) 60%,
+                rgba(0, 40, 80, 0.8),
+                rgba(0, 40, 80, 0.5)
+            ),
+            url("../assets/collegeImage.jpeg");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        padding-left: 20px;
+        padding-bottom: 100px;
+        padding-right: 20px;
+    }
+    .dashboard a {
+        padding: 0.75rem;
+        font-size: 14px;
+        margin: 20px;
+    }
+    .dashboard h1 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        line-height: 1.8rem;
+        font-size: 26px;
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    .dashboard h2 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        line-height: 1.4rem;
+        font-size: 19px;
+        margin-bottom: 10px;
+    }
+    .dashboard h3 {
+        display: flex;
+        flex-direction: column;
+        align-self: start;
+        color: white;
+        letter-spacing: 1px;
+        font-size: 20px;
+        margin: 0px;
+        padding: 0px;
+        padding-top: 1rem;
+    }
+    .dashboard p {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: white;
+        letter-spacing: 1px;
+        padding-top: 1rem !important;
+        padding-bottom: 2rem !important;
+        padding: 0px;
+        font-size: 16px;
+        margin: 0px;
+    }
+}

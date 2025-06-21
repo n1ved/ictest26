@@ -1,0 +1,129 @@
+.instructions-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center; /* Center the main content */
+    padding-left: 300px;
+    width: 100%;
+    max-width: calc(100vw - 300px);
+    overflow: hidden;
+    min-height: 100vh;
+    color: white;
+}
+
+.instruction-section {
+    width: 90%;
+    max-width: 1200px;
+    background-color: rgba(0, 0, 0, 0.3); /* Reduced darkness */
+    padding: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+h1 {
+    font-size: 40px;
+    color: #007bff;
+    margin-bottom: 15px;
+    margin-right: 45px;
+    padding: 15px;
+    text-align: center; /* Center align */
+    width: 100%;
+}
+
+h2 {
+    font-size: 20px;
+    color: #007bff;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+h3 {
+    font-size: 20px;
+    color: #ffffff;
+    margin-top: 20px;
+}
+
+h4 {
+    font-size: 18px;
+    color: #cccccc;
+    margin-top: 15px;
+}
+
+p {
+    font-size: 16px;
+    color: #dddddd;
+    line-height: 1.6;
+    max-width: 90%;
+}
+
+ul {
+    list-style-type: square;
+    padding-left: 30px;
+    font-size: 16px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+a {
+    color: #00aaff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.copyright-notice {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 900px) {
+    .instructions-container {
+        padding-left: 50px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .instruction-section {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .instructions-container {
+        padding-left: 20px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    h4 {
+        font-size: 16px;
+    }
+
+    p, ul {
+        font-size: 14px;
+    }
+
+    .instruction-section {
+        width: 100%;
+        font-size: 14px;
+    }
+}

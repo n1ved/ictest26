@@ -1,0 +1,95 @@
+.notifications-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center; /* Center the main content */
+    padding-left: 300px;
+    width: calc(100% - 300px); /* Adjust width to prevent overlap */
+    overflow: hidden;
+    min-height: 100vh;
+    color: white;
+}
+
+.notifications-container h2 {
+    font-size: 40px;
+    color: #007bff;
+    margin-bottom: 15px;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+}
+
+.instruction-container {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.instruction-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.instruction-title {
+    font-size: 22px;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.instruction-content {
+    font-size: 16px;
+    color: #dddddd;
+    line-height: 1.6;
+}
+
+.instruction-content a {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.instruction-content ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.instruction-content ul li {
+    margin-bottom: 10px;
+}
+
+.spacer {
+    height: 10px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 900px) {
+    .notifications-container {
+        padding-left: 50px;
+        width: calc(100% - 50px); /* Adjust width to prevent overlap */
+        box-sizing: border-box;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .notifications-container {
+        padding-left: 20px;
+        width: calc(100% - 20px); /* Adjust width to prevent overlap */
+        box-sizing: border-box;
+    }
+
+    .notifications-container h2 {
+        font-size: 24px;
+    }
+
+    .instruction-title {
+        font-size: 18px;
+    }
+
+    .instruction-content {
+        font-size: 14px;
+    }
+}
