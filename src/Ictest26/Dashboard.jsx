@@ -7,7 +7,6 @@ import "./Sidebar.css";
 import AddAuthor from "./AddAuthor";
 import "./AddAuthor.css";
 import FinalSubmitPage from "./FinalSubmitPage";
-import AdminDashboard from "./AdminDashboard";
 
 export default function Dashboard() {
   const email = localStorage.getItem("ictest26_user");
@@ -17,12 +16,9 @@ export default function Dashboard() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  if (role === "admin") {
-    return <AdminDashboard />;
-  }
-
   const handleLogout = () => {
     localStorage.removeItem("ictest26_user");
+    localStorage.removeItem("ictest26_role");
     navigate("/2026/login");
   };
 

@@ -43,7 +43,11 @@ export default function Auth() {
         }
         localStorage.setItem("ictest26_user", email);
         localStorage.setItem("ictest26_role", data.role || "author");
-        navigate("/2026/dashboard");
+        if ((data.role || "author") === "admin") {
+          navigate("/2026/admin");
+        } else {
+          navigate("/2026/dashboard");
+        }
       } else {
         // SIGNUP: check if email exists, then insert
         const { data: exists, error: existsError } = await window.supabase
