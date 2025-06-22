@@ -59,6 +59,7 @@ a:focus {
     color: white;
     display: flex;
     flex-direction: row;
+    align-items: flex-start;
 }
 
 .ic25-navigation {
@@ -72,6 +73,15 @@ a:focus {
     height: 100vh;
     overflow-y: scroll;
     position: fixed; /* Full height of the viewport */
+    min-width: 250px;
+    max-width: 300px;
+    background: #14244a;
+    border-radius: 16px;
+    margin-right: 32px;
+    padding: 24px 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+    top: 0;
+    left: 0;
 }
 .ic25-navigation .navigation-btn,
 .ic25-navigation h4 {

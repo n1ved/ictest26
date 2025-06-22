@@ -10,6 +10,7 @@ import ICtest25Info from "./Ictest25/ICtest25Info.jsx";
 import ICtest26Info from "./Ictest26/ICtest26Info.jsx";
 import Auth from "./Ictest26/Auth.jsx";
 import Dashboard26 from "./Ictest26/Dashboard.jsx";
+import AdminDashboard from "./Ictest26/AdminDashboard";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/2026" element={<ICtest26Info />} />
           <Route path="/2026/login" element={<Auth />} />
           <Route path="/2026/dashboard" element={<Dashboard26 />} />
+          <Route path="/2026/admin" element={<AdminDashboard />} />
         </Routes>
       </BrowserRouter>
     </>
