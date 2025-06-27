@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./AddPaper.css";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function AddPaper({ onSuccess }) {
   const [form, setForm] = useState({
@@ -16,6 +17,8 @@ export default function AddPaper({ onSuccess }) {
   const [paper, setPaper] = useState(null); // holds the submitted paper
   const [editMode, setEditMode] = useState(false);
   const [tracks, setTracks] = useState([]); // holds the list of tracks
+  const [loading, setLoading] = useState(false);
+  const [editIndex, setEditIndex] = useState(0);
 
   const isFormValid = form.paper_title && form.track_id && form.num_pages && form.presentation_mode && form.paper_attached && !uploading;
 
@@ -30,6 +33,7 @@ export default function AddPaper({ onSuccess }) {
 
   // Fetch paper after mount or after submit
   useEffect(() => {
+    setLoading(true);
     const fetchPaper = async () => {
       const email = localStorage.getItem("ictest26_user");
       if (!email) return;
@@ -43,12 +47,13 @@ export default function AddPaper({ onSuccess }) {
         .from('paper')
         .select('*')
         .eq('login_id', loginData.login_id)
-        .maybeSingle();
+        // .maybeSingle();
       if (paperData) {
         setPaper(paperData);
       } else {
         setPaper(null);
       }
+      setLoading(false);
     };
     fetchPaper();
   }, [success]);
@@ -63,13 +68,14 @@ export default function AddPaper({ onSuccess }) {
     }
   };
 
-  const handleEdit = () => {
+  const handleEdit = (index) => {
     setEditMode(true);
+    setEditIndex(index);
     setForm({
-      paper_title: paper.paper_title,
-      track_id: paper.track_id ? String(paper.track_id) : "",
-      num_pages: paper.num_pages,
-      presentation_mode: paper.presentation_mode,
+      paper_title: paper[index].paper_title,
+      track_id: paper[index].track_id ? String(paper[index].track_id) : "",
+      num_pages: paper[index].num_pages,
+      presentation_mode: paper[index].presentation_mode,
       paper_attached: null,
     });
     setFileName("");
@@ -77,12 +83,12 @@ export default function AddPaper({ onSuccess }) {
     setError("");
   };
 
-  const handleSave = async () => {
+  const handleSave = async (index) => {
     setUploading(true);
     setError("");
     setSuccess("");
     try {
-      let pdfUrl = paper.paper_attached;
+      let pdfUrl = paper[index].paper_attached;
       if (form.paper_attached) {
         const fileName = `${Date.now()}_${form.paper_attached.name}`;
         const { data: uploadData, error: uploadError } = await window.supabase.storage
@@ -100,7 +106,7 @@ export default function AddPaper({ onSuccess }) {
           presentation_mode: form.presentation_mode,
           paper_attached: pdfUrl,
         })
-        .eq('paper_id', paper.paper_id);
+        .eq('paper_id', paper[index].paper_id);
       if (updateError) throw updateError;
       setSuccess("Paper updated successfully!");
       setEditMode(false);
@@ -109,7 +115,7 @@ export default function AddPaper({ onSuccess }) {
       const { data: updatedPaper } = await window.supabase
         .from('paper')
         .select('*')
-        .eq('paper_id', paper.paper_id)
+        .eq('paper_id', paper[index].paper_id)
         .single();
       setPaper(updatedPaper);
     } catch (err) {
@@ -179,11 +185,69 @@ export default function AddPaper({ onSuccess }) {
     const t = tracks.find((tr) => String(tr.track_id) === String(id));
     return t ? t.track_name || t.name : id;
   };
+  if(loading){
+    return (
+      <LoadingSpinner text={"Checking for papers..."} fullScreen={false} />
+    );
+  }
 
   // If paper exists and not in edit mode, show card
-  if (paper && !editMode) {
+  if (paper && paper.length > 0 && !editMode) {
     return (
+      <div>
       <div className="paper-form-container" style={{maxWidth: 600, padding: 0, background: 'none', boxShadow: 'none', margin: '40px auto', border: 'none'}}>
+        <h2 style={{color:'#fff', textAlign:'center', marginBottom:'2rem', fontWeight:800, fontSize:'2.2rem', letterSpacing:1.2, textShadow:'0 2px 8px #00336655'}}>
+          Submitted Papers ({paper.length})
+        </h2>
+        <button 
+    onClick={() => {
+      setForm({
+        paper_title: "",
+        track_id: "",
+        num_pages: "",
+        presentation_mode: "In-person",
+        paper_attached: null,
+      });
+      setPaper(null);
+      setFileName("");
+      setSuccess("");
+      setError("");
+    }} 
+    style={{
+      background: '#375a7f', 
+      color: '#fff', 
+      border: 'none', 
+      borderRadius: 10, 
+      padding: '0.8rem 1.5rem', 
+      fontWeight: 800, 
+      fontSize: '1rem', 
+      cursor: 'pointer', 
+      boxShadow: '0 4px 12px rgba(55, 90, 127, 0.3)', 
+      transition: 'all 0.2s ease',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      letterSpacing: '0.5px',
+      flexShrink: 0,
+      position: 'absolute',
+      top: '20%',
+      right: '20px'
+    }}
+    onMouseEnter={(e) => {
+      e.target.style.background = '#003366';
+      e.target.style.transform = 'translateY(-2px)';
+      e.target.style.boxShadow = '0 6px 16px rgba(0, 51, 102, 0.4)';
+    }}
+    onMouseLeave={(e) => {
+      e.target.style.background = '#375a7f';
+      e.target.style.transform = 'translateY(0)';
+      e.target.style.boxShadow = '0 4px 12px rgba(55, 90, 127, 0.3)';
+    }}
+  >
+    <i className="fa fa-plus" style={{fontSize: '14px'}}></i>
+    Add New Paper
+  </button>
+        {paper.map((singlePaper, index) => (
         <div style={{
           background: 'transparent',
           borderRadius: 18,
@@ -191,7 +255,7 @@ export default function AddPaper({ onSuccess }) {
           color: '#e6eaff',
           width: '100%',
           maxWidth: 600,
-          margin: '0 auto',
+          margin: '3rem auto',
           boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)',
           display: 'flex',
           flexDirection: 'column',
@@ -212,12 +276,12 @@ export default function AddPaper({ onSuccess }) {
             <i className="fa fa-check-circle" style={{marginRight:8, color:'#ffe066', fontSize:26}}></i>Submitted
           </div>
           <h3 style={{color:'#fff', marginBottom:24, fontWeight:800, fontSize:'2rem', letterSpacing:1.2, textShadow:'0 2px 8px #00336655'}}>Paper Added</h3>
-          <div style={{width:'100%', marginBottom:16, fontSize:'1.13rem'}}><b>Title:</b> <span style={{color:'#fff'}}>{paper.paper_title}</span></div>
-          <div style={{width:'100%', marginBottom:16, fontSize:'1.13rem'}}><b>Track:</b> <span style={{color:'#fff'}}>{getTrackName(paper.track_id)}</span></div>
-          <div style={{width:'100%', marginBottom:16, fontSize:'1.13rem'}}><b>Pages:</b> <span style={{color:'#fff'}}>{paper.num_pages}</span></div>
-          <div style={{width:'100%', marginBottom:16, fontSize:'1.13rem'}}><b>Presentation Mode:</b> <span style={{color:'#fff'}}>{paper.presentation_mode}</span></div>
-          <div style={{width:'100%', marginBottom:24, fontSize:'1.13rem'}}><b>PDF:</b> {paper.paper_attached ? <a href={`https://lmlndvlfcqlluydshvko.supabase.co/storage/v1/object/public/papers/${paper.paper_attached}`} target="_blank" rel="noopener noreferrer" style={{color:'#ffe066', textDecoration:'underline', fontWeight:600}}>View</a> : <span style={{color:'#ff7f7f'}}>Not uploaded</span>}</div>
-          <button onClick={handleEdit} style={{background:'#003366', color:'#fff', border:'none', borderRadius:10, padding:'0.9rem 2.5rem', fontWeight:800, fontSize:'1.15rem', cursor:'pointer', marginBottom:22, boxShadow:'0 2px 8px 0 rgba(0,0,0,0.10)', transition:'background 0.2s'}}>
+          <div style={{width:'100%', marginBottom:16, fontSize:'1.13rem'}}><b>Title:</b> <span style={{color:'#fff'}}>{singlePaper.paper_title}</span></div>
+          <div style={{width:'100%', marginBottom:16, fontSize:'1.13rem'}}><b>Track:</b> <span style={{color:'#fff'}}>{getTrackName(singlePaper.track_id)}</span></div>
+          <div style={{width:'100%', marginBottom:16, fontSize:'1.13rem'}}><b>Pages:</b> <span style={{color:'#fff'}}>{singlePaper.num_pages}</span></div>
+          <div style={{width:'100%', marginBottom:16, fontSize:'1.13rem'}}><b>Presentation Mode:</b> <span style={{color:'#fff'}}>{singlePaper.presentation_mode}</span></div>
+          <div style={{width:'100%', marginBottom:24, fontSize:'1.13rem'}}><b>PDF:</b> {singlePaper.paper_attached ? <a href={`https://lmlndvlfcqlluydshvko.supabase.co/storage/v1/object/public/papers/${paper.paper_attached}`} target="_blank" rel="noopener noreferrer" style={{color:'#ffe066', textDecoration:'underline', fontWeight:600}}>View</a> : <span style={{color:'#ff7f7f'}}>Not uploaded</span>}</div>
+          <button onClick={() => handleEdit(index)} style={{background:'#003366', color:'#fff', border:'none', borderRadius:10, padding:'0.9rem 2.5rem', fontWeight:800, fontSize:'1.15rem', cursor:'pointer', marginBottom:22, boxShadow:'0 2px 8px 0 rgba(0,0,0,0.10)', transition:'background 0.2s'}}>
             Edit
           </button>
           <div style={{marginTop:8, color:'#ffe066', fontWeight:700, fontSize:'1.15rem', textAlign:'center', letterSpacing:0.5}}>
@@ -225,14 +289,42 @@ export default function AddPaper({ onSuccess }) {
             Now add authors for this paper.
           </div>
         </div>
+        ))
+      }
+      </div>
       </div>
     );
   }
 
   return (
-    <div className="paper-form-container">
+    <div className="paper-form-container" style={{position: 'relative'}}>
+      {editMode ? <button
+          onClick={() => setEditMode(false)}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#b3c6e0',
+            fontSize: '50px',
+            fontWeight: 10,
+            lineHeight: 1,
+            padding: '4px',
+            transition: 'color 0.2s ease',
+            position: 'absolute',
+            top: '16px',
+            left: '16px'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.color = "#375a7f";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.color = '#b3c6e0';
+          }}
+        >
+          ×
+      </button> : <></>}
       <h3 className="add-paper-title" style={{textTransform: 'uppercase', letterSpacing: 1.5}}>{editMode ? 'EDIT PAPER' : 'ADD PAPER'}</h3>
-      <form onSubmit={editMode ? (e) => { e.preventDefault(); handleSave(); } : handleSubmit} className="paper-form" autoComplete="off" style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 18}}>
+      <form onSubmit={editMode ? (e) => { e.preventDefault(); handleSave(editIndex); } : handleSubmit} className="paper-form" autoComplete="off" style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 18}}>
         <div style={{width: '100%'}}>
           <label htmlFor="paper_title" style={{width: '100%', color: '#b3c6e0', fontWeight: 600, marginBottom: 6, fontSize: '1.08rem', letterSpacing: 0.5, display: 'block', paddingBottom: 6}}>
             Paper Title <span style={{color: 'red'}}>*</span>
