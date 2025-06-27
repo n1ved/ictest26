@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./AddAuthor.css";
+import PaperSelectionModal from "./components/PaperSelectionModal";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
   const [form, setForm] = useState({
@@ -29,9 +31,13 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
   const [authors, setAuthors] = useState([]);
   const [editAuthorId, setEditAuthorId] = useState(null);
   const [finalSubmitted, setFinalSubmitted] = useState(false);
+  const [modal, setModal] = useState(false);
+  const [papers, setPapers] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Fetch paperId for current user if not provided
+    setLoading(true);
     const fetchPaperId = async () => {
       if (!paperId) {
         const email = localStorage.getItem("ictest26_user");
@@ -43,12 +49,14 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
         if (loginData) {
           const { data: paperData } = await window.supabase
             .from("paper")
-            .select("paper_id")
-            .eq("login_id", loginData.login_id)
-            .single();
-          if (paperData) setPaperId(paperData.paper_id);
+            .select("paper_id, paper_title")
+            .eq("login_id", loginData.login_id);
+            // .single();
+          if (paperData) setPapers(paperData);
+          setModal(true);
         }
       }
+      setLoading(false);
     };
     fetchPaperId();
   }, [paperId]);
@@ -177,7 +185,11 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
     setError("");
     setSuccess("");
     if (!paperId) {
+      
       setError("No paper found. Please add a paper first.");
+      setTimeout(() => {
+        setModal(true);
+      }, 2000)
       return;
     }
     // Only require proof_reg_cat_url if adding a new author, or if editing and the field is empty (i.e., user removed it)
@@ -284,6 +296,14 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
     const kerala = states.find(s => s.state_name.toLowerCase() === 'kerala');
     return form.state_id && kerala && String(form.state_id) === String(kerala.state_id);
   };
+  console.log(loading)
+  if(loading){
+    return <LoadingSpinner text={"Checking for papers..."} fullScreen={false} />
+  }
+
+  if(modal){
+    return <PaperSelectionModal papers={papers} setPaperId={setPaperId} isOpen={modal} onClose={setModal} curr={paperId}/>
+  }
 
   return (
     <div className="add-author-form-container" style={{maxWidth: 950, margin: '40px auto', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#e6eaff', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 36}}>
@@ -401,6 +421,7 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
           {form.proof_reg_cat_url && <div className="proof-upload-status">File uploaded!</div>}
         </div>
         <button type="submit" disabled={finalSubmitted} style={{width: '100%', background:'#003366', color:'#fff', border:'none', borderRadius:10, padding:'0.9rem 0', fontWeight:800, fontSize:'1.15rem', cursor: finalSubmitted ? 'not-allowed' : 'pointer', marginBottom:12, boxShadow:'0 2px 8px 0 rgba(0,0,0,0.10)', transition:'background 0.2s'}}>{editAuthorId ? 'Update Author' : 'Add Author'}</button>
+        <button onClick={() => setModal(true)} style={{width: '100%', background:'#003366', color:'#fff', border:'none', borderRadius:10, padding:'0.9rem 0', fontWeight:800, fontSize:'1.15rem', cursor: 'pointer', marginBottom:12, boxShadow:'0 2px 8px 0 rgba(0,0,0,0.10)', transition:'background 0.2s'}}>Select paper</button>
         {editAuthorId && !finalSubmitted && <button type="button" onClick={handleCancelEdit} style={{width: '100%', background:'#888', color:'#fff', border:'none', borderRadius:10, padding:'0.7rem 0', fontWeight:600, fontSize:'1rem', cursor:'pointer', marginBottom:12}}>Cancel Edit</button>}
         {success && <div className="author-success" style={{color:'#fff', fontWeight:600, marginTop:12, textAlign:'center', fontSize:'1.1rem'}}>{success}</div>}
         {error && <div className="author-error" style={{color:'#ff7f7f', fontWeight:600, marginTop:12, textAlign:'center', fontSize:'1.1rem'}}>{error}</div>}

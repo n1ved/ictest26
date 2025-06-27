@@ -248,7 +248,7 @@ export default function AddPaper({ onSuccess }) {
     Add New Paper
   </button>
         {paper.map((singlePaper, index) => (
-        <div style={{
+        <div key={index} style={{
           background: 'transparent',
           borderRadius: 18,
           padding: '3rem 2rem',

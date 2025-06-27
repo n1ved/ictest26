@@ -23,7 +23,7 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
             .from("paper")
             .select("paper_id")
             .eq("login_id", loginData.login_id)
-            .maybeSingle();
+            // .maybeSingle();
           setHasPaper(!!paperData);
         }
       }

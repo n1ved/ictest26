@@ -220,14 +220,6 @@ function AddPaperDemo() {
               whiteSpace: "pre-wrap",
             }}
           >
-            {`if(loading){
-  return (
-    <LoadingSpinner 
-      text={"Checking for papers..."} 
-      fullScreen={false} 
-    />
-  );
-}`}
           </pre>
         </div>
       </div>
