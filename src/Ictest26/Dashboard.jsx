@@ -7,6 +7,8 @@ import "./Sidebar.css";
 import AddAuthor from "./AddAuthor";
 import "./AddAuthor.css";
 import FinalSubmitPage from "./FinalSubmitPage";
+import Payments from "./Payments";
+import "./Payments.css";
 
 export default function Dashboard() {
   const email = localStorage.getItem("ictest26_user");
@@ -46,6 +48,9 @@ export default function Dashboard() {
           )}
           {sidebar === "add-authors" && (
             <AddAuthor />
+          )}
+          {sidebar === "payments" && (
+            <Payments />
           )}
           {sidebar === "final-submit" && (
             <FinalSubmitPage />
