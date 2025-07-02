@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PaperSelectionModal from "./components/PaperSelectionModal";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function FinalSubmitPage() {
   const [finalSubmitted, setFinalSubmitted] = useState(false);
@@ -8,11 +10,16 @@ export default function FinalSubmitPage() {
   const [authors, setAuthors] = useState([]);
   const [authorsLoading, setAuthorsLoading] = useState(true);
   const [regCats, setRegCats] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [papers, setPapers] = useState(null);
 
   useEffect(() => {
     const fetchPaperId = async () => {
       const email = localStorage.getItem("ictest26_user");
-      if (!email) return;
+      if (!email) {
+        setLoading(false); 
+        return;
+      }
       const { data: loginData } = await window.supabase
         .from("login")
         .select("login_id")
@@ -21,10 +28,21 @@ export default function FinalSubmitPage() {
       if (loginData) {
         const { data: paperData } = await window.supabase
           .from("paper")
-          .select("paper_id")
-          .eq("login_id", loginData.login_id)
-          .single();
-        if (paperData) setPaperId(paperData.paper_id);
+          .select("paper_id, paper_title")
+          .eq("login_id", loginData.login_id);
+        if (paperData) {
+          setPapers(paperData);
+          if (paperData.length === 1) {
+            setPaperId(paperData[0].paper_id);
+          } else {
+            setModal(true);
+            setLoading(false); 
+          }
+        } else {
+          setLoading(false); 
+        }
+      } else {
+        setLoading(false); 
       }
     };
     fetchPaperId();
@@ -80,6 +98,10 @@ export default function FinalSubmitPage() {
   }, [paperId]);
 
   const handleFinalSubmit = async () => {
+    if (!paperId) {
+      alert('No paper selected');
+      return;
+    }
     if (!window.confirm('Are you sure? After final submit, you cannot add or edit authors.')) return;
     const { error } = await window.supabase
       .from("paper")
@@ -88,7 +110,19 @@ export default function FinalSubmitPage() {
     if (!error) setFinalSubmitted(true);
   };
 
-  if (loading) return <div style={{color:'#fff', textAlign:'center', marginTop:40}}>Loading...</div>;
+  if (loading) return <LoadingSpinner text={"Checking for papers..."} fullScreen={false} />
+  
+  if (modal) {
+    return (
+      <PaperSelectionModal
+        papers={papers}
+        setPaperId={setPaperId}
+        isOpen={modal}
+        onClose={setModal}
+        curr={paperId}
+      />
+    );
+  }
 
   return (
     <div style={{maxWidth: 900, margin: '40px auto', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
@@ -154,6 +188,25 @@ export default function FinalSubmitPage() {
               <li>Once submitted, you will see a confirmation and a message indicating you are waiting for admin approval.</li>
             </ul>
           </div>
+          <button
+        onClick={() => setModal(true)}
+        style={{
+          width: "100%",
+          background: "#003366",
+          color: "#fff",
+          border: "none",
+          borderRadius: 10,
+          padding: "0.9rem 0",
+          fontWeight: 800,
+          fontSize: "1.15rem",
+          cursor: "pointer",
+          marginBottom: 12,
+          boxShadow: "0 2px 8px 0 rgba(0,0,0,0.10)",
+          transition: "background 0.2s",
+        }}
+      >
+        Select paper
+      </button>
           <button onClick={handleFinalSubmit} style={{width: '100%', background:'linear-gradient(90deg,#28a745 60%,#218838 100%)', color:'#fff', border:'none', borderRadius:12, padding:'1.1rem 0', fontWeight:900, fontSize:'1.18rem', cursor:'pointer', marginTop:18, marginBottom:12, boxShadow:'0 2px 8px 0 rgba(0,0,0,0.10)', transition:'background 0.2s', letterSpacing:1}}>Final Submit</button>
         </>
       )}
