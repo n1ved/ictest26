@@ -412,6 +412,24 @@ export default function AddPaper({ onSuccess }) {
             <option value="In-person">In-person</option>
             <option value="Online">Online</option>
           </select>
+          <div style={{
+            color: '#ff7f7f', 
+            fontSize: '0.9rem', 
+            marginTop: '6px', 
+            fontWeight: '500',
+            background: 'rgba(255, 127, 127, 0.1)',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '8px'
+          }}>
+            <i className="fa fa-info-circle" style={{ marginTop: '3px' }}></i>
+            <div>
+              Online presentation is only for participants outside Kerala.<br/>
+              Kerala participants must choose In-person mode.
+            </div>
+          </div>
         </div>
         <div style={{width: '100%'}}>
           <label htmlFor="paper_attached" style={{width: '100%', color: '#b3c6e0', fontWeight: 600, marginBottom: 6, fontSize: '1.08rem', letterSpacing: 0.5, display: 'block', paddingBottom: 6}}>
