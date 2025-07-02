@@ -447,13 +447,16 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
             }}
           >
             {paperDetails?.presentation_mode === "Online" ? (
-              states
-                .filter(state => state.state_name.toLowerCase() === 'kerala')
-                .map((state) => (
-                  <option key={state.state_id} value={state.state_id}>
-                    {state.state_name}
-                  </option>
-                ))
+              <>
+                <option value="" style={{color: '#b3c6e0'}}>Select State</option>
+                {states
+                  .filter(state => state.state_name.toLowerCase() !== 'kerala')
+                  .map((state) => (
+                    <option key={state.state_id} value={state.state_id}>
+                      {state.state_name}
+                    </option>
+                  ))}
+              </>
             ) : (
               <>
                 <option value="" style={{color: '#b3c6e0'}}>Select State</option>
@@ -479,7 +482,7 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
               gap: '8px'
             }}>
               <i className="fa fa-info-circle"></i>
-              Online presentation is restricted to participants from Kerala state only
+              Online presentation is only for participants outside Kerala
             </div>
           )}
         </div>
