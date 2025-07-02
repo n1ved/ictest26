@@ -52,13 +52,9 @@
     font-size: 22px;
     margin: 0px;
 }
-.blinking-buttons,
-.non-blinking-buttons {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-}
-.dashboard a {
+
+.blinking-buttons a,
+.non-blinking-buttons a {
     text-decoration: none;
     text-align: center;
     color: black !important;
@@ -72,6 +68,36 @@
     background-color: #87ceeb;
     border-radius: 2rem;
     animation: blink 2s infinite ease-in-out;
+}
+.ictest26-login-btn {
+  display: inline-block;
+  background: linear-gradient(90deg, #003366 60%, #0056b3 100%);
+  color: #fff;
+  font-family: 'Poppins', 'Segoe UI', 'Arial', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.8rem 2.2rem;
+  border-radius: 30px;
+  margin-bottom: 2.5rem;
+  margin-top: 0.5rem;
+  text-decoration: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  letter-spacing: 1px;
+  text-align: center;
+}
+.ictest26-login-btn:hover {
+  background: linear-gradient(90deg, #0056b3 60%, #003366 100%);
+  color: #fff;
+  box-shadow: 0 4px 18px #00336644;
+  text-decoration: none;
+}
+
+.blinking-buttons,
+.non-blinking-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 }
 @keyframes blink {
     0% {
@@ -133,6 +159,7 @@
     font-family: sans-serif;
     font-weight: bold;
 }
+
 
 @media (max-width: 680px) {
     .dashboard {

@@ -14,6 +14,7 @@ export default function AddPaper({ onSuccess }) {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState("");
+  const [pageError, setPageError] = useState("");
   const [paper, setPaper] = useState(null); // holds the submitted paper
   const [editMode, setEditMode] = useState(false);
   const [tracks, setTracks] = useState([]); // holds the list of tracks
@@ -60,6 +61,18 @@ export default function AddPaper({ onSuccess }) {
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
+    
+    if (name === "num_pages") {
+      const numValue = parseInt(value);
+      if (value && (numValue < 1 || numValue > 8)) {
+        setPageError("* Number of pages must be between 1 and 8");
+        setForm({ ...form, [name]: "" }); 
+        return;
+      } else {
+        setPageError("");
+      }
+    }
+    
     if (type === "file") {
       setForm({ ...form, [name]: files[0] });
       setFileName(files[0] ? files[0].name : "");
@@ -185,6 +198,14 @@ export default function AddPaper({ onSuccess }) {
     const t = tracks.find((tr) => String(tr.track_id) === String(id));
     return t ? t.track_name || t.name : id;
   };
+
+  const handleKeyPress = (e) => {
+    if (!/[0-9]/.test(e.key) && 
+        !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
   if(loading){
     return (
       <LoadingSpinner text={"Checking for papers..."} fullScreen={false} />
@@ -364,18 +385,17 @@ export default function AddPaper({ onSuccess }) {
           <label htmlFor="num_pages" style={{width: '100%', color: '#b3c6e0', fontWeight: 600, marginBottom: 6, fontSize: '1.08rem', letterSpacing: 0.5, display: 'block', paddingBottom: 6}}>
             Number of Pages <span style={{color: 'red'}}>*</span>
           </label>
-          <input
-            type="number"
-            id="num_pages"
-            name="num_pages"
-            placeholder="Number of Pages (1-8)"
-            value={form.num_pages}
-            onChange={handleChange}
-            min={1}
-            max={8}
-            required
-            style={{width: '100%', boxSizing: 'border-box', padding: '1.1rem', borderRadius: 8, border: '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff'}}
-          />
+          <input type="number" id="num_pages" name="num_pages" placeholder="Number of Pages (1-8)" value={form.num_pages} onChange={handleChange} onKeyDown={handleKeyPress} min={1} max={8} required style={{width: '100%', boxSizing: 'border-box', padding: '1.1rem', borderRadius: 8, border: pageError ? '1.5px solid #ff7f7f' : '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff' }} />
+          {pageError && (
+            <div style={{
+              color: '#ff7f7f', 
+              fontSize: '0.9rem', 
+              marginTop: '-9px', 
+              fontWeight: '500'
+            }}>
+              {pageError}
+            </div>
+          )}
         </div>
         <div style={{width: '100%'}}>
           <label htmlFor="presentation_mode" style={{width: '100%', color: '#b3c6e0', fontWeight: 600, marginBottom: 6, fontSize: '1.08rem', letterSpacing: 0.5, display: 'block', paddingBottom: 6}}>

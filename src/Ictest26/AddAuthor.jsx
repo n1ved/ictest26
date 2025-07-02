@@ -22,6 +22,7 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
   });
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [mobileError, setMobileError] = useState("");
   const [paperId, setPaperId] = useState(propPaperId || null);
   const [designations, setDesignations] = useState([]);
   const [regCats, setRegCats] = useState([]);
@@ -101,6 +102,21 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    if (name === "mob_no") {
+      const numericValue = value.replace(/\D/g, '');
+      if (numericValue.length > 10) {
+        setMobileError("* 10 digits required");
+        return;
+      // } else if (numericValue.length > 0 && numericValue.length < 10) {
+      //   setMobileError("* 10 digits required");
+      } else {
+        setMobileError("");
+      }
+      setForm({ ...form, [name]: numericValue });
+      return;
+    }
+    
     if (name === "is_primary_author" && checked) {
       // If selecting as primary, ensure no other author is primary
       const alreadyPrimary = authors.some(a => a.is_primary_author && (!editAuthorId || a.author_id !== editAuthorId));
@@ -182,6 +198,14 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
       setError("You cannot add or edit authors after final submit.");
       return;
     }
+    
+    // Add mobile number validation before submission
+    // if (form.mob_no.length !== 10) {
+    //   setError("Mobile number must be exactly 10 digits.");
+    //   setMobileError("* 10 digits required");
+    //   return;
+    // }
+    
     setError("");
     setSuccess("");
     if (!paperId) {
@@ -401,7 +425,19 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
           <input type="email" name="email_id" placeholder="Email *" value={form.email_id} onChange={handleChange} required style={{width: '100%', boxSizing: 'border-box', padding: '1.1rem', borderRadius: 8, border: '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff'}} />
         </div>
         <div style={{width: '100%'}}>
-          <input type="text" name="mob_no" placeholder="Mobile Number *" value={form.mob_no} onChange={handleChange} required style={{width: '100%', boxSizing: 'border-box', padding: '1.1rem', borderRadius: 8, border: '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff'}} />
+          <input type="text" name="mob_no" placeholder="Mobile Number *" value={form.mob_no} onChange={handleChange} required style={{width: '100%', boxSizing: 'border-box', padding: '1.1rem', borderRadius: 8, border: mobileError ? '1.5px solid #fa5656' : '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff'}} />
+          
+          {mobileError && (
+            <div style={{
+              color: '#ff7f7f', 
+              fontSize: '0.9rem', 
+              marginTop: '5px', 
+              fontWeight: '500'
+            }}>
+              {mobileError}
+            </div>
+          )}
+          
         </div>
         <div style={{width:'100%', display:'flex', flexWrap:'wrap', gap:12, margin:'12px 0'}}>
           <label style={{color:'#b3c6e0', fontWeight:500, fontSize:'1.05rem'}}><input type="checkbox" name="is_primary_author" checked={form.is_primary_author} onChange={handleChange} style={{marginRight:10, transform:'scale(1.2)'}} /> Primary Author</label>
