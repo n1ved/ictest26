@@ -24,6 +24,7 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
   const [error, setError] = useState("");
   const [mobileError, setMobileError] = useState("");
   const [paperId, setPaperId] = useState(propPaperId || null);
+  const [paperDetails, setPaperDetails] = useState(null);
   const [designations, setDesignations] = useState([]);
   const [regCats, setRegCats] = useState([]);
   const [states, setStates] = useState([]);
@@ -50,17 +51,38 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
         if (loginData) {
           const { data: paperData } = await window.supabase
             .from("paper")
-            .select("paper_id, paper_title")
+            .select("paper_id, paper_title, presentation_mode")
             .eq("login_id", loginData.login_id);
-            // .single();
-          if (paperData) setPapers(paperData);
-          setModal(true);
+          if (paperData) {
+            setPapers(paperData);
+            setModal(true);
+          }
+        }
+      } else {
+        // If paperId is provided, fetch paper details
+        const { data: paperData } = await window.supabase
+          .from("paper")
+          .select("paper_id, paper_title, presentation_mode")
+          .eq("paper_id", paperId)
+          .single();
+        if (paperData) {
+          setPaperDetails(paperData);
+          // If online mode, automatically set state to Kerala
+          if (paperData.presentation_mode === "Online") {
+            const kerala = states.find(s => s.state_name.toLowerCase() === 'kerala');
+            if (kerala) {
+              setForm(prev => ({
+                ...prev,
+                state_id: kerala.state_id.toString()
+              }));
+            }
+          }
         }
       }
       setLoading(false);
     };
     fetchPaperId();
-  }, [paperId]);
+  }, [paperId, states]);
 
   useEffect(() => {
     // Fetch dropdown data
@@ -401,10 +423,65 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
           </select>
         </div>
         <div style={{width: '100%'}}>
-          <select name="state_id" value={form.state_id} onChange={handleChange} required style={{width: '100%', boxSizing: 'border-box', padding: '1.1rem', borderRadius: 8, border: '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff'}}>
-            <option value="">State *</option>
-            {states.map(s => <option key={s.state_id} value={s.state_id}>{s.state_name}</option>)}
+          <label htmlFor="state_id" style={{width: '100%', color: '#b3c6e0', fontWeight: 600, marginBottom: 6, fontSize: '1.08rem', letterSpacing: 0.5, display: 'block', paddingBottom: 6}}>
+            State <span style={{color: 'red'}}>*</span>
+          </label>
+          <select
+            id="state_id"
+            name="state_id"
+            value={form.state_id}
+            onChange={handleChange}
+            required
+            placeholder="Select State"
+            style={{
+              width: '100%', 
+              boxSizing: 'border-box', 
+              padding: '1.1rem', 
+              borderRadius: 8, 
+              border: '1.5px solid #375a7f', 
+              fontSize: '1.1rem', 
+              background: paperDetails?.presentation_mode === "Online" ? '#002147' : '#001a33', 
+              color: form.state_id ? '#fff' : '#b3c6e0',
+              cursor: paperDetails?.presentation_mode === "Online" ? 'not-allowed' : 'pointer',
+              opacity: paperDetails?.presentation_mode === "Online" ? 0.8 : 1
+            }}
+          >
+            {paperDetails?.presentation_mode === "Online" ? (
+              states
+                .filter(state => state.state_name.toLowerCase() === 'kerala')
+                .map((state) => (
+                  <option key={state.state_id} value={state.state_id}>
+                    {state.state_name}
+                  </option>
+                ))
+            ) : (
+              <>
+                <option value="" style={{color: '#b3c6e0'}}>Select State</option>
+                {states.map((state) => (
+                  <option key={state.state_id} value={state.state_id}>
+                    {state.state_name}
+                  </option>
+                ))}
+              </>
+            )}
           </select>
+          {paperDetails?.presentation_mode === "Online" && (
+            <div style={{
+              color: '#ff7f7f', 
+              fontSize: '0.9rem', 
+              marginTop: '6px', 
+              fontWeight: '500',
+              background: 'rgba(255, 127, 127, 0.1)',
+              padding: '8px 12px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <i className="fa fa-info-circle"></i>
+              Online presentation is restricted to participants from Kerala state only
+            </div>
+          )}
         </div>
         <div style={{width: '100%'}}>
           {isKerala() ? (

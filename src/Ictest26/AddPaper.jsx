@@ -15,6 +15,7 @@ export default function AddPaper({ onSuccess }) {
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState("");
   const [pageError, setPageError] = useState("");
+  const [presentationModeWarning, setPresentationModeWarning] = useState("");
   const [paper, setPaper] = useState(null); // holds the submitted paper
   const [editMode, setEditMode] = useState(false);
   const [tracks, setTracks] = useState([]); // holds the list of tracks
@@ -70,6 +71,14 @@ export default function AddPaper({ onSuccess }) {
         return;
       } else {
         setPageError("");
+      }
+    }
+
+    if (name === "presentation_mode") {
+      if (value === "Online") {
+        setPresentationModeWarning("* Online presentation mode is only available for participants within Kerala state. Participants from outside Kerala must choose In-person presentation mode.");
+      } else {
+        setPresentationModeWarning("");
       }
     }
     
@@ -412,6 +421,23 @@ export default function AddPaper({ onSuccess }) {
             <option value="In-person">In-person</option>
             <option value="Online">Online</option>
           </select>
+          {presentationModeWarning && (
+            <div style={{
+              color: '#ff7f7f', 
+              fontSize: '0.9rem', 
+              marginTop: '6px', 
+              fontWeight: '500',
+              background: 'rgba(255, 127, 127, 0.1)',
+              padding: '8px 12px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <i className="fa fa-info-circle"></i>
+              Online presentation is restricted to participants from Kerala state only
+            </div>
+          )}
         </div>
         <div style={{width: '100%'}}>
           <label htmlFor="paper_attached" style={{width: '100%', color: '#b3c6e0', fontWeight: 600, marginBottom: 6, fontSize: '1.08rem', letterSpacing: 0.5, display: 'block', paddingBottom: 6}}>
