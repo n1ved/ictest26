@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Payments.css";
 import jsPDF from "jspdf";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function Payments() {
   const [paperId, setPaperId] = useState(null);
@@ -424,9 +425,10 @@ export default function Payments() {
 
   if (loading) {
     return (
-      <div style={{color:'#fff', textAlign:'center', marginTop:40}}>
-        Loading payment information...
-      </div>
+      <LoadingSpinner
+        text={"Loading payment information..."}
+        fullScreen={false}
+      />
     );
   }
 
@@ -511,7 +513,7 @@ export default function Payments() {
       )}
 
       {authorsLoading ? (
-        <div style={{color:'#fff', textAlign:'center'}}>Loading authors...</div>
+        <LoadingSpinner text={"Loading authors..."} fullScreen={false} />
       ) : (
         <>
           {/* Author Payment Breakdown */}
