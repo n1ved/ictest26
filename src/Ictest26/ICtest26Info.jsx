@@ -1,7 +1,7 @@
 import "../schedule/schedule.css";
 import "./ICtest26InfoPage.css";
 import Navbar from "../navbar/navbar";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { SquareArrowOutUpRight } from "lucide-react";
 
 // Import components - we'll create ICTEST26 versions
@@ -22,11 +22,74 @@ export default function ICtest26Info() {
     window.open(url, name);
   };
 
+  // Create refs for each section
+  const sectionRefs = useRef([]);
+  const [activeSection, setActiveSection] = useState(0);
+
+  // Intersection Observer for scroll tracking
+  useEffect(() => {
+    const observers = [];
+    const options = {
+      root: null,
+      rootMargin: '-80px 0px -50% 0px', // Account for navbar and better section detection
+      threshold: [0.1, 0.5, 0.8], // Multiple thresholds for better detection
+    };
+
+    sectionRefs.current.forEach((section, index) => {
+      if (section) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
+              setActiveSection(index);
+            }
+          });
+        }, options);
+
+        observer.observe(section);
+        observers.push(observer);
+      }
+    });
+
+    // Backup scroll listener for more accurate detection
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 200; // Account for navbar
+      
+      sectionRefs.current.forEach((section, index) => {
+        if (section) {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+          const sectionBottom = sectionTop + sectionHeight;
+          
+          if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+            setActiveSection(index);
+          }
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial call to set correct active section
+
+    return () => {
+      observers.forEach((observer) => observer.disconnect());
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  const scrollToSection = (index) => {
+    if (sectionRefs.current[index]) {
+      sectionRefs.current[index].scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
   const menuSelectionHandler = (index, data) => {
     if (data.url) {
       window.open(data.url, data.name);
     } else {
-      setCurrentSection(index);
+      scrollToSection(index);
     }
   };
 
@@ -37,8 +100,6 @@ export default function ICtest26Info() {
       </div>
     );
   };
-
-  const [currentSection, setCurrentSection] = useState(0);
 
   const sections = [
     {
@@ -96,7 +157,7 @@ export default function ICtest26Info() {
         {sections.map((data, index) => (
           <div
             className={
-              currentSection == index
+              activeSection === index
                 ? "navigation-btn navigation-btn-active"
                 : "navigation-btn"
             }
@@ -109,7 +170,18 @@ export default function ICtest26Info() {
           </div>
         ))}
       </div>
-      <div className="info-bg">{sections[currentSection].content}</div>
+      <div className="info-bg">
+        {sections.map((section, index) => (
+          <div
+            key={index}
+            ref={(el) => (sectionRefs.current[index] = el)}
+            className="info-section"
+            id={`section-${index}`}
+          >
+            {section.content}
+          </div>
+        ))}
+      </div>
       <div className="info-bg-m">
         <div className="info-container">
           <h2>Quick Links</h2>
