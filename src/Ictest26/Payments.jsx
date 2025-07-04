@@ -358,53 +358,159 @@ export default function Payments() {
   // Generate Invoice PDF with NOT PAID watermark
   const handleDownloadInvoice = () => {
     const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.text("ICTEST 2026 - Registration Invoice", 15, 20);
-    doc.setFontSize(12);
-    doc.text(`Paper ID: ${paperId || "-"}`, 15, 32);
-    doc.text(`Paper Title: ${selectedPaper?.paper_title || "-"}`, 15, 40);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 15, 48);
-    doc.text("Status: NOT PAID", 15, 56);
-
-    // Watermark
-    doc.setTextColor(220, 53, 69);
+    
+    // Header with blue background
+    doc.setFillColor(0, 26, 51); // Dark blue background
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    // White text for header
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text("ICTEST 2026", 20, 20);
+    
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text("International Conference on Testing", 20, 28);
+    doc.text("Registration Invoice", 20, 37);
+    
+    // Reset text color to dark blue for main content
+    doc.setTextColor(0, 26, 51);
+    
+    // Semi-transparent NOT PAID watermark (gray)
+    doc.setTextColor(180, 180, 180); // Light gray color
     doc.setFontSize(50);
-    doc.text("NOT PAID", 35, 130, { angle: 30, opacity: 0.2 });
-    doc.setTextColor(0, 0, 0);
+    doc.text("NOT PAID", 60, 150, { angle: 30, opacity: 0.15 });
+    doc.setTextColor(0, 26, 51); // Reset to dark blue
+    
+    // Invoice details section
     doc.setFontSize(12);
-
-    let y = 68;
-    doc.text("Author Payment Breakdown:", 15, y);
-    y += 8;
     doc.setFont("helvetica", "bold");
-    doc.text("Author", 15, y);
-    doc.text("Category", 70, y);
-    doc.text("Role", 120, y);
-    doc.text("Fee", 160, y, { align: "right" });
+    doc.text("Invoice Details:", 20, 55);
+    
     doc.setFont("helvetica", "normal");
-    y += 7;
-    paymentDetails.breakdown.forEach((item) => {
-      doc.text(item.authorName, 15, y);
-      doc.text(item.category, 70, y);
-      doc.text(item.isPrimary ? "Primary" : "Co-author", 120, y);
-      doc.text(`${item.currency} ${item.fee.toLocaleString()}`, 160, y, { align: "right" });
-      y += 7;
+    doc.text(`Invoice Date: ${new Date().toLocaleDateString()}`, 20, 67);
+    doc.text(`Paper ID: ${paperId || "-"}`, 20, 75);
+    
+    // Handle long paper titles by wrapping
+    const paperTitle = selectedPaper?.paper_title || "-";
+    if (paperTitle.length > 50) {
+      const firstLine = paperTitle.substring(0, 50);
+      const secondLine = paperTitle.substring(50, 100);
+      doc.text(`Paper Title: ${firstLine}`, 20, 83);
+      if (secondLine) {
+        doc.text(`${secondLine}`, 20, 91);
+      }
+    } else {
+      doc.text(`Paper Title: ${paperTitle}`, 20, 83);
+    }
+    
+    // Right side invoice info
+    doc.setFont("helvetica", "bold");
+    doc.text(`Invoice #: ICT26-${paperId}-${Math.floor(Math.random() * 1000000)}`, 130, 67);
+    doc.text("Status: PENDING", 130, 75);
+    
+    // Registration details section
+    let currentY = paperTitle.length > 50 ? 105 : 97;
+    doc.setFont("helvetica", "bold");
+    doc.text("Registration Details:", 20, currentY);
+    
+    // Table header with background
+    currentY += 12;
+    doc.setFillColor(56, 90, 127); // Blue header background
+    doc.rect(20, currentY, 170, 8, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("Author Name", 25, currentY + 6);
+    doc.text("Role", 80, currentY + 6);
+    doc.text("Category", 105, currentY + 6);
+    doc.text("Fee", 155, currentY + 6);
+    doc.text("Currency", 175, currentY + 6);
+    
+    // Table content
+    doc.setTextColor(0, 26, 51);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    
+    currentY += 16;
+    paymentDetails.breakdown.forEach((item, index) => {
+      // Alternate row background
+      if (index % 2 === 0) {
+        doc.setFillColor(245, 245, 245);
+        doc.rect(20, currentY - 4, 170, 8, 'F');
+      }
+      
+      doc.text(item.authorName, 25, currentY);
+      doc.text(item.isPageCharge ? "-" : (item.isPrimary ? "Primary" : "Co-author"), 80, currentY);
+      
+      // Handle long category names by wrapping or truncating
+      const category = item.category.length > 25 ? item.category.substring(0, 25) + "..." : item.category;
+      doc.text(category, 105, currentY);
+      
+      doc.text(String(item.fee.toFixed(2)), 155, currentY);
+      doc.text(item.currency, 175, currentY);
+      currentY += 8;
     });
-    y += 5;
+    
+    // Total section with line
+    currentY += 5;
+    doc.setLineWidth(0.5);
+    doc.line(20, currentY, 190, currentY);
+    currentY += 10;
+    
     doc.setFont("helvetica", "bold");
-    doc.text(
-      `Total: ${paymentDetails.currency === "USD" ? "$" : "₹"}${paymentDetails.totalAmount.toLocaleString()}`,
-      15,
-      y
-    );
+    doc.setFontSize(11);
+    const totalAmount = String(paymentDetails.totalAmount);
+    doc.text(`Total: Rs ${totalAmount}`, 130, currentY);
+    
+    // Payment instructions
+    currentY += 20;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Payment Instructions:", 20, currentY);
+    
     doc.setFont("helvetica", "normal");
-    y += 10;
-    doc.text("* This invoice is system generated and valid for payment at ICTEST 2026.", 15, y);
-    y += 7;
-    doc.text("* Please pay before the conference deadline.", 15, y);
-    y += 7;
-    doc.text("* This invoice is not valid as a receipt until payment is completed.", 15, y);
-    doc.save(`ICTEST2026_Invoice_Paper${paperId || ""}.pdf`);
+    doc.setFontSize(10);
+    currentY += 10;
+    doc.text("• Registration fee is mandatory for all attending authors", 25, currentY);
+    currentY += 8;
+    doc.text("• Primary authors pay full registration fee based on their category", 25, currentY);
+    currentY += 8;
+    doc.text("• Co-authors pay ₹1000 only if attending at venue", 25, currentY);
+    currentY += 8;
+    doc.text("• Payment should be completed before the conference deadline", 25, currentY);
+    currentY += 8;
+    doc.text("• Keep this invoice for your records", 25, currentY);
+    currentY += 8;
+    doc.text("• For payment queries, contact: support@ictest.in", 25, currentY);
+    
+    // Important note section
+    currentY += 15;
+    doc.setFillColor(255, 249, 196); // Light yellow background
+    doc.rect(20, currentY - 5, 170, 20, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("Important Note:", 25, currentY);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    currentY += 8;
+    doc.text("This is a proforma invoice for payment purposes. It will be replaced with an", 25, currentY);
+    currentY += 6;
+    doc.text("official receipt upon successful payment completion.", 25, currentY);
+    
+    // Footer
+    currentY += 20;
+    doc.setFontSize(8);
+    doc.setTextColor(128, 128, 128);
+    doc.text("Generated by ICTEST 2026 Payment System", 20, currentY);
+    currentY += 5;
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}, ${new Date().toLocaleTimeString()}`, 20, currentY);
+    currentY += 5;
+    doc.text("For queries, contact: support@ictest.in", 20, currentY);
+    
+    doc.save(`ICTEST2026_Invoice_Paper${paperId || ""}_PENDING.pdf`);
   };
 
   // Handle paper selection change
@@ -554,25 +660,29 @@ export default function Payments() {
               </div>
             ) : (
               <div style={{overflowX: 'auto'}}>
-                <table style={{width:'100%', color:'#fff', fontSize:'1.05rem', borderCollapse:'collapse'}}>
+                <table style={{width:'100%', color:'#fff', fontSize:'1.05rem', borderCollapse:'collapse', tableLayout: 'fixed'}}>
                   <thead>
                     <tr style={{borderBottom:'2px solid #375a7f'}}>
-                      <th style={{textAlign:'left', padding:'12px 8px', color:'#ffe066'}}>Author Name</th>
-                      <th style={{textAlign:'left', padding:'12px 8px', color:'#ffe066'}}>Registration Category</th>
-                      <th style={{textAlign:'center', padding:'12px 8px', color:'#ffe066'}}>Role</th>
-                      <th style={{textAlign:'right', padding:'12px 8px', color:'#ffe066'}}>Fee</th>
+                      <th style={{textAlign:'left', padding:'12px 8px', color:'#ffe066', width:'25%'}}>Author Name</th>
+                      <th style={{textAlign:'left', padding:'12px 8px', color:'#ffe066', width:'40%'}}>Registration Category</th>
+                      <th style={{textAlign:'center', padding:'12px 8px', color:'#ffe066', width:'15%'}}>Role</th>
+                      <th style={{textAlign:'right', padding:'12px 8px', color:'#ffe066', width:'20%'}}>Fee</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paymentDetails.breakdown.map((item, index) => (
                       <tr key={index} style={{borderBottom:'1px solid #375a7f', background: item.isPrimary ? 'rgba(255, 227, 102, 0.1)' : 'transparent'}}>
-                        <td style={{padding:'12px 8px'}}>
+                        <td style={{padding:'12px 8px', wordWrap:'break-word', overflow:'hidden'}}>
                           {item.authorName}
                           {item.isPrimary && <span style={{color:'#ffe066', fontSize:'0.8rem', marginLeft:'8px'}}>⭐</span>}
                         </td>
-                        <td style={{padding:'12px 8px'}}>{item.category}</td>
+                        <td style={{padding:'12px 8px', wordWrap:'break-word', overflow:'hidden', fontSize:'0.95rem'}}>
+                          {item.category}
+                        </td>
                         <td style={{padding:'12px 8px', textAlign:'center', fontSize:'0.9rem'}}>
-                          {item.isPrimary ? (
+                          {item.isPageCharge ? (
+                            <span style={{color:'#9aa8b8'}}>-</span>
+                          ) : item.isPrimary ? (
                             <span style={{color:'#ffe066', fontWeight:'600'}}>Primary</span>
                           ) : (
                             <span style={{color:'#b3c6e0'}}>Co-author</span>
@@ -734,23 +844,6 @@ export default function Payments() {
               </div>
             </div>
           )}
-
-          {/* Bank Details for Manual Payment */}
-          <div style={{marginTop: 32, background:'#00224d', borderRadius:12, padding:'1.5rem', border:'1.5px solid #375a7f'}}>
-            <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
-              Bank Details for Manual Payment
-            </h4>
-            <div style={{background:'#001a33', borderRadius:8, padding:'1rem', fontFamily:'monospace', fontSize:'0.95rem'}}>
-              <div style={{marginBottom:8}}><strong>Account Name:</strong> ICTEST 2026</div>
-              <div style={{marginBottom:8}}><strong>Account Number:</strong> 1234567890</div>
-              <div style={{marginBottom:8}}><strong>Bank:</strong> Sample Bank</div>
-              <div style={{marginBottom:8}}><strong>IFSC Code:</strong> SAMP0001234</div>
-              <div style={{marginBottom:8}}><strong>Branch:</strong> Main Branch</div>
-            </div>
-            <div style={{marginTop:12, fontSize:'0.9rem', color:'#ffe066'}}>
-              * Please mention your Paper ID: {paperId} in payment reference
-            </div>
-          </div>
         </>
       )}
     </div>

@@ -72,6 +72,24 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
         </li>
         <li>
           <button
+            className={sidebar === "final-submit" ? "sidebar-link active" : "sidebar-link"}
+            onClick={() => hasPaper && setSidebar("final-submit")}
+            disabled={!hasPaper}
+            style={{
+              cursor: hasPaper ? "pointer" : "not-allowed",
+              opacity: hasPaper ? 1 : 0.5,
+              background: sidebar === "final-submit" ? "#003366" : "none"
+            }}
+            onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
+            onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "final-submit" ? "#003366" : "none"; }}
+          >
+            Final Submit
+          </button>
+        </li>
+        {/* Module Separator */}
+        <li style={{margin: "10px 0", borderBottom: "1px solid #375a7f", paddingBottom: "10px"}}></li>
+        <li>
+          <button
             className={sidebar === "payments" ? "sidebar-link active" : "sidebar-link"}
             onClick={() => hasPaper && setSidebar("payments")}
             disabled={!hasPaper}
@@ -88,18 +106,18 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
         </li>
         <li>
           <button
-            className={sidebar === "final-submit" ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => hasPaper && setSidebar("final-submit")}
+            className={sidebar === "messages" ? "sidebar-link active" : "sidebar-link"}
+            onClick={() => hasPaper && setSidebar("messages")}
             disabled={!hasPaper}
             style={{
               cursor: hasPaper ? "pointer" : "not-allowed",
               opacity: hasPaper ? 1 : 0.5,
-              background: sidebar === "final-submit" ? "#003366" : "none"
+              background: sidebar === "messages" ? "#003366" : "none"
             }}
             onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
-            onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "final-submit" ? "#003366" : "none"; }}
+            onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "messages" ? "#003366" : "none"; }}
           >
-            Final Submit
+            Messages
           </button>
         </li>
         {/* Add more sidebar links here as needed */}
