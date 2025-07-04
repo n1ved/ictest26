@@ -103,11 +103,24 @@ export default function FinalSubmitPage() {
       return;
     }
     if (!window.confirm('Are you sure? After final submit, you cannot add or edit authors.')) return;
-    const { error } = await window.supabase
-      .from("paper")
-      .update({ final_submit: true })
-      .eq("paper_id", paperId);
-    if (!error) setFinalSubmitted(true);
+    
+    try {
+      const { data, error } = await window.supabase
+        .from("paper")
+        .update({ final_submit: true })
+        .eq("paper_id", paperId);
+      
+      if (error) {
+        alert(`Error submitting paper: ${error.message}. Please try again.`);
+        console.error('Final submit error details:', error);
+        return;
+      }
+      
+      setFinalSubmitted(true);
+    } catch (err) {
+      alert(`Error submitting paper: ${err.message}. Please try again.`);
+      console.error('Final submit exception:', err);
+    }
   };
 
   if (loading) return <LoadingSpinner text={"Checking for papers..."} fullScreen={false} />

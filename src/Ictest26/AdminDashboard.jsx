@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import bcrypt from 'bcryptjs';
+import AdminMessages from './AdminMessages';
+import './AdminMessages.css';
 
 export default function AdminDashboard() {
   const [tables, setTables] = useState([]);
@@ -9,11 +11,32 @@ export default function AdminDashboard() {
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [activeMenu, setActiveMenu] = useState("view");
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState({});
   const [editRowIdx, setEditRowIdx] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [showMessages, setShowMessages] = useState(false);
   const navigate = useNavigate();
+
+  // Reset states when changing menu or table
+  const handleMenuChange = (menu) => {
+    setActiveMenu(menu);
+    setEditRowIdx(null);
+    setEditForm({});
+    setShowAddForm(false);
+    setAddForm({});
+    setError("");
+  };
+
+  const handleTableChange = (table) => {
+    setSelectedTable(table);
+    setEditRowIdx(null);
+    setEditForm({});
+    setShowAddForm(false);
+    setAddForm({});
+    setError("");
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("ictest26_user");
@@ -164,21 +187,106 @@ export default function AdminDashboard() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '48px 24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ color: '#e6eaff', fontWeight: 800, fontSize: '2.2rem', letterSpacing: 1.2, marginBottom: 32, marginTop: 48, paddingTop: 32, textShadow: '0 2px 8px #00336655', textAlign: 'center', borderBottom: '2px solid #375a7f', paddingBottom: 18, background: 'none' }}>Admin Dashboard</h2>
-          <button onClick={handleLogout} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.7rem 2rem', fontWeight: 700, marginLeft: 24, cursor: 'pointer', fontSize: '1.08rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', height: 48 }}>Logout</button>
-        </div>
-        <div style={{ background: '#14244a', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.18)', padding: '2rem', marginBottom: 32 }}>
-          {error && <div style={{ color: '#fff', background: '#003366', borderRadius: 6, padding: '0.5rem 1rem', marginBottom: 16 }}>{error}</div>}
-          <div style={{ marginBottom: 24 }}>
-            <label style={{ color: '#b3c6e0', fontWeight: 600, fontSize: '1.08rem', marginRight: 12 }}>Select Table: </label>
-            <select value={selectedTable} onChange={e => setSelectedTable(e.target.value)} style={{ padding: '0.7rem 1.2rem', borderRadius: 8, border: '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff', fontWeight: 600, letterSpacing: 0.5 }}>
-              <option value="">-- Select Table --</option>
-              {tables.map((t) => (
-                <option key={t.table_name} value={t.table_name}>{t.table_name}</option>
-              ))}
-            </select>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button 
+              onClick={() => setShowMessages(!showMessages)} 
+              style={{ 
+                background: showMessages ? '#375a7f' : '#254a7c', 
+                color: '#e6eaff', 
+                border: 'none', 
+                borderRadius: 8, 
+                padding: '0.7rem 2rem', 
+                fontWeight: 700, 
+                cursor: 'pointer', 
+                fontSize: '1.08rem', 
+                boxShadow: '0 2px 8px #001a3340', 
+                letterSpacing: 0.5, 
+                transition: 'background 0.2s', 
+                height: 48 
+              }}
+            >
+              {showMessages ? 'Back to Dashboard' : 'Message Center'}
+            </button>
+            <button onClick={handleLogout} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.7rem 2rem', fontWeight: 700, cursor: 'pointer', fontSize: '1.08rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', height: 48 }}>Logout</button>
           </div>
-          {selectedTable && !loading && (
-            <button onClick={() => { setShowAddForm(!showAddForm); setAddForm({}); }} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.7rem 2rem', fontWeight: 700, marginBottom: 18, cursor: 'pointer', fontSize: '1.08rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s' }}>{showAddForm ? 'Cancel' : 'Add Row'}</button>
+        </div>
+        {showMessages ? (
+          <AdminMessages />
+        ) : (
+          <div style={{ background: '#14244a', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.18)', padding: '2rem', marginBottom: 32 }}>
+            {error && <div style={{ color: '#fff', background: '#003366', borderRadius: 6, padding: '0.5rem 1rem', marginBottom: 16 }}>{error}</div>}
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ color: '#b3c6e0', fontWeight: 600, fontSize: '1.08rem', marginRight: 12 }}>Select Table: </label>
+              <select value={selectedTable} onChange={e => handleTableChange(e.target.value)} style={{ padding: '0.7rem 1.2rem', borderRadius: 8, border: '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff', fontWeight: 600, letterSpacing: 0.5 }}>
+                <option value="">-- Select Table --</option>
+                {tables.map((t) => (
+                  <option key={t.table_name} value={t.table_name}>{t.table_name}</option>
+                ))}
+              </select>
+            </div>
+
+          {/* Menu Navigation */}
+          {selectedTable && (
+            <div style={{ marginBottom: 24, display: 'flex', gap: 12, borderBottom: '2px solid #375a7f', paddingBottom: 16 }}>
+              <button 
+                onClick={() => handleMenuChange("view")} 
+                style={{ 
+                  background: activeMenu === "view" ? '#375a7f' : '#254a7c', 
+                  color: '#e6eaff', 
+                  border: 'none', 
+                  borderRadius: 8, 
+                  padding: '0.7rem 2rem', 
+                  fontWeight: 700, 
+                  cursor: 'pointer', 
+                  fontSize: '1.08rem', 
+                  boxShadow: '0 2px 8px #001a3340', 
+                  letterSpacing: 0.5, 
+                  transition: 'background 0.2s' 
+                }}
+              >
+                View Data
+              </button>
+              <button 
+                onClick={() => handleMenuChange("edit")} 
+                style={{ 
+                  background: activeMenu === "edit" ? '#375a7f' : '#254a7c', 
+                  color: '#e6eaff', 
+                  border: 'none', 
+                  borderRadius: 8, 
+                  padding: '0.7rem 2rem', 
+                  fontWeight: 700, 
+                  cursor: 'pointer', 
+                  fontSize: '1.08rem', 
+                  boxShadow: '0 2px 8px #001a3340', 
+                  letterSpacing: 0.5, 
+                  transition: 'background 0.2s' 
+                }}
+              >
+                Edit Data
+              </button>
+              <button 
+                onClick={() => handleMenuChange("delete")} 
+                style={{ 
+                  background: activeMenu === "delete" ? '#375a7f' : '#254a7c', 
+                  color: '#e6eaff', 
+                  border: 'none', 
+                  borderRadius: 8, 
+                  padding: '0.7rem 2rem', 
+                  fontWeight: 700, 
+                  cursor: 'pointer', 
+                  fontSize: '1.08rem', 
+                  boxShadow: '0 2px 8px #001a3340', 
+                  letterSpacing: 0.5, 
+                  transition: 'background 0.2s' 
+                }}
+              >
+                Delete Data
+              </button>
+            </div>
+          )}
+
+          {selectedTable && !loading && activeMenu === "edit" && (
+            <button onClick={() => { setShowAddForm(!showAddForm); setAddForm({}); }} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.7rem 2rem', fontWeight: 700, marginBottom: 18, cursor: 'pointer', fontSize: '1.08rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s' }}>{showAddForm ? 'Cancel' : 'Add New Row'}</button>
           )}
           {showAddForm && (
             <form onSubmit={handleAddRow} style={{ marginBottom: 24, background: '#001a33', padding: 18, borderRadius: 8 }}>
@@ -199,14 +307,37 @@ export default function AdminDashboard() {
             </form>
           )}
           {loading && <div>Loading...</div>}
-          {selectedTable && !loading && (
+          
+          {/* View Menu */}
+          {selectedTable && !loading && activeMenu === "view" && (
             <div style={{ overflowX: 'auto' }}>
-              <h3 style={{ color: '#fff', fontWeight: 700, marginBottom: 18, fontSize: '1.25rem', letterSpacing: 0.7, textAlign: 'center', textShadow: '0 2px 8px #00336655', borderBottom: '1.5px solid #375a7f', paddingBottom: 10, marginTop: 18 }}>Table: {selectedTable}</h3>
+              <h3 style={{ color: '#fff', fontWeight: 700, marginBottom: 18, fontSize: '1.25rem', letterSpacing: 0.7, textAlign: 'center', textShadow: '0 2px 8px #00336655', borderBottom: '1.5px solid #375a7f', paddingBottom: 10, marginTop: 18 }}>Viewing Table: {selectedTable}</h3>
               <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%', background: '#001a33', color: '#fff', marginBottom: 24 }}>
                 <thead>
                   <tr>
                     {columns.map(col => <th key={col} style={{ background: '#003366', color: '#b3c6e0', fontWeight: 700, fontSize: '1.08rem', letterSpacing: 0.5 }}>{col}</th>)}
-                    <th style={{ background: '#003366', color: '#b3c6e0', fontWeight: 700, fontSize: '1.08rem', letterSpacing: 0.5, minWidth: 220, width: 220, textAlign: 'center' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, idx) => (
+                    <tr key={idx} style={{ background: '#00224d', verticalAlign: 'middle' }}>
+                      {columns.map(col => <td key={col}>{String(row[col])}</td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Edit Menu */}
+          {selectedTable && !loading && activeMenu === "edit" && (
+            <div style={{ overflowX: 'auto' }}>
+              <h3 style={{ color: '#fff', fontWeight: 700, marginBottom: 18, fontSize: '1.25rem', letterSpacing: 0.7, textAlign: 'center', textShadow: '0 2px 8px #00336655', borderBottom: '1.5px solid #375a7f', paddingBottom: 10, marginTop: 18 }}>Editing Table: {selectedTable}</h3>
+              <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%', background: '#001a33', color: '#fff', marginBottom: 24 }}>
+                <thead>
+                  <tr>
+                    {columns.map(col => <th key={col} style={{ background: '#003366', color: '#b3c6e0', fontWeight: 700, fontSize: '1.08rem', letterSpacing: 0.5 }}>{col}</th>)}
+                    <th style={{ background: '#003366', color: '#b3c6e0', fontWeight: 700, fontSize: '1.08rem', letterSpacing: 0.5, minWidth: 120, width: 120, textAlign: 'center' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -226,17 +357,14 @@ export default function AdminDashboard() {
                       ) : (
                         columns.map(col => <td key={col}>{String(row[col])}</td>)
                       )}
-                      <td style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', minWidth: 220, width: 220, borderBottom: 'none', height: '100%' }}>
+                      <td style={{ display: 'flex', gap: '5px', alignItems: 'center', justifyContent: 'center', minWidth: 120, width: 120, borderBottom: 'none', height: '100%' }}>
                         {editRowIdx === idx ? (
                           <>
-                            <button onClick={handleSaveEdit} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.5rem 1.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1.05rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 90, width: 100 }}>Save</button>
-                            <button onClick={() => { setEditRowIdx(null); setEditForm({}); }} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.5rem 1.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1.05rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 90, width: 100 }}>Cancel</button>
+                            <button onClick={handleSaveEdit} style={{ background: '#28a745', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 0.8rem', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 50 }}>✓</button>
+                            <button onClick={() => { setEditRowIdx(null); setEditForm({}); }} style={{ background: '#dc3545', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 0.8rem', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 50 }}>✗</button>
                           </>
                         ) : (
-                          <>
-                            <button onClick={() => handleEditRow(idx)} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.5rem 1.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1.05rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 90, width: 100 }}>Edit</button>
-                            <button onClick={() => handleDeleteRow(idx)} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.5rem 1.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1.05rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 90, width: 100 }}>Delete</button>
-                          </>
+                          <button onClick={() => handleEditRow(idx)} style={{ background: '#ffc107', color: '#000', border: 'none', borderRadius: 6, padding: '0.4rem 0.8rem', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 100 }}>Edit</button>
                         )}
                       </td>
                     </tr>
@@ -245,7 +373,36 @@ export default function AdminDashboard() {
               </table>
             </div>
           )}
+
+          {/* Delete Menu */}
+          {selectedTable && !loading && activeMenu === "delete" && (
+            <div style={{ overflowX: 'auto' }}>
+              <h3 style={{ color: '#fff', fontWeight: 700, marginBottom: 18, fontSize: '1.25rem', letterSpacing: 0.7, textAlign: 'center', textShadow: '0 2px 8px #00336655', borderBottom: '1.5px solid #375a7f', paddingBottom: 10, marginTop: 18 }}>Delete from Table: {selectedTable}</h3>
+              <div style={{ background: '#4a1717', borderRadius: 8, padding: '1rem', marginBottom: 16, border: '2px solid #dc3545' }}>
+                <p style={{ margin: 0, color: '#ffcccc', fontWeight: 600, fontSize: '1rem' }}>⚠️Warning: Deletion is permanent and cannot be undone!</p>
+              </div>
+              <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%', background: '#001a33', color: '#fff', marginBottom: 24 }}>
+                <thead>
+                  <tr>
+                    {columns.map(col => <th key={col} style={{ background: '#003366', color: '#b3c6e0', fontWeight: 700, fontSize: '1.08rem', letterSpacing: 0.5 }}>{col}</th>)}
+                    <th style={{ background: '#003366', color: '#b3c6e0', fontWeight: 700, fontSize: '1.08rem', letterSpacing: 0.5, minWidth: 120, width: 120, textAlign: 'center' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, idx) => (
+                    <tr key={idx} style={{ background: '#00224d', verticalAlign: 'middle' }}>
+                      {columns.map(col => <td key={col}>{String(row[col])}</td>)}
+                      <td style={{ display: 'flex', gap: '5px', alignItems: 'center', justifyContent: 'center', minWidth: 120, width: 120, borderBottom: 'none', height: '100%' }}>
+                        <button onClick={() => handleDeleteRow(idx)} style={{ background: '#dc3545', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 0.8rem', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 100 }}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
+        )}
       </div>
     </div>
   );
