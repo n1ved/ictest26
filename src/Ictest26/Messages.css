@@ -403,10 +403,6 @@
 }
 
 @media (max-width: 480px) {
-  .message-filters {
-    flex-direction: column;
-  }
-  
   .paper-selector {
     flex-direction: column;
     align-items: stretch;
@@ -414,5 +410,14 @@
   
   .paper-selector select {
     width: 100%;
+  }
+  
+  .message-filters {
+    justify-content: center;
+  }
+  
+  .message-filters button {
+    flex: 1;
+    max-width: 100px;
   }
 }

@@ -548,14 +548,14 @@ export default function Payments() {
   }
 
   return (
-    <div style={{maxWidth: 1000, margin: '40px auto', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#fff'}}>
+    <div style={{maxWidth: window.innerWidth <= 768 ? 250 : 1000, margin: '40px auto', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#fff'}}>
       <h3 style={{textTransform: 'uppercase', letterSpacing: 1.5, color: '#fff', fontWeight: 800, fontSize: '2rem', marginBottom: 24, textShadow: '0 2px 8px #00336655', textAlign: 'center'}}>
         Registration Payment
       </h3>
 
       {/* Paper Selection */}
       {papers.length > 1 && (
-        <div style={{marginBottom: 32, background:'#00224d', borderRadius:12, padding:'1.5rem', border:'1.5px solid #375a7f'}}>
+        <div style={{marginBottom: 32, background:'#00224d', borderRadius:12, padding: window.innerWidth <= 768 ? '1rem' : '1.5rem', border:'1.5px solid #375a7f'}}>
           <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
             Select Paper for Payment
           </h4>
@@ -610,7 +610,7 @@ export default function Payments() {
             ✅ Payment Completed
           </h4>
           <div style={{background:'#fff', borderRadius:8, padding:'1rem', color:'#333'}}>
-            <div style={{marginBottom:8}}><strong>Payment ID:</strong> {paymentStatus.paymentId}</div>
+            <div style={{marginBottom:8, wordBreak:'break-all', overflowWrap:'break-word'}}><strong>Payment ID:</strong> {paymentStatus.paymentId}</div>
             <div style={{marginBottom:8}}><strong>Amount:</strong> ₹{paymentDetails.totalAmount.toLocaleString()}</div>
             <div style={{marginBottom:8}}><strong>Payment Date:</strong> {paymentStatus.paymentDate}</div>
             <div><strong>Payment Method:</strong> {paymentStatus.paymentMethod}</div>
@@ -636,22 +636,52 @@ export default function Payments() {
                 
                 {/* Debug Information */}
                 {authors.length > 0 && (
-                  <div style={{background:'#001a33', borderRadius:8, padding:'1rem', marginBottom:'20px'}}>
-                    <h5 style={{color:'#ffe066', marginBottom:'12px', fontSize:'1rem'}}>📋 Debug Information:</h5>
-                    <div style={{fontSize:'0.9rem', color:'#b3c6e0'}}>
+                  <div style={{
+                    background:'#001a33', 
+                    borderRadius:8, 
+                    padding: window.innerWidth <= 768 ? '0.8rem' : '1rem', 
+                    marginBottom:'20px'
+                  }}>
+                    <h5 style={{
+                      color:'#ffe066', 
+                      marginBottom:'12px', 
+                      fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem'
+                    }}>📋 Debug Information:</h5>
+                    <div style={{
+                      fontSize: window.innerWidth <= 768 ? '0.8rem' : '0.9rem', 
+                      color:'#b3c6e0'
+                    }}>
                       <div style={{marginBottom:'8px'}}><strong>Total Authors:</strong> {authors.length}</div>
                       <div style={{marginBottom:'12px'}}><strong>Authors List:</strong></div>
                       {authors.map((author, index) => (
-                        <div key={index} style={{marginLeft:'20px', marginBottom:'8px', lineHeight:'1.4'}}>
-                          <div><strong>{author.salutation} {author.author_name}</strong></div>
-                          <div style={{fontSize:'0.8rem', color:'#9aa8b8'}}>
+                        <div key={index} style={{
+                          marginLeft: window.innerWidth <= 768 ? '10px' : '20px', 
+                          marginBottom:'8px', 
+                          lineHeight:'1.4'
+                        }}>
+                          <div style={{
+                            wordBreak: 'break-word',
+                            fontSize: window.innerWidth <= 768 ? '0.85rem' : '1rem'
+                          }}>
+                            <strong>{author.salutation} {author.author_name}</strong>
+                          </div>
+                          <div style={{
+                            fontSize: window.innerWidth <= 768 ? '0.75rem' : '0.8rem', 
+                            color:'#9aa8b8'
+                          }}>
                             • Attending venue: <span style={{color: author.is_attending_at_venue ? '#28a745' : '#dc3545'}}>{String(author.is_attending_at_venue)}</span><br/>
                             • Primary author: <span style={{color: author.is_primary_author ? '#28a745' : '#6c757d'}}>{String(author.is_primary_author)}</span><br/>
                             • Registration category ID: {author.reg_cat_id || 'Not set'}
                           </div>
                         </div>
                       ))}
-                      <div style={{marginTop:'12px', padding:'8px', background:'rgba(255, 179, 71, 0.1)', borderRadius:'4px', fontSize:'0.8rem'}}>
+                      <div style={{
+                        marginTop:'12px', 
+                        padding: window.innerWidth <= 768 ? '6px' : '8px', 
+                        background:'rgba(255, 179, 71, 0.1)', 
+                        borderRadius:'4px', 
+                        fontSize: window.innerWidth <= 768 ? '0.75rem' : '0.8rem'
+                      }}>
                         💡 Payment Rules: Primary author always pays registration fee. Co-authors pay ₹1000 only if "Attending at venue" is checked.
                       </div>
                     </div>
@@ -659,27 +689,76 @@ export default function Payments() {
                 )}
               </div>
             ) : (
-              <div style={{overflowX: 'auto'}}>
-                <table style={{width:'100%', color:'#fff', fontSize:'1.05rem', borderCollapse:'collapse', tableLayout: 'fixed'}}>
+              <div style={{
+                overflowX: window.innerWidth <= 768 ? 'auto' : 'visible',
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#375a7f #002147'
+              }}>
+                <table style={{
+                  width:'100%', 
+                  minWidth: window.innerWidth <= 768 ? '500px' : 'auto',
+                  color:'#fff', 
+                  fontSize: window.innerWidth <= 768 ? '0.9rem' : '1.05rem', 
+                  borderCollapse:'collapse', 
+                  tableLayout: window.innerWidth <= 768 ? 'auto' : 'fixed'
+                }}>
                   <thead>
                     <tr style={{borderBottom:'2px solid #375a7f'}}>
-                      <th style={{textAlign:'left', padding:'12px 8px', color:'#ffe066', width:'25%'}}>Author Name</th>
-                      <th style={{textAlign:'left', padding:'12px 8px', color:'#ffe066', width:'40%'}}>Registration Category</th>
-                      <th style={{textAlign:'center', padding:'12px 8px', color:'#ffe066', width:'15%'}}>Role</th>
-                      <th style={{textAlign:'right', padding:'12px 8px', color:'#ffe066', width:'20%'}}>Fee</th>
+                      <th style={{
+                        textAlign:'left', 
+                        padding: window.innerWidth <= 768 ? '8px 6px' : '12px 8px', 
+                        color:'#ffe066', 
+                        width: window.innerWidth <= 768 ? 'auto' : '25%',
+                        minWidth: window.innerWidth <= 768 ? '120px' : 'auto'
+                      }}>Author Name</th>
+                      <th style={{
+                        textAlign:'left', 
+                        padding: window.innerWidth <= 768 ? '8px 6px' : '12px 8px', 
+                        color:'#ffe066', 
+                        width: window.innerWidth <= 768 ? 'auto' : '40%',
+                        minWidth: window.innerWidth <= 768 ? '150px' : 'auto'
+                      }}>Registration Category</th>
+                      <th style={{
+                        textAlign:'center', 
+                        padding: window.innerWidth <= 768 ? '8px 6px' : '12px 8px', 
+                        color:'#ffe066', 
+                        width: window.innerWidth <= 768 ? 'auto' : '15%',
+                        minWidth: window.innerWidth <= 768 ? '80px' : 'auto'
+                      }}>Role</th>
+                      <th style={{
+                        textAlign:'right', 
+                        padding: window.innerWidth <= 768 ? '8px 6px' : '12px 8px', 
+                        color:'#ffe066', 
+                        width: window.innerWidth <= 768 ? 'auto' : '20%',
+                        minWidth: window.innerWidth <= 768 ? '100px' : 'auto'
+                      }}>Fee</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paymentDetails.breakdown.map((item, index) => (
                       <tr key={index} style={{borderBottom:'1px solid #375a7f', background: item.isPrimary ? 'rgba(255, 227, 102, 0.1)' : 'transparent'}}>
-                        <td style={{padding:'12px 8px', wordWrap:'break-word', overflow:'hidden'}}>
+                        <td style={{
+                          padding: window.innerWidth <= 768 ? '8px 6px' : '12px 8px', 
+                          wordWrap:'break-word', 
+                          overflow:'hidden'
+                        }}>
                           {item.authorName}
                           {item.isPrimary && <span style={{color:'#ffe066', fontSize:'0.8rem', marginLeft:'8px'}}>⭐</span>}
                         </td>
-                        <td style={{padding:'12px 8px', wordWrap:'break-word', overflow:'hidden', fontSize:'0.95rem'}}>
+                        <td style={{
+                          padding: window.innerWidth <= 768 ? '8px 6px' : '12px 8px', 
+                          wordWrap:'break-word', 
+                          overflow:'hidden', 
+                          fontSize: window.innerWidth <= 768 ? '0.85rem' : '0.95rem'
+                        }}>
                           {item.category}
                         </td>
-                        <td style={{padding:'12px 8px', textAlign:'center', fontSize:'0.9rem'}}>
+                        <td style={{
+                          padding: window.innerWidth <= 768 ? '8px 6px' : '12px 8px', 
+                          textAlign:'center', 
+                          fontSize: window.innerWidth <= 768 ? '0.8rem' : '0.9rem'
+                        }}>
                           {item.isPageCharge ? (
                             <span style={{color:'#9aa8b8'}}>-</span>
                           ) : item.isPrimary ? (
@@ -688,20 +767,25 @@ export default function Payments() {
                             <span style={{color:'#b3c6e0'}}>Co-author</span>
                           )}
                         </td>
-                        <td style={{padding:'12px 8px', textAlign:'right', fontWeight:'600'}}>
+                        <td style={{
+                          padding: window.innerWidth <= 768 ? '8px 6px' : '12px 8px', 
+                          textAlign:'right', 
+                          fontWeight:'600'
+                        }}>
                           {item.currency} {item.fee.toLocaleString()}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+                
               </div>
             )}
           </div>
 
           {/* Payment Summary */}
           {paymentDetails.breakdown.length > 0 && (
-            <div style={{marginBottom: 32, background:'#001a33', borderRadius:12, padding:'1.5rem', border:'2px solid #28a745'}}>
+            <div style={{marginBottom: 32, background:'#001a33', borderRadius:12, padding: window.innerWidth <=768 ? '1rem' : '1.5rem', border:'2px solid #28a745'}}>
               <h4 style={{fontWeight:700, fontSize:'1.25rem', marginBottom:16, color:'#28a745'}}>
                 Payment Summary
               </h4>
@@ -772,11 +856,11 @@ export default function Payments() {
           )}
 
           {/* Payment Instructions */}
-          <div style={{marginBottom: 32, background:'#00224d', borderRadius:12, padding:'1.5rem', border:'1.5px solid #375a7f'}}>
+          <div style={{marginBottom: 32, background:'#00224d', borderRadius:12, padding: window.innerWidth <=768 ? '1rem' : '1.5rem', border:'1.5px solid #375a7f'}}>
             <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
               Payment Instructions
             </h4>
-            <ul style={{margin:0, paddingLeft:20, lineHeight:1.8, color:'#fff'}}>
+            <ul style={{margin:0, paddingLeft: window.innerWidth <=768 ? '10' : '20', lineHeight:1.8, color:'#fff'}}>
               <li><strong>Primary authors</strong> pay full registration fee based on their category</li>
               <li><strong>Co-authors</strong> pay ₹1000 only if attending at venue (otherwise ₹0)</li>
               <li><strong>Page charges:</strong> Up to 6 pages are free; pages 7-8 cost ₹500 per page</li>
