@@ -36,6 +36,7 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
   return (
     <div className="dashboard-sidebar">
       <ul>
+
         <li>
           <button
             className={sidebar === "welcome" ? "sidebar-link active" : "sidebar-link"}
@@ -126,6 +127,7 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
             <span className="sidebar-text">Messages</span>
           </button>
         </li>
+        
         {/* Add more sidebar links here as needed */}
       </ul>
       <button className="ictest26-logout-btn" onClick={handleLogout}>
