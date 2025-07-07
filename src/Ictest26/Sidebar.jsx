@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { MdDashboard, MdPeople, MdOutlineMessage, MdLogout } from "react-icons/md";
 import { IoNewspaperOutline } from "react-icons/io5";
-import { LuReceiptIndianRupee, LuSend } from "react-icons/lu";
+import { LuSend } from "react-icons/lu";
+import { FaRupeeSign } from "react-icons/fa";
 import "./Sidebar.css";
 
 export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded }) {
@@ -106,7 +107,7 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
             onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
             onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "payments" ? "#003366" : "none"; }}
           >
-            <LuReceiptIndianRupee className="sidebar-icon" />
+            <FaRupeeSign className="sidebar-icon" />
             <span className="sidebar-text">Payments</span>
           </button>
         </li>
