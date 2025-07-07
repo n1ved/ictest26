@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { MdDashboard, MdPeople, MdOutlineMessage, MdLogout } from "react-icons/md";
+import { IoNewspaperOutline } from "react-icons/io5";
+import { LuReceiptIndianRupee, LuSend } from "react-icons/lu";
 import "./Sidebar.css";
 
 export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded }) {
@@ -22,8 +25,7 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
           const { data: paperData } = await window.supabase
             .from("paper")
             .select("paper_id")
-            .eq("login_id", loginData.login_id)
-            // .maybeSingle();
+            .eq("login_id", loginData.login_id);
           setHasPaper(!!paperData);
         }
       }
@@ -34,6 +36,7 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
   return (
     <div className="dashboard-sidebar">
       <ul>
+
         <li>
           <button
             className={sidebar === "welcome" ? "sidebar-link active" : "sidebar-link"}
@@ -41,7 +44,8 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
             onMouseOver={e => e.currentTarget.style.background = "#003366"}
             onMouseOut={e => e.currentTarget.style.background = sidebar === "welcome" ? "#003366" : "none"}
           >
-            Dashboard
+            <MdDashboard className="sidebar-icon" />
+            <span className="sidebar-text">Dashboard</span>
           </button>
         </li>
         <li>
@@ -51,7 +55,8 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
             onMouseOver={e => e.currentTarget.style.background = "#003366"}
             onMouseOut={e => e.currentTarget.style.background = sidebar === "add-paper" ? "#003366" : "none"}
           >
-            Add Paper
+            <IoNewspaperOutline className="sidebar-icon" />
+            <span className="sidebar-text">Add Paper</span>
           </button>
         </li>
         <li>
@@ -67,7 +72,8 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
             onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
             onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "add-authors" ? "#003366" : "none"; }}
           >
-            Add Authors
+            <MdPeople className="sidebar-icon" />
+            <span className="sidebar-text">Add Authors</span>
           </button>
         </li>
         <li>
@@ -83,11 +89,10 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
             onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
             onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "final-submit" ? "#003366" : "none"; }}
           >
-            Final Submit
+            <LuSend className="sidebar-icon" />
+            <span className="sidebar-text">Final Submit</span>
           </button>
         </li>
-        {/* Module Separator */}
-        <li style={{margin: "10px 0", borderBottom: "1px solid #375a7f", paddingBottom: "10px"}}></li>
         <li>
           <button
             className={sidebar === "payments" ? "sidebar-link active" : "sidebar-link"}
@@ -101,7 +106,8 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
             onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
             onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "payments" ? "#003366" : "none"; }}
           >
-            Payments
+            <LuReceiptIndianRupee className="sidebar-icon" />
+            <span className="sidebar-text">Payments</span>
           </button>
         </li>
         <li>
@@ -117,13 +123,16 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
             onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
             onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "messages" ? "#003366" : "none"; }}
           >
-            Messages
+            <MdOutlineMessage className="sidebar-icon" />
+            <span className="sidebar-text">Messages</span>
           </button>
         </li>
+        
         {/* Add more sidebar links here as needed */}
       </ul>
       <button className="ictest26-logout-btn" onClick={handleLogout}>
-        Logout
+        <MdLogout className="sidebar-icon" />
+        <span className="sidebar-text">Logout</span>
       </button>
     </div>
   );

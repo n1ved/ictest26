@@ -138,7 +138,7 @@ export default function FinalSubmitPage() {
   }
 
   return (
-    <div style={{maxWidth: 900, margin: '40px auto', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+    <div style={{maxWidth: window.innerWidth <= 768 ? 250 : 900, margin: '40px auto', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
       <h3 style={{textTransform: 'uppercase', letterSpacing: 1.5, color: '#fff', fontWeight: 800, fontSize: '2rem', marginBottom: 24, textShadow: '0 2px 8px #00336655'}}>Final Submit</h3>
       {/* Show author details if not final submitted */}
       {!finalSubmitted && (
@@ -148,36 +148,50 @@ export default function FinalSubmitPage() {
             <div style={{color:'#fff'}}>Loading authors...</div>
           ) : (
             <>
-              <table style={{width:'100%', color:'#fff', fontSize:'1.05rem', borderCollapse:'collapse'}}>
-                <thead>
-                  <tr style={{borderBottom:'1px solid #375a7f'}}>
-                    <th style={{textAlign:'left', padding:'4px 8px'}}>#</th>
-                    <th style={{textAlign:'left', padding:'4px 8px'}}>Name</th>
-                    <th style={{textAlign:'left', padding:'4px 8px'}}>Email</th>
-                    <th style={{textAlign:'left', padding:'4px 8px'}}>Mobile</th>
-                    <th style={{textAlign:'left', padding:'4px 8px'}}>Reg. Category</th>
-                    <th style={{textAlign:'left', padding:'4px 8px'}}>Primary</th>
-                    <th style={{textAlign:'left', padding:'4px 8px'}}>Presenter</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {authors.length === 0 ? (
-                    <tr><td colSpan={7} style={{textAlign:'center', color:'#ffb347', padding:'10px'}}>No authors added yet.</td></tr>
-                  ) : (
-                    authors.map((a, idx) => (
-                      <tr key={a.author_id} style={{borderBottom:'1px solid #375a7f'}}>
-                        <td style={{padding:'4px 8px'}}>{idx+1}</td>
-                        <td style={{padding:'4px 8px'}}>{a.salutation} {a.author_name}</td>
-                        <td style={{padding:'4px 8px'}}>{a.email_id}</td>
-                        <td style={{padding:'4px 8px'}}>{a.mob_no}</td>
-                        <td style={{padding:'4px 8px'}}>{(regCats.find(r => String(r.reg_cat_id) === String(a.reg_cat_id)) || {}).category_name || a.reg_cat_id}</td>
-                        <td style={{padding:'4px 8px', textAlign:'center'}}>{a.is_primary_author ? '✔️' : ''}</td>
-                        <td style={{padding:'4px 8px', textAlign:'center'}}>{a.is_presenter ? '✔️' : ''}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+              <div style={{
+                width:'100%', 
+                overflowX: window.innerWidth <= 768 ? 'auto' : 'visible',
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#375a7f #002147'
+              }}>
+                <table style={{
+                  width:'100%', 
+                  minWidth: window.innerWidth <= 768 ? '600px' : 'auto',
+                  color:'#fff', 
+                  fontSize:'1.05rem', 
+                  borderCollapse:'collapse'
+                }}>
+                  <thead>
+                    <tr style={{borderBottom:'1px solid #375a7f'}}>
+                      <th style={{textAlign:'left', padding:'4px 8px', minWidth: '40px'}}>#</th>
+                      <th style={{textAlign:'left', padding:'4px 8px', minWidth: '120px'}}>Name</th>
+                      <th style={{textAlign:'left', padding:'4px 8px', minWidth: '150px'}}>Email</th>
+                      <th style={{textAlign:'left', padding:'4px 8px', minWidth: '100px'}}>Mobile</th>
+                      <th style={{textAlign:'left', padding:'4px 8px', minWidth: '130px'}}>Reg. Category</th>
+                      <th style={{textAlign:'left', padding:'4px 8px', minWidth: '70px'}}>Primary</th>
+                      <th style={{textAlign:'left', padding:'4px 8px', minWidth: '80px'}}>Presenter</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {authors.length === 0 ? (
+                      <tr><td colSpan={7} style={{textAlign:'center', color:'#ffb347', padding:'10px'}}>No authors added yet.</td></tr>
+                    ) : (
+                      authors.map((a, idx) => (
+                        <tr key={a.author_id} style={{borderBottom:'1px solid #375a7f'}}>
+                          <td style={{padding:'4px 8px'}}>{idx+1}</td>
+                          <td style={{padding:'4px 8px'}}>{a.salutation} {a.author_name}</td>
+                          <td style={{padding:'4px 8px', wordBreak: 'break-word'}}>{a.email_id}</td>
+                          <td style={{padding:'4px 8px'}}>{a.mob_no}</td>
+                          <td style={{padding:'4px 8px'}}>{(regCats.find(r => String(r.reg_cat_id) === String(a.reg_cat_id)) || {}).category_name || a.reg_cat_id}</td>
+                          <td style={{padding:'4px 8px', textAlign:'center'}}>{a.is_primary_author ? '✔️' : ''}</td>
+                          <td style={{padding:'4px 8px', textAlign:'center'}}>{a.is_presenter ? '✔️' : ''}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
               <div style={{marginTop:10, color:'#ffe066', fontSize:'0.98rem'}}>If you need to make changes, go back and edit before final submit.</div>
             </>
           )}
@@ -191,7 +205,7 @@ export default function FinalSubmitPage() {
         </div>
       ) : (
         <>
-          <div style={{marginBottom:24, color:'#fff', fontSize:'1.1rem', textAlign:'center', background:'#001a33', borderRadius:10, padding:'1.2rem 1rem', border:'1.5px solid #375a7f'}}>
+          <div style={{width:'100%',marginBottom:24, color:'#fff', fontSize:'1.1rem', textAlign:'center', background:'#001a33', borderRadius:10, padding:'1.2rem 0.5rem', border:'1.5px solid #375a7f'}}>
             <b>Instructions:</b><br/>
             <ul style={{textAlign:'left', margin:'12px 0 0 0', paddingLeft:22, color:'#fff', fontSize:'1.05rem', lineHeight:1.7}}>
               <li>Review all author details carefully before proceeding. Once you click <b>Final Submit</b>, <span style={{color:'#ffb347'}}>no further changes</span> can be made to the author list.</li>
