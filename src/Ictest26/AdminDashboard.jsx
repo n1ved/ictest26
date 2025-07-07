@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import bcrypt from 'bcryptjs';
 import AdminMessages from './AdminMessages';
 import './AdminMessages.css';
+import AdminSettings from './AdminSettings';
+import './AdminSettings.css';
 
 export default function AdminDashboard() {
   const [tables, setTables] = useState([]);
@@ -17,6 +19,7 @@ export default function AdminDashboard() {
   const [editRowIdx, setEditRowIdx] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [showMessages, setShowMessages] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
 
   // Reset states when changing menu or table
@@ -189,7 +192,10 @@ export default function AdminDashboard() {
           <h2 style={{ color: '#e6eaff', fontWeight: 800, fontSize: '2.2rem', letterSpacing: 1.2, marginBottom: 32, marginTop: 48, paddingTop: 32, textShadow: '0 2px 8px #00336655', textAlign: 'center', borderBottom: '2px solid #375a7f', paddingBottom: 18, background: 'none' }}>Admin Dashboard</h2>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button 
-              onClick={() => setShowMessages(!showMessages)} 
+              onClick={() => {
+                setShowMessages(!showMessages);
+                setShowSettings(false);
+              }} 
               style={{ 
                 background: showMessages ? '#375a7f' : '#254a7c', 
                 color: '#e6eaff', 
@@ -207,11 +213,35 @@ export default function AdminDashboard() {
             >
               {showMessages ? 'Back to Dashboard' : 'Message Center'}
             </button>
+            <button 
+              onClick={() => {
+                setShowSettings(!showSettings);
+                setShowMessages(false);
+              }} 
+              style={{ 
+                background: showSettings ? '#375a7f' : '#254a7c', 
+                color: '#e6eaff', 
+                border: 'none', 
+                borderRadius: 8, 
+                padding: '0.7rem 2rem', 
+                fontWeight: 700, 
+                cursor: 'pointer', 
+                fontSize: '1.08rem', 
+                boxShadow: '0 2px 8px #001a3340', 
+                letterSpacing: 0.5, 
+                transition: 'background 0.2s', 
+                height: 48 
+              }}
+            >
+              {showSettings ? 'Back to Dashboard' : 'Settings'}
+            </button>
             <button onClick={handleLogout} style={{ background: '#254a7c', color: '#e6eaff', border: 'none', borderRadius: 8, padding: '0.7rem 2rem', fontWeight: 700, cursor: 'pointer', fontSize: '1.08rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', height: 48 }}>Logout</button>
           </div>
         </div>
         {showMessages ? (
           <AdminMessages />
+        ) : showSettings ? (
+          <AdminSettings />
         ) : (
           <div style={{ background: '#14244a', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.18)', padding: '2rem', marginBottom: 32 }}>
             {error && <div style={{ color: '#fff', background: '#003366', borderRadius: 6, padding: '0.5rem 1rem', marginBottom: 16 }}>{error}</div>}
