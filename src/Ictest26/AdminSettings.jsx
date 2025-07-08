@@ -21,9 +21,11 @@ export default function AdminSettings() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
+        // Always fetch the row with id=1
         const { data, error } = await window.supabase
           .from('admin_settings')
           .select('*')
+          .eq('id', 1)
           .single();
         
         if (error) {
@@ -32,8 +34,6 @@ export default function AdminSettings() {
           // Check if the table doesn't exist
           if (error.code === '42P01') {
             setError('Admin settings table not found. Please run the database setup first. Using default values for now.');
-            
-            // Use default values if table doesn't exist
             setSettings({
               allowAuthorLogin: true,
               maintenanceMode: false,
@@ -42,41 +42,34 @@ export default function AdminSettings() {
             setLoading(false);
             return;
           }
-          
-          setError('Failed to load settings. Creating default settings.');
-          
-          // Create default settings if they don't exist
-          try {
-            const { error: insertError } = await window.supabase
-              .from('admin_settings')
-              .insert([{
-                allow_author_login: true,
-                maintenance_mode: false,
-                registration_open: true
-              }]);
-            
-            if (insertError) throw insertError;
-            
-            // Fetch the newly created settings
-            const { data: newData, error: fetchError } = await window.supabase
-              .from('admin_settings')
-              .select('*')
-              .single();
-              
-            if (fetchError) throw fetchError;
-            
-            if (newData) {
+
+          // If no row exists, insert default row with id=1
+          if (error.code === 'PGRST116' || error.message?.includes('Results contain 0 rows')) {
+            try {
+              const { error: insertError } = await window.supabase
+                .from('admin_settings')
+                .insert([{
+                  id: 1,
+                  allow_author_login: true,
+                  maintenance_mode: false,
+                  registration_open: true
+                }]);
+              if (insertError) throw insertError;
               setSettings({
-                allowAuthorLogin: newData.allow_author_login || true,
-                maintenanceMode: newData.maintenance_mode || false,
-                registrationOpen: newData.registration_open || true,
+                allowAuthorLogin: true,
+                maintenanceMode: false,
+                registrationOpen: true,
               });
               setSuccess('Default settings created successfully.');
               setTimeout(() => setSuccess(''), 3000);
+            } catch (insertErr) {
+              setError('Failed to create default settings: ' + insertErr.message);
             }
-          } catch (insertErr) {
-            setError('Failed to create default settings: ' + insertErr.message);
+            setLoading(false);
+            return;
           }
+
+          setError('Failed to load settings.');
         } else if (data) {
           setSettings({
             allowAuthorLogin: data.allow_author_login ?? true,
