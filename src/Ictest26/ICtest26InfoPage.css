@@ -1,0 +1,856 @@
+/* Main container improvements */
+.info-container {
+    display: flex;
+    flex-direction: column;
+    padding: 0; /* Remove padding from this container since info-bg handles it */
+    width: 100%;
+    max-width: none; /* Remove width restrictions */
+    overflow: hidden;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    text-wrap: wrap;
+    box-sizing: border-box;
+    min-height: auto;
+}
+
+/* Button container spacing */
+.button-container {
+    justify-content: flex-start;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+/* Instruction content improved spacing */
+.instruction-content {
+    line-height: 1.8; /* Increased line height for better readability */
+    text-wrap: wrap;
+    margin: 20px 0;
+    padding: 25px;
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    border-left: 4px solid #87ceeb;
+}
+
+/* Link styling */
+a:active {
+    color: white;
+}
+a:visited {
+    color: white;
+}
+a:focus {
+    color: white;
+}
+.instruction-content a {
+    text-decoration: underline;
+    color: #87ceeb;
+}
+
+/* Main background areas with improved spacing */
+.info-bg,
+.info-bg-m {
+    width: 100%;
+    padding: 140px 40px 60px 380px; /* Adjusted left padding since sidebar is now at left edge */
+    align-items: flex-start;
+    flex-direction: column;
+    min-height: calc(100vh - 140px);
+    display: flex;
+    justify-content: flex-start;
+}
+
+.info-main {
+    margin: 0;
+    width: 100vw;
+    box-sizing: border-box;
+    background: linear-gradient(
+            to right,
+            rgba(0, 40, 80, 1) 60%,
+            rgba(0, 40, 80, 0.8),
+            rgba(0, 40, 80, 0.6)
+        ),
+        url("../assets/collegeImage.jpeg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding-top: 80px; /* Account for navbar */
+}
+
+/* Navigation improvements */
+.ic26-navigation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 16px 20px 16px; /* Reduced bottom padding */
+    width: 320px; /* Slightly increased width for better button spacing */
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+    position: fixed;
+    top: 80px;
+    left: 0px; /* Align with left edge of screen */
+    min-width: 320px;
+    max-width: 340px;
+    background: #14244a;
+    border-radius: 0 16px 16px 0; /* Only round right corners since it's against left edge */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    z-index: 100;
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* For Firefox */
+}
+
+/* Custom scrollbar styling for webkit browsers */
+.ic26-navigation::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ic26-navigation::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ic26-navigation::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.ic26-navigation::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Navigation button improvements */
+.ic26-navigation .navigation-btn,
+.ic26-navigation h4 {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    width: 95%;
+    text-decoration: none;
+    color: white;
+    font-size: 16px; /* Slightly reduced font size to fit more content */
+    font-weight: 600;
+    padding: 10px 15px; /* Reduced padding to fit more items */
+    margin: 2px 0; /* Reduced margin between buttons */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    line-height: 1.3; /* Better line height for multi-line text */
+    word-wrap: break-word; /* Allow text to wrap if needed */
+    flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+.ic26-navigation h4 {
+    cursor: default;
+    font-weight: 700;
+    margin: 0 0 8px 0; /* Reduced bottom margin */
+    font-size: 18px; /* Slightly smaller title */
+    color: #87ceeb;
+    flex-shrink: 0; /* Prevent title from shrinking */
+}
+
+.ic26-navigation hr {
+    width: 90%;
+    margin: 8px 0 15px 0; /* Reduced margins */
+    border: none;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    flex-shrink: 0; /* Prevent hr from shrinking */
+}
+
+.navigation-btn:hover {
+    background-color: #2a3b6f;
+    color: white;
+    border-radius: 8px;
+    transform: translateX(5px); /* Subtle animation */
+    transition: all 0.3s ease;
+}
+
+.navigation-btn-active {
+    background-color: rgba(248, 248, 248, 0.9);
+    color: #14244a !important;
+    border-radius: 8px;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.navigation-btn-active::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    background-color: #87ceeb;
+    border-radius: 2px;
+}
+
+.navigation-btn-active:hover {
+    background-color: rgba(248, 248, 248, 1);
+    color: #14244a !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Scroll-based section styling */
+.info-section {
+    width: 100%;
+    min-height: 100vh;
+    padding: 80px 0 40px 0; /* Top padding to account for navbar */
+    box-sizing: border-box;
+    scroll-margin-top: 80px; /* Account for navbar height */
+    position: relative; /* Ensure proper positioning for intersection observer */
+}
+
+.info-section:first-child {
+    padding-top: 40px; /* Slightly reduced padding for first section */
+}
+
+.info-section:last-child {
+    min-height: calc(100vh - 160px); /* Ensure last section doesn't create unnecessary scroll */
+}
+
+/* Smooth scrolling for the entire page */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Component specific improvements */
+
+/* Venue container */
+.venue-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px; /* Increased gap */
+    padding: 40px 0;
+    margin: 20px 0;
+}
+
+.venue-pic-container {
+    width: 25vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.venue-pic-container img {
+    width: 100%;
+    border-radius: 20px;
+    transition: transform 0.3s ease;
+}
+
+.venue-pic-container:hover img {
+    transform: scale(1.05);
+}
+
+.venue-details h3 {
+    font-size: 28px;
+    margin: 20px 0 15px 0;
+    color: #87ceeb;
+}
+
+/* Mobile responsive adjustments */
+.info-bg-m {
+    display: none;
+}
+
+/* Hotel/Accommodation improvements */
+.hotel-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px; /* Increased gap */
+    padding: 20px 30px; /* Increased padding */
+    margin: 15px 0; /* Added margin */
+    border-radius: 15px;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.hotel-container:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+    transform: translateY(-2px);
+}
+
+.hotel-text{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+/* Session card improvements */
+.session-card{
+    padding: 40px 30px; /* Increased padding */
+    margin: 25px 0; /* Added margin */
+    display: flex;
+    flex-direction: row;
+    gap: 2.5rem; /* Increased gap */
+    justify-content: flex-start;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.session-card:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.session-card img{
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.session-card:hover img {
+    transform: scale(1.1);
+    border-color: #87ceeb;
+}
+
+.session-details{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 12px; /* Added consistent gap */
+}
+
+.session-details h3{
+    margin: 0 0 10px 0; /* Added bottom margin */
+    font-size: 24px;
+    font-weight: 700;
+    color: #87ceeb;
+}
+
+.session-details h4{
+    margin: 8px 0 15px 0; /* Adjusted margins */
+    font-size: 18px;
+    color: white;
+}
+
+.session-details p{
+    margin: 5px 0;
+    font-size: 16px;
+    font-style: italic;
+    line-height: 1.6;
+    color: #dddddd;
+}
+
+/* Schedule container improvements */
+.schedule-container {
+    padding: 0; /* Remove padding since parent handles it */
+    width: 100%;
+    max-width: none;
+    overflow: hidden;
+    min-height: auto;
+    color: white;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.day-schedule {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 30px 0; /* Increased padding */
+    margin-bottom: 30px; /* Added margin between sections */
+}
+
+.schedule-table {
+    width: 95%; /* Slightly increased width */
+    max-width: 1200px;
+    border-collapse: collapse;
+    margin-top: 25px; /* Increased margin */
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.schedule-table th, .schedule-table td {
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 18px 15px; /* Increased padding */
+    text-align: left;
+    vertical-align: top;
+}
+
+.schedule-table th {
+    background-color: rgba(255, 255, 255, 0.15);
+    font-weight: 700;
+    font-size: 16px;
+    color: #87ceeb;
+}
+
+.schedule-table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.schedule-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+.speaker-description {
+    font-size: 0.9em;
+    color: #b0b0b0;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+
+/* Headings improvements */
+h1 {
+    margin: 30px 0 25px 0;
+    color: #87ceeb;
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+h2 {
+    margin: 25px 0 20px 0;
+    color: #87ceeb;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+h3 {
+    margin: 20px 0 15px 0;
+    color: #87ceeb;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+h4 {
+    margin: 15px 0 10px 0;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+/* Paragraph improvements */
+p {
+    margin: 12px 0;
+    line-height: 1.7;
+    color: #dddddd;
+}
+
+/* List improvements */
+ul, ol {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+li {
+    margin: 8px 0;
+    line-height: 1.6;
+    color: #dddddd;
+}
+
+/* Button improvements */
+button {
+    padding: 12px 24px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 2px solid #87ceeb;
+    background-color: transparent;
+    color: #87ceeb;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #87ceeb;
+    color: #14244a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(135, 206, 235, 0.3);
+}
+
+
+
+/* Mobile responsive styles */
+@media screen and (max-width: 680px) {
+    .ic26-navigation {
+        display: none;
+    }
+
+    .info-bg {
+        display: none;
+    }
+    
+    .info-bg-m {
+        display: flex;
+        padding: 100px 20px 40px 20px; /* Adjusted for mobile */
+    }
+    
+    .info-container {
+        padding: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .venue-container {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px 0;
+    }
+    
+    .venue-pic-container {
+        width: 90vw;
+    }
+
+    .accommodation-container{
+        width: 100%;
+        grid-template-columns: 1fr;
+    }
+
+    .session-card{
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 30px 20px;
+        gap: 1.5rem;
+    }
+    
+    .session-details{
+        align-items: center;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .session-details p{
+        text-align: center;
+    }
+
+    .schedule-container {
+        padding: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .schedule-table {
+        width: 100%;
+        font-size: 14px;
+    }
+    
+    .schedule-table th, .schedule-table td {
+        padding: 12px 8px;
+    }
+    
+    .day-schedule {
+        padding: 20px 0;
+        margin-bottom: 20px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+        margin: 20px 0 15px 0;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+        margin: 15px 0 12px 0;
+    }
+    
+    h3 {
+        font-size: 1.3rem;
+        margin: 12px 0 10px 0;
+    }
+    
+    .session-card img {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .hotel-container {
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .info-main {
+        padding-top: 60px;
+    }
+    
+    .notifications-container,
+    .sessions-container,
+    .accommodation-container,
+    .sponsors-container,
+    .preconf-container,
+    .gala-night-container {
+        padding: 0;
+    }
+}
+
+/* Additional spacing utilities */
+.section-spacer {
+    margin: 40px 0;
+}
+
+.content-spacer {
+    margin: 25px 0;
+}
+
+.small-spacer {
+    margin: 15px 0;
+}
+
+/* Notification specific styles */
+.notifications-container {
+    padding: 0; /* Remove padding since parent handles it */
+    width: 100%;
+    max-width: none;
+    min-height: auto;
+    color: white;
+    box-sizing: border-box;
+}
+
+.notifications-container h2 {
+    font-size: 2.5rem;
+    color: #87ceeb;
+    margin: 0 0 40px 0; /* Increased bottom margin */
+    text-align: center;
+    width: 100%;
+}
+
+.instruction-container {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 30px;
+    margin: 25px 0;
+    width: 100%; /* Full width within parent */
+    max-width: 1000px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.instruction-container:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.instruction-title {
+    font-size: 1.5rem;
+    color: #87ceeb;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Sessions specific styles */
+.sessions-container {
+    padding: 0; /* Remove padding since parent handles it */
+    width: 100%;
+    max-width: none;
+    min-height: auto;
+    color: white;
+    box-sizing: border-box;
+}
+
+.session-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1400px;
+    margin: 30px auto 0 auto;
+    box-sizing: border-box;
+}
+
+.session-title {
+    text-align: center;
+    margin: 0 0 40px 0; /* Increased bottom margin */
+}
+
+/* Accommodation specific styles */
+.accommodation-container {
+    padding: 0; /* Remove padding since parent handles it */
+    width: 100%;
+    max-width: none;
+    min-height: auto;
+    color: white;
+    box-sizing: border-box;
+}
+
+.accommodation-title {
+    font-size: 2.5rem;
+    color: #87ceeb;
+    margin: 0 0 40px 0; /* Increased bottom margin */
+    text-align: center;
+    width: 100%;
+}
+
+.hotel-grid {
+    width: 100%;
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+    justify-content: center;
+    align-items: stretch;
+    margin: 30px auto;
+}
+
+.hotel-card {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 25px;
+    transition: all 0.3s ease;
+    text-align: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.hotel-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.hotel-info h3 {
+    color: #87ceeb;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.hotel-address {
+    color: #dddddd;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+/* Update notice styles */
+.update-notice {
+    background-color: rgba(135, 206, 235, 0.1);
+    border: 2px solid #87ceeb;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 30px 0;
+    text-align: center;
+}
+
+.update-notice p {
+    color: #87ceeb;
+    font-weight: 600;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+/* Sponsor specific styles */
+.sponsors-container, 
+.preconf-container,
+.gala-night-container {
+    padding: 0; /* Remove padding since parent handles it */
+    width: 100%;
+    max-width: none;
+    min-height: auto;
+    color: white;
+    box-sizing: border-box;
+}
+
+/* Override specific margin issues for gala night and preconf containers */
+.gala-night-container {
+    margin-left: 0 !important; /* Override the 300px left margin from imported CSS */
+    max-width: none !important; /* Remove width restrictions */
+}
+
+.preconf-container {
+    margin-left: 0 !important; /* Override the 350px left margin from imported CSS */
+    max-width: none !important; /* Remove width restrictions */
+}
+
+.instructions-container {
+    padding-left: 0 !important; /* Override the 300px left padding from imported CSS */
+    max-width: none !important; /* Remove width restrictions */
+}
+
+.sponsor-levels,
+.event-section,
+.gala-details {
+    margin: 25px 0;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.sponsor-placeholder-box {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 2px dashed #87ceeb;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.sponsor-placeholder-box p {
+    color: #87ceeb;
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+/* Fix for content width and spacing issues */
+.info-bg .info-container {
+    max-width: calc(100vw - 420px); /* Adjusted to match new sidebar positioning */
+    margin: 0;
+    padding: 0;
+}
+
+/* Ensure all content has proper spacing from sidebar */
+.notifications-container h2,
+.sessions-container h1,
+.accommodation-container h2,
+.schedule-container h1,
+.sponsors-container h1,
+.preconf-container h1,
+.gala-night-container h1 {
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+/* Better spacing for lists */
+.instruction-content ul,
+.instruction-content ol {
+    margin: 20px 0;
+    padding-left: 30px;
+}
+
+.instruction-content li {
+    margin: 10px 0;
+    line-height: 1.7;
+}
+
+/* Ensure proper content flow */
+.info-bg > * {
+    width: 100%;
+    box-sizing: border-box;
+}

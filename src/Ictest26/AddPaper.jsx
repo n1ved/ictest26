@@ -214,6 +214,8 @@ export default function AddPaper({ onSuccess }) {
 
   // If paper exists and not in edit mode, show card
   if (paper && paper.length > 0 && !editMode) {
+    const isMobile = window.innerWidth <= 768;
+    
     return (
       <div>
       <div className="paper-form-container" style={{maxWidth: 600, padding: 0, background: 'none', boxShadow: 'none', margin: '40px auto', border: 'none'}}>
@@ -239,9 +241,9 @@ export default function AddPaper({ onSuccess }) {
       color: '#fff', 
       border: 'none', 
       borderRadius: 10, 
-      padding: '0.8rem 1.5rem', 
+      padding: isMobile ? '0.6rem 1rem' : '0.8rem 1.5rem', 
       fontWeight: 800, 
-      fontSize: '1rem', 
+      fontSize: isMobile ? '0.9rem' : '1rem', 
       cursor: 'pointer', 
       boxShadow: '0 4px 12px rgba(55, 90, 127, 0.3)', 
       transition: 'all 0.2s ease',
@@ -250,9 +252,10 @@ export default function AddPaper({ onSuccess }) {
       gap: '8px',
       letterSpacing: '0.5px',
       flexShrink: 0,
-      position: 'absolute',
-      top: '20%',
-      right: '20px'
+      position: isMobile ? 'static' : 'absolute',
+      top: isMobile ? 'auto' : '20%',
+      right: isMobile ? 'auto' : '20px',
+      margin: isMobile ? '0 auto 2rem auto' : '0'
     }}
     onMouseEnter={(e) => {
       e.target.style.background = '#003366';
@@ -265,7 +268,7 @@ export default function AddPaper({ onSuccess }) {
       e.target.style.boxShadow = '0 4px 12px rgba(55, 90, 127, 0.3)';
     }}
   >
-    <i className="fa fa-plus" style={{fontSize: '14px'}}></i>
+    <i className="fa fa-plus" style={{fontSize: isMobile ? '12px' : '14px'}}></i>
     Add New Paper
   </button>
         {paper.map((singlePaper, index) => (
@@ -274,9 +277,9 @@ export default function AddPaper({ onSuccess }) {
           borderRadius: 18,
           padding: '3rem 2rem',
           color: '#e6eaff',
-          width: '100%',
-          maxWidth: 600,
-          margin: '3rem auto',
+          width: '95%',
+          maxWidth: '600px',
+          margin: '3rem 1rem',
           boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)',
           display: 'flex',
           flexDirection: 'column',

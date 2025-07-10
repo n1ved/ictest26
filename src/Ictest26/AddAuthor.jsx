@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { MdDeleteOutline } from "react-icons/md";
+import { AiOutlineEdit } from "react-icons/ai";
 import "./AddAuthor.css";
 import LoadingSpinner from "./components/LoadingSpinner";
 
@@ -396,7 +398,7 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
   }
 
   return (
-    <div className="add-author-form-container" style={{maxWidth: 950, margin: '40px auto', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#e6eaff', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 36}}>
+    <div className="add-author-form-container" style={{maxWidth: window.innerWidth <= 768 ? 250 : 950, margin: '40px 5px', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#e6eaff', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 36}}>
       <h3 className="add-author-title" style={{textTransform: 'uppercase', letterSpacing: 1.5, color: '#fff', fontWeight: 800, fontSize: '2rem', marginBottom: 18, textShadow: '0 2px 8px #00336655'}}>Add Author</h3>
       
       {/* Paper Selection */}
@@ -451,8 +453,8 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
 
       <div style={{
         width: '100%',
-        maxWidth: 900,
-        margin: '0 auto 36px auto',
+        maxWidth: window.innerWidth <= 768 ? 240 : 900,
+        margin: '0 10px 36px 10px',
         background: '#002147',
         borderRadius: 14,
         border: '2px solid #375a7f',
@@ -640,63 +642,86 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
       {authors.length > 0 && (
         <div style={{width:'100%', marginTop:32}}>
           <h4 style={{color:'#fff', marginBottom:12}}>Added Authors</h4>
-          <table style={{width:'100%', background:'#002147', color:'#fff', borderRadius:8, overflow:'hidden', fontSize:'1rem'}}>
-            <thead>
-              <tr style={{background:'#375a7f'}}>
-                <th style={{padding:'0.6rem'}}>Name</th>
-                <th style={{padding:'0.6rem'}}>Email</th>
-                <th style={{padding:'0.6rem'}}>Mobile</th>
-                <th style={{padding:'0.6rem'}}>Reg. Category</th>
-                <th style={{padding:'0.6rem'}}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {authors.map(a => (
-                <tr key={a.author_id} style={{borderBottom:'1px solid #375a7f'}}>
-                  <td style={{padding:'0.5rem'}}>{a.salutation} {a.author_name}</td>
-                  <td style={{padding:'0.5rem'}}>{a.email_id}</td>
-                  <td style={{padding:'0.5rem'}}>{a.mob_no}</td>
-                  <td style={{padding:'0.5rem'}}>{(regCats.find(r => String(r.reg_cat_id) === String(a.reg_cat_id)) || {}).category_name || a.reg_cat_id}</td>
-                  <td style={{padding:'0.5rem'}}>
-                    <div className="author-action-buttons">
-                      <button
-                        type="button"
-                        onClick={() => handleEdit(a)}
-                        style={{
-                          background:'#375a7f',
-                          color:'#fff',
-                          border:'none',
-                          borderRadius:6,
-                          padding:'0.4rem 0.8rem',
-                          cursor:'pointer',
-                          fontWeight:600
-                        }}
-                        disabled={finalSubmitted}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(a.author_id)}
-                        style={{
-                          background:'#ff4d4d',
-                          color:'#fff',
-                          border:'none',
-                          borderRadius:6,
-                          padding:'0.4rem 0.8rem',
-                          cursor: finalSubmitted ? 'not-allowed' : 'pointer',
-                          fontWeight:600
-                        }}
-                        disabled={finalSubmitted}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+          <div style={{
+            width:'100%', 
+            overflowX: window.innerWidth <= 768 ? 'auto' : 'visible',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#375a7f #002147'
+          }}>
+            <table style={{
+              width:'100%', 
+              minWidth: window.innerWidth <= 768 ? '600px' : 'auto',
+              background:'#002147', 
+              color:'#fff', 
+              borderRadius:8, 
+              overflow:'hidden', 
+              fontSize:'1rem'
+            }}>
+              <thead>
+                <tr style={{background:'#375a7f'}}>
+                  <th style={{padding:'0.6rem', minWidth: '120px'}}>Name</th>
+                  <th style={{padding:'0.6rem', minWidth: '150px'}}>Email</th>
+                  <th style={{padding:'0.6rem', minWidth: '100px'}}>Mobile</th>
+                  <th style={{padding:'0.6rem', minWidth: '130px'}}>Reg. Category</th>
+                  <th style={{padding:'0.6rem', minWidth: '120px'}}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {authors.map(a => (
+                  <tr key={a.author_id} style={{borderBottom:'1px solid #375a7f'}}>
+                    <td style={{padding:'0.5rem'}}>{a.salutation} {a.author_name}</td>
+                    <td style={{padding:'0.5rem', wordBreak: 'break-word'}}>{a.email_id}</td>
+                    <td style={{padding:'0.5rem'}}>{a.mob_no}</td>
+                    <td style={{padding:'0.5rem'}}>{(regCats.find(r => String(r.reg_cat_id) === String(a.reg_cat_id)) || {}).category_name || a.reg_cat_id}</td>
+                    <td style={{padding:'0.5rem'}}>
+                      <div className="author-action-buttons" style={{
+                        display: 'flex',
+                        gap: '8px',
+                        flexWrap: window.innerWidth <= 768 ? 'wrap' : 'nowrap'
+                      }}>
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(a)}
+                          style={{
+                            background:'#375a7f',
+                            color:'#fff',
+                            border:'none',
+                            borderRadius:6,
+                            padding:'0.4rem 0.8rem',
+                            cursor:'pointer',
+                            fontWeight:600,
+                            fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem'
+                          }}
+                          disabled={finalSubmitted}
+                        >
+                          {window.innerWidth <= 768 ? <AiOutlineEdit /> : 'Edit'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(a.author_id)}
+                          style={{
+                            background:'#ff4d4d',
+                            color:'#fff',
+                            border:'none',
+                            borderRadius:6,
+                            padding:'0.4rem 0.8rem',
+                            cursor: finalSubmitted ? 'not-allowed' : 'pointer',
+                            fontWeight:600,
+                            fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem'
+                          }}
+                          disabled={finalSubmitted}
+                        >
+                          {window.innerWidth <= 768 ? <MdDeleteOutline /> : 'Delete'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
         </div>
       )}
       {/* Waiting for admin approval message */}

@@ -9,6 +9,8 @@ import "./AddAuthor.css";
 import FinalSubmitPage from "./FinalSubmitPage";
 import Payments from "./Payments";
 import "./Payments.css";
+import Messages from "./Messages";
+import "./Messages.css";
 
 export default function Dashboard() {
   const email = localStorage.getItem("ictest26_user");
@@ -24,11 +26,17 @@ export default function Dashboard() {
     navigate("/2026/login");
   };
 
+  const getMainContentPadding = () => {
+    const isMobile = window.innerWidth <= 768;
+    const leftPadding = isMobile ? "100px" : "300px";
+    return `2.5rem 2.6rem 2.5rem ${leftPadding}`;
+  };
+
   return (
     <div className="dashboard-outer-wrapper" style={{ paddingTop: 40, minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center" }}>
       <div className="dashboard-container" style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", height: "100%" }}>
         <Sidebar sidebar={sidebar} setSidebar={setSidebar} handleLogout={handleLogout} />
-        <div style={{ flex: 1, padding: "2.5rem 2.5rem 2.5rem 300px", minHeight: "100vh", width: "100%", background: "#001a33", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ flex: 1, padding: getMainContentPadding(), minHeight: "100vh", width: "100%", background: "#001a33", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
           {sidebar === "welcome" && (
             <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: 0 }}>
               <h2 style={{ color: "#fff", fontWeight: 800, fontSize: 32, marginBottom: 8, letterSpacing: 1, textAlign: "center" }}>Welcome to ICTEST 2026 Dashboard</h2>
@@ -51,6 +59,9 @@ export default function Dashboard() {
           )}
           {sidebar === "payments" && (
             <Payments />
+          )}
+          {sidebar === "messages" && (
+            <Messages />
           )}
           {sidebar === "final-submit" && (
             <FinalSubmitPage />
