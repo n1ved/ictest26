@@ -403,7 +403,16 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
       
       {/* Paper Selection */}
       {papers.length > 1 && (
-        <div style={{width: '100%', marginBottom: 32, background:'#00224d', borderRadius:12, padding:'1.5rem', border:'1.5px solid #375a7f'}}>
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '0 auto 32px auto',
+          background: '#00224d',
+          borderRadius: 12,
+          padding: '1.1rem 1.3rem',
+          border: '1.5px solid #375a7f',
+          boxShadow: '0 4px 16px 0 rgba(0,0,0,0.13)'
+        }}>
           <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
             Select Paper for Author Addition
           </h4>
@@ -439,7 +448,16 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
 
       {/* Single Paper Display */}
       {papers.length === 1 && selectedPaper && (
-        <div style={{width: '100%', marginBottom: 32, background:'#00224d', borderRadius:12, padding:'1.5rem', border:'1.5px solid #375a7f'}}>
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '0 auto 32px auto',
+          background: '#00224d',
+          borderRadius: 12,
+          padding: '1.1rem 1.3rem',
+          border: '1.5px solid #375a7f',
+          boxShadow: '0 4px 16px 0 rgba(0,0,0,0.13)'
+        }}>
           <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
             Paper Details
           </h4>
@@ -493,7 +511,15 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
           <span>Ensure all author details and documents are correct before final submission.</span>
         </div>
       </div>
-      <form onSubmit={handleSubmit} className="add-author-form" autoComplete="off" style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 18}}>
+      <form onSubmit={handleSubmit} className="add-author-form" autoComplete="off" style={{
+        width: '100%',
+        maxWidth: 900,
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        gap: 18
+      }}>
         <div style={{width: '100%'}}>
           <select name="salutation" value={form.salutation} onChange={handleChange} required style={{width: '100%', boxSizing: 'border-box', padding: '1.1rem', borderRadius: 8, border: '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff'}}>
             <option value="">Salutation *</option>
@@ -640,7 +666,11 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
       </form>
       {/* Authors List */}
       {authors.length > 0 && (
-        <div style={{width:'100%', marginTop:32}}>
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '32px auto 0 auto'
+        }}>
           <h4 style={{color:'#fff', marginBottom:12}}>Added Authors</h4>
           <div style={{
             width:'100%', 
@@ -726,7 +756,19 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
       )}
       {/* Waiting for admin approval message */}
       {finalSubmitted && (
-        <div style={{width:'100%', marginTop:32, background:'#003366', color:'#fff', borderRadius:10, padding:'1.5rem', textAlign:'center', fontWeight:600, fontSize:'1.15rem', boxShadow:'0 2px 8px 0 rgba(0,0,0,0.10)'}}>
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '32px auto 0 auto',
+          background: '#003366',
+          color: '#fff',
+          borderRadius: 10,
+          padding: '1.5rem',
+          textAlign: 'center',
+          fontWeight: 600,
+          fontSize: '1.15rem',
+          boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)'
+        }}>
           Waiting for admin approval...<br/>
           <span style={{color:'#ffb347'}}>You cannot add or edit authors after final submit.</span>
         </div>
