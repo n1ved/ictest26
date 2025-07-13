@@ -122,7 +122,11 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
         .select("final_submit")
         .eq("paper_id", paperId)
         .single();
-      if (!error && data && data.final_submit) setFinalSubmitted(true);
+      if (!error && data) {
+        setFinalSubmitted(!!data.final_submit);
+      } else {
+        setFinalSubmitted(false);
+      }
     };
     checkFinalSubmit();
   }, [paperId, success]);
