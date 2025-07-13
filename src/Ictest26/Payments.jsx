@@ -874,7 +874,15 @@ export default function Payments() {
 
           {/* Download Invoice Button (before payment) */}
           {paymentDetails.breakdown.length > 0 && !paymentStatus.isPaid && (
-            <div style={{textAlign:'center', marginBottom: 24}}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+              marginBottom: 24,
+              width: '100%'
+            }}>
               <button
                 onClick={handleDownloadInvoice}
                 style={{
@@ -902,7 +910,14 @@ export default function Payments() {
 
           {/* Payment Button */}
           {paymentDetails.breakdown.length > 0 && paymentDetails.totalAmount > 0 && !paymentStatus.isPaid && (
-            <div style={{textAlign:'center'}}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+              width: '100%'
+            }}>
               <button 
                 onClick={handlePayment}
                 style={{

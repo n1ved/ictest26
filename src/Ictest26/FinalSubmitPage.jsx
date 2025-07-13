@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PaperSelectionModal from "./components/PaperSelectionModal";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function FinalSubmitPage() {
@@ -10,8 +9,8 @@ export default function FinalSubmitPage() {
   const [authors, setAuthors] = useState([]);
   const [authorsLoading, setAuthorsLoading] = useState(true);
   const [regCats, setRegCats] = useState([]);
-  const [modal, setModal] = useState(false);
-  const [papers, setPapers] = useState(null);
+  const [papers, setPapers] = useState([]);
+  const [selectedPaper, setSelectedPaper] = useState(null);
 
   useEffect(() => {
     const fetchPaperId = async () => {
@@ -28,16 +27,20 @@ export default function FinalSubmitPage() {
       if (loginData) {
         const { data: paperData } = await window.supabase
           .from("paper")
-          .select("paper_id, paper_title")
-          .eq("login_id", loginData.login_id);
+          .select("paper_id, paper_title, created_at")
+          .eq("login_id", loginData.login_id)
+          .order("paper_id", { ascending: true });
         if (paperData) {
           setPapers(paperData);
           if (paperData.length === 1) {
             setPaperId(paperData[0].paper_id);
-          } else {
-            setModal(true);
-            setLoading(false); 
+            setSelectedPaper(paperData[0]);
+          } else if (paperData.length > 1) {
+            // Set the first paper as default selected
+            setPaperId(paperData[0].paper_id);
+            setSelectedPaper(paperData[0]);
           }
+          setLoading(false);
         } else {
           setLoading(false); 
         }
@@ -48,6 +51,14 @@ export default function FinalSubmitPage() {
     fetchPaperId();
   }, []);
 
+  // Handle paper selection change
+  const handlePaperChange = (event) => {
+    const selectedPaperId = parseInt(event.target.value);
+    const paper = papers.find(p => p.paper_id === selectedPaperId);
+    setSelectedPaper(paper);
+    setPaperId(selectedPaperId);
+  };
+
   useEffect(() => {
     const fetchFinalSubmit = async () => {
       if (!paperId) return;
@@ -56,7 +67,11 @@ export default function FinalSubmitPage() {
         .select("final_submit")
         .eq("paper_id", paperId)
         .single();
-      if (!error && data && data.final_submit) setFinalSubmitted(true);
+      if (!error && data) {
+        setFinalSubmitted(!!data.final_submit);
+      } else {
+        setFinalSubmitted(false);
+      }
       setLoading(false);
     };
     if (paperId) fetchFinalSubmit();
@@ -125,24 +140,104 @@ export default function FinalSubmitPage() {
 
   if (loading) return <LoadingSpinner text={"Checking for papers..."} fullScreen={false} />
   
-  if (modal) {
+  if (!paperId || papers.length === 0) {
     return (
-      <PaperSelectionModal
-        papers={papers}
-        setPaperId={setPaperId}
-        isOpen={modal}
-        onClose={setModal}
-        curr={paperId}
-      />
+      <div style={{maxWidth: 800, margin: '40px auto', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#fff', textAlign: 'center'}}>
+        <h3 style={{color: '#ffb347', marginBottom: 20}}>No Papers Found</h3>
+        <p>Please add a paper first before proceeding with final submission.</p>
+      </div>
     );
   }
-
+  
   return (
     <div style={{maxWidth: window.innerWidth <= 768 ? 250 : 900, margin: '40px auto', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
       <h3 style={{textTransform: 'uppercase', letterSpacing: 1.5, color: '#fff', fontWeight: 800, fontSize: '2rem', marginBottom: 24, textShadow: '0 2px 8px #00336655'}}>Final Submit</h3>
+      
+      {/* Paper Selection Dropdown */}
+      {papers.length > 1 && (
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '0 0 32px 0',
+          background: '#00224d',
+          borderRadius: 12,
+          padding: '1.2rem 1rem',
+          border: '1.5px solid #375a7f',
+          boxShadow: '0 4px 16px 0 rgba(0,0,0,0.13)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+          boxSizing: 'border-box'
+        }}>
+          <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
+            Select Paper for Final Submission
+          </h4>
+          <select 
+            value={paperId || ''} 
+            onChange={handlePaperChange}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: 8,
+              border: '1.5px solid #375a7f',
+              fontSize: '1rem',
+              background: '#001a33',
+              color: '#fff',
+              cursor: 'pointer',
+              marginBottom: 10
+            }}
+          >
+            {papers.map((paper) => (
+              <option key={paper.paper_id} value={paper.paper_id}>
+                Paper ID: {paper.paper_id} - {paper.paper_title}
+              </option>
+            ))}
+          </select>
+          {selectedPaper && (
+            <div style={{marginTop: 12, fontSize: '0.9rem', color: '#b3c6e0'}}>
+              <strong>Selected Paper:</strong> {selectedPaper.paper_title}<br/>
+              <strong>Paper ID:</strong> {selectedPaper.paper_id}<br/>
+              <strong>Submitted:</strong> {new Date(selectedPaper.created_at).toLocaleDateString()}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Single Paper Display */}
+      {papers.length === 1 && selectedPaper && (
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '0 auto 32px auto',
+          background: '#00224d',
+          borderRadius: 12,
+          padding: '1.1rem 1.3rem',
+          border: '1.5px solid #375a7f',
+          boxShadow: '0 4px 16px 0 rgba(0,0,0,0.13)'
+        }}>
+          <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
+            Paper Details
+          </h4>
+          <div style={{fontSize: '0.95rem', color: '#fff'}}>
+            <div style={{marginBottom: 8}}><strong>Title:</strong> {selectedPaper.paper_title}</div>
+            <div style={{marginBottom: 8}}><strong>Paper ID:</strong> {selectedPaper.paper_id}</div>
+            <div><strong>Submitted:</strong> {new Date(selectedPaper.created_at).toLocaleDateString()}</div>
+          </div>
+        </div>
+      )}
+      
       {/* Show author details if not final submitted */}
       {!finalSubmitted && (
-        <div style={{width:'100%', marginBottom: 28, background:'#00224d', borderRadius:10, padding:'1.2rem 1rem', border:'1.5px solid #375a7f'}}>
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '0 0 28px 0',
+          background: '#00224d',
+          borderRadius: 12,
+          padding: '1.2rem 1rem',
+          border: '1.5px solid #375a7f',
+          boxSizing: 'border-box'
+        }}>
           <div style={{fontWeight:700, fontSize:'1.13rem', marginBottom:10, color:'#ffe066'}}>Author Details</div>
           {authorsLoading ? (
             <div style={{color:'#fff'}}>Loading authors...</div>
@@ -215,25 +310,6 @@ export default function FinalSubmitPage() {
               <li>Once submitted, you will see a confirmation and a message indicating you are waiting for admin approval.</li>
             </ul>
           </div>
-          <button
-        onClick={() => setModal(true)}
-        style={{
-          width: "100%",
-          background: "#003366",
-          color: "#fff",
-          border: "none",
-          borderRadius: 10,
-          padding: "0.9rem 0",
-          fontWeight: 800,
-          fontSize: "1.15rem",
-          cursor: "pointer",
-          marginBottom: 12,
-          boxShadow: "0 2px 8px 0 rgba(0,0,0,0.10)",
-          transition: "background 0.2s",
-        }}
-      >
-        Select paper
-      </button>
           <button onClick={handleFinalSubmit} style={{width: '100%', background:'linear-gradient(90deg,#28a745 60%,#218838 100%)', color:'#fff', border:'none', borderRadius:12, padding:'1.1rem 0', fontWeight:900, fontSize:'1.18rem', cursor:'pointer', marginTop:18, marginBottom:12, boxShadow:'0 2px 8px 0 rgba(0,0,0,0.10)', transition:'background 0.2s', letterSpacing:1}}>Final Submit</button>
         </>
       )}
