@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { MdDeleteOutline } from "react-icons/md";
 import { AiOutlineEdit } from "react-icons/ai";
 import "./AddAuthor.css";
-import PaperSelectionModal from "./components/PaperSelectionModal";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
@@ -35,8 +34,8 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
   const [authors, setAuthors] = useState([]);
   const [editAuthorId, setEditAuthorId] = useState(null);
   const [finalSubmitted, setFinalSubmitted] = useState(false);
-  const [modal, setModal] = useState(false);
-  const [papers, setPapers] = useState(null);
+  const [papers, setPapers] = useState([]);
+  const [selectedPaper, setSelectedPaper] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -53,21 +52,25 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
         if (loginData) {
           const { data: paperData } = await window.supabase
             .from("paper")
-            .select("paper_id, paper_title, presentation_mode")
-            .eq("login_id", loginData.login_id);
-          if (paperData) {
+            .select("paper_id, paper_title, presentation_mode, created_at")
+            .eq("login_id", loginData.login_id)
+            .order("paper_id", { ascending: true });
+          if (paperData && paperData.length > 0) {
             setPapers(paperData);
-            setModal(true);
+            // Set the first paper as default selected
+            setSelectedPaper(paperData[0]);
+            setPaperId(paperData[0].paper_id);
           }
         }
       } else {
         // If paperId is provided, fetch paper details
         const { data: paperData } = await window.supabase
           .from("paper")
-          .select("paper_id, paper_title, presentation_mode")
+          .select("paper_id, paper_title, presentation_mode, created_at")
           .eq("paper_id", paperId)
           .single();
         if (paperData) {
+          setSelectedPaper(paperData);
           setPaperDetails(paperData);
           // If online mode, automatically set state to Kerala
           if (paperData.presentation_mode === "Online") {
@@ -119,7 +122,11 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
         .select("final_submit")
         .eq("paper_id", paperId)
         .single();
-      if (!error && data && data.final_submit) setFinalSubmitted(true);
+      if (!error && data) {
+        setFinalSubmitted(!!data.final_submit);
+      } else {
+        setFinalSubmitted(false);
+      }
     };
     checkFinalSubmit();
   }, [paperId, success]);
@@ -233,11 +240,7 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
     setError("");
     setSuccess("");
     if (!paperId) {
-      
       setError("No paper found. Please add a paper first.");
-      setTimeout(() => {
-        setModal(true);
-      }, 2000)
       return;
     }
     // Only require proof_reg_cat_url if adding a new author, or if editing and the field is empty (i.e., user removed it)
@@ -344,18 +347,132 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
     const kerala = states.find(s => s.state_name.toLowerCase() === 'kerala');
     return form.state_id && kerala && String(form.state_id) === String(kerala.state_id);
   };
+
+  // Handle paper selection change
+  const handlePaperChange = (event) => {
+    const selectedPaperId = parseInt(event.target.value);
+    const paper = papers.find(p => p.paper_id === selectedPaperId);
+    setSelectedPaper(paper);
+    setPaperId(selectedPaperId);
+    setPaperDetails(paper);
+    
+    // Reset form and authors when changing papers
+    setForm({
+      salutation: "",
+      author_name: "",
+      designation_id: "",
+      reg_cat_id: "",
+      state_id: "",
+      district_id: "",
+      manual_district: "",
+      pin_code: "",
+      is_primary_author: false,
+      is_presenter: false,
+      is_attending_at_venue: false,
+      proof_reg_cat_url: "",
+      email_id: "",
+      mob_no: "",
+    });
+    setEditAuthorId(null);
+    
+    // If online mode, automatically set state to Kerala
+    if (paper?.presentation_mode === "Online") {
+      const kerala = states.find(s => s.state_name.toLowerCase() === 'kerala');
+      if (kerala) {
+        setForm(prev => ({
+          ...prev,
+          state_id: kerala.state_id.toString()
+        }));
+      }
+    }
+  };
+
   console.log(loading)
   if(loading){
     return <LoadingSpinner text={"Checking for papers..."} fullScreen={false} />
   }
 
-  if(modal){
-    return <PaperSelectionModal papers={papers} setPaperId={setPaperId} isOpen={modal} onClose={setModal} curr={paperId}/>
+  if (!paperId || papers.length === 0) {
+    return (
+      <div style={{maxWidth: 800, margin: '40px auto', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#fff', textAlign: 'center'}}>
+        <h3 style={{color: '#ffb347', marginBottom: 20}}>No Papers Found</h3>
+        <p>Please add a paper first before adding authors.</p>
+      </div>
+    );
   }
 
   return (
     <div className="add-author-form-container" style={{maxWidth: window.innerWidth <= 768 ? 250 : 950, margin: '40px 5px', background: '#001a33', borderRadius: 18, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.22)', border: '2px solid #375a7f', padding: '3rem 2rem', color: '#e6eaff', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 36}}>
       <h3 className="add-author-title" style={{textTransform: 'uppercase', letterSpacing: 1.5, color: '#fff', fontWeight: 800, fontSize: '2rem', marginBottom: 18, textShadow: '0 2px 8px #00336655'}}>Add Author</h3>
+      
+      {/* Paper Selection */}
+      {papers.length > 1 && (
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '0 auto 32px auto',
+          background: '#00224d',
+          borderRadius: 12,
+          padding: '1.1rem 1.3rem',
+          border: '1.5px solid #375a7f',
+          boxShadow: '0 4px 16px 0 rgba(0,0,0,0.13)'
+        }}>
+          <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
+            Select Paper for Author Addition
+          </h4>
+          <select 
+            value={paperId || ''} 
+            onChange={handlePaperChange}
+            style={{
+              width: '100%', 
+              padding: '12px', 
+              borderRadius: 8, 
+              border: '1.5px solid #375a7f', 
+              fontSize: '1rem', 
+              background: '#001a33', 
+              color: '#fff',
+              cursor: 'pointer'
+            }}
+          >
+            {papers.map((paper) => (
+              <option key={paper.paper_id} value={paper.paper_id}>
+                Paper ID: {paper.paper_id} - {paper.paper_title}
+              </option>
+            ))}
+          </select>
+          {selectedPaper && (
+            <div style={{marginTop: 12, fontSize: '0.9rem', color: '#b3c6e0'}}>
+              <strong>Selected Paper:</strong> {selectedPaper.paper_title}<br/>
+              <strong>Paper ID:</strong> {selectedPaper.paper_id}<br/>
+              <strong>Submitted:</strong> {new Date(selectedPaper.created_at).toLocaleDateString()}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Single Paper Display */}
+      {papers.length === 1 && selectedPaper && (
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '0 auto 32px auto',
+          background: '#00224d',
+          borderRadius: 12,
+          padding: '1.1rem 1.3rem',
+          border: '1.5px solid #375a7f',
+          boxShadow: '0 4px 16px 0 rgba(0,0,0,0.13)'
+        }}>
+          <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
+            Paper Details
+          </h4>
+          <div style={{fontSize: '0.95rem', color: '#fff'}}>
+            <div style={{marginBottom: 8}}><strong>Title:</strong> {selectedPaper.paper_title}</div>
+            <div style={{marginBottom: 8}}><strong>Paper ID:</strong> {selectedPaper.paper_id}</div>
+            <div><strong>Submitted:</strong> {new Date(selectedPaper.created_at).toLocaleDateString()}</div>
+          </div>
+        </div>
+      )}
+
       <div style={{
         width: '100%',
         maxWidth: window.innerWidth <= 768 ? 240 : 900,
@@ -398,7 +515,15 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
           <span>Ensure all author details and documents are correct before final submission.</span>
         </div>
       </div>
-      <form onSubmit={handleSubmit} className="add-author-form" autoComplete="off" style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 18}}>
+      <form onSubmit={handleSubmit} className="add-author-form" autoComplete="off" style={{
+        width: '100%',
+        maxWidth: 900,
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        gap: 18
+      }}>
         <div style={{width: '100%'}}>
           <select name="salutation" value={form.salutation} onChange={handleChange} required style={{width: '100%', boxSizing: 'border-box', padding: '1.1rem', borderRadius: 8, border: '1.5px solid #375a7f', fontSize: '1.1rem', background: '#001a33', color: '#fff'}}>
             <option value="">Salutation *</option>
@@ -539,14 +664,17 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
           {form.proof_reg_cat_url && <div className="proof-upload-status">File uploaded!</div>}
         </div>
         <button type="submit" disabled={finalSubmitted} style={{width: '100%', background:'#003366', color:'#fff', border:'none', borderRadius:10, padding:'0.9rem 0', fontWeight:800, fontSize:'1.15rem', cursor: finalSubmitted ? 'not-allowed' : 'pointer', marginBottom:12, boxShadow:'0 2px 8px 0 rgba(0,0,0,0.10)', transition:'background 0.2s'}}>{editAuthorId ? 'Update Author' : 'Add Author'}</button>
-        <button onClick={() => setModal(true)} style={{width: '100%', background:'#003366', color:'#fff', border:'none', borderRadius:10, padding:'0.9rem 0', fontWeight:800, fontSize:'1.15rem', cursor: 'pointer', marginBottom:12, boxShadow:'0 2px 8px 0 rgba(0,0,0,0.10)', transition:'background 0.2s'}}>Select paper</button>
         {editAuthorId && !finalSubmitted && <button type="button" onClick={handleCancelEdit} style={{width: '100%', background:'#888', color:'#fff', border:'none', borderRadius:10, padding:'0.7rem 0', fontWeight:600, fontSize:'1rem', cursor:'pointer', marginBottom:12}}>Cancel Edit</button>}
         {success && <div className="author-success" style={{color:'#fff', fontWeight:600, marginTop:12, textAlign:'center', fontSize:'1.1rem'}}>{success}</div>}
         {error && <div className="author-error" style={{color:'#ff7f7f', fontWeight:600, marginTop:12, textAlign:'center', fontSize:'1.1rem'}}>{error}</div>}
       </form>
       {/* Authors List */}
       {authors.length > 0 && (
-        <div style={{width:'100%', marginTop:32}}>
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '32px auto 0 auto'
+        }}>
           <h4 style={{color:'#fff', marginBottom:12}}>Added Authors</h4>
           <div style={{
             width:'100%', 
@@ -632,7 +760,19 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
       )}
       {/* Waiting for admin approval message */}
       {finalSubmitted && (
-        <div style={{width:'100%', marginTop:32, background:'#003366', color:'#fff', borderRadius:10, padding:'1.5rem', textAlign:'center', fontWeight:600, fontSize:'1.15rem', boxShadow:'0 2px 8px 0 rgba(0,0,0,0.10)'}}>
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '32px auto 0 auto',
+          background: '#003366',
+          color: '#fff',
+          borderRadius: 10,
+          padding: '1.5rem',
+          textAlign: 'center',
+          fontWeight: 600,
+          fontSize: '1.15rem',
+          boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)'
+        }}>
           Waiting for admin approval...<br/>
           <span style={{color:'#ffb347'}}>You cannot add or edit authors after final submit.</span>
         </div>
