@@ -224,7 +224,16 @@ export default function FinalSubmitPage() {
       
       {/* Show author details if not final submitted */}
       {!finalSubmitted && (
-        <div style={{width:'100%', marginBottom: 28, background:'#00224d', borderRadius:10, padding:'1.2rem 1rem', border:'1.5px solid #375a7f'}}>
+        <div style={{
+          width: '100%',
+          maxWidth: 900,
+          margin: '0 0 28px 0',
+          background: '#00224d',
+          borderRadius: 12,
+          padding: '1.2rem 1rem',
+          border: '1.5px solid #375a7f',
+          boxSizing: 'border-box'
+        }}>
           <div style={{fontWeight:700, fontSize:'1.13rem', marginBottom:10, color:'#ffe066'}}>Author Details</div>
           {authorsLoading ? (
             <div style={{color:'#fff'}}>Loading authors...</div>
