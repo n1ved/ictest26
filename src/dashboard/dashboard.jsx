@@ -1,6 +1,6 @@
 import "./dashboard.css";
 import React, { useState, useEffect } from "react";
-import supabase from "../Ictest26/supabaseClient";
+import { supabase } from "../Ictest26/supabaseClient";
 
 export default function Dashboard() {
   const [allowAuthorLogin, setAllowAuthorLogin] = useState(true); // default true for safety

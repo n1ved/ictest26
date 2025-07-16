@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './AdminSettings.css';
+import { supabase } from './supabaseClient';
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState({
@@ -22,7 +23,7 @@ export default function AdminSettings() {
     const fetchSettings = async () => {
       try {
         // Always fetch the row with id=1
-        const { data, error } = await window.supabase
+        const { data, error } = await supabase
           .from('admin_settings')
           .select('*')
           .eq('id', 1)
@@ -46,7 +47,7 @@ export default function AdminSettings() {
           // If no row exists, insert default row with id=1
           if (error.code === 'PGRST116' || error.message?.includes('Results contain 0 rows')) {
             try {
-              const { error: insertError } = await window.supabase
+              const { error: insertError } = await supabase
                 .from('admin_settings')
                 .insert([{
                   id: 1,
@@ -102,7 +103,7 @@ export default function AdminSettings() {
         registrationOpen: 'registration_open'
       };
       
-      const { error } = await window.supabase
+      const { error } = await supabase
         .from('admin_settings')
         .update({ [dbKeyMap[key]]: value })
         .eq('id', 1);  // Assuming there's only one settings record with id=1
@@ -193,7 +194,7 @@ export default function AdminSettings() {
           
           // Sequential truncation of tables
           for (const table of tablesToClear) {
-            const { error: truncateError } = await window.supabase.rpc('truncate_table', { table_name: table });
+            const { error: truncateError } = await supabase.rpc('truncate_table', { table_name: table });
             if (truncateError) throw new Error(`Failed to clear ${table}: ${truncateError.message}`);
           }
           
@@ -201,23 +202,23 @@ export default function AdminSettings() {
           break;
           
         case 'papers':
-          ({ error } = await window.supabase.rpc('truncate_table', { table_name: 'paper' }));
+          ({ error } = await supabase.rpc('truncate_table', { table_name: 'paper' }));
           if (error) throw error;
           setSuccess('All papers have been deleted successfully!');
           break;
           
         case 'authors':
-          ({ error } = await window.supabase.rpc('truncate_table', { table_name: 'author' }));
+          ({ error } = await supabase.rpc('truncate_table', { table_name: 'author' }));
           if (error) throw error;
           setSuccess('All authors have been deleted successfully!');
           break;
           
         case 'messages':
-          ({ error } = await window.supabase.rpc('truncate_table', { table_name: 'message' }));
+          ({ error } = await supabase.rpc('truncate_table', { table_name: 'message' }));
           if (error) throw error;
-          ({ error } = await window.supabase.rpc('truncate_table', { table_name: 'message_action' }));
+          ({ error } = await supabase.rpc('truncate_table', { table_name: 'message_action' }));
           if (error) throw error;
-          ({ error } = await window.supabase.rpc('truncate_table', { table_name: 'attachment' }));
+          ({ error } = await supabase.rpc('truncate_table', { table_name: 'attachment' }));
           if (error) throw error;
           setSuccess('All messages have been deleted successfully!');
           break;
