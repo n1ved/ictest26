@@ -1,5 +1,29 @@
 import "./dashboard.css";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../Ictest26/supabaseClient";
+
 export default function Dashboard() {
+  const [allowAuthorLogin, setAllowAuthorLogin] = useState(true); // default true for safety
+
+  // Fetch allowAuthorLogin from admin_settings
+  useEffect(() => {
+    async function fetchSetting() {
+      try {
+        const { data, error } = await supabase
+          .from('admin_settings')
+          .select('allow_author_login')
+          .eq('id', 1)
+          .single();
+        if (!error && data && typeof data.allow_author_login === 'boolean') {
+          setAllowAuthorLogin(data.allow_author_login);
+        }
+      } catch (err) {
+        // fallback: keep default true
+      }
+    }
+    fetchSetting();
+  }, []);
+
   return (
     <div className="dashboard">
       <h1>
@@ -51,7 +75,7 @@ export default function Dashboard() {
         Systems, Electronic Design Automation, Emerging Technologies, Healthcare
         systems, Power and Energy Systems, and more, ICTEST'25 covers a wide
         range of topics. Accepted papers will be submitted for inclusion into
-        IEEE Xplore subject to meeting IEEE Xplore’s scope and quality
+        IEEE Xplore subject to meeting IEEE Xplore's scope and quality
         requirements.
       </p>
       <h3>
@@ -74,9 +98,11 @@ export default function Dashboard() {
         has consistently achieved record-breaking placements.
       </p>
       
-      <a href="/2026/login" className="ictest26-login-btn">
-        Author Login for ICTEST 2026
-      </a>
+      {allowAuthorLogin && (
+        <a href="/2026/login" className="ictest26-login-btn">
+          Author Login for ICTEST 2026
+        </a>
+      )}
     </div>
   );
 }
