@@ -41,8 +41,17 @@ export default function Auth() {
           setError("Invalid email or password.");
           return;
         }
-        localStorage.setItem("ictest26_user", email);
+        
+        // Store user data as JSON object
+        const userData = {
+          login_id: data.login_id,
+          email: data.email,
+          role: data.role || "author"
+        };
+        
+        localStorage.setItem("ictest26_user", JSON.stringify(userData));
         localStorage.setItem("ictest26_role", data.role || "author");
+        
         if ((data.role || "author") === "admin") {
           navigate("/2026/admin");
         } else {
@@ -62,15 +71,27 @@ export default function Auth() {
         // Hash password before storing
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(password, salt);
-        const { data: insertData, error: insertError } = await window.supabase.from('login').insert([
-          { email, password_hash: hash, role: 'author' }
-        ]);
+        
+        const { data: insertData, error: insertError } = await window.supabase
+          .from('login')
+          .insert([{ email, password_hash: hash, role: 'author' }])
+          .select()
+          .single();
+          
         if (insertError) {
           console.error('Supabase signup error:', insertError, JSON.stringify(insertError, null, 2));
           setError("Signup failed. " + insertError.message);
           return;
         }
-        localStorage.setItem("ictest26_user", email);
+        
+        // Store user data as JSON object
+        const userData = {
+          login_id: insertData.login_id,
+          email: insertData.email,
+          role: insertData.role || "author"
+        };
+        
+        localStorage.setItem("ictest26_user", JSON.stringify(userData));
         localStorage.setItem("ictest26_role", "author");
         navigate("/2026/dashboard");
       }

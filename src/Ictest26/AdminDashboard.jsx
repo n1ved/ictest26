@@ -22,6 +22,58 @@ export default function AdminDashboard() {
   const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
 
+  // Function to refresh table data with enhanced queries
+  const refreshTableData = async () => {
+    if (!selectedTable) return;
+    try {
+      let query;
+      
+      if (selectedTable === 'messages') {
+        query = window.supabase
+          .from(selectedTable)
+          .select(`
+            *,
+            paper:paper_id(paper_title),
+            author:author_id(author_name, email_id),
+            admin:admin_id(email)
+          `);
+      } else if (selectedTable === 'attachments') {
+        query = window.supabase
+          .from(selectedTable)
+          .select(`
+            *,
+            message:message_id(subject, type)
+          `);
+      } else if (selectedTable === 'paper') {
+        query = window.supabase
+          .from(selectedTable)
+          .select(`
+            *,
+            login:login_id(email),
+            track:track_id(*)
+          `);
+      } else if (selectedTable === 'author') {
+        query = window.supabase
+          .from(selectedTable)
+          .select(`
+            *,
+            paper:paper_id(paper_title)
+          `);
+      } else {
+        query = window.supabase.from(selectedTable).select("*");
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      setRows(data);
+      if (data && data.length > 0) {
+        setColumns(Object.keys(data[0]));
+      }
+    } catch (err) {
+      console.error('Failed to refresh table data:', err);
+    }
+  };
+
   // Reset states when changing menu or table
   const handleMenuChange = (menu) => {
     setActiveMenu(menu);
@@ -69,7 +121,45 @@ export default function AdminDashboard() {
     setError("");
     const fetchRows = async () => {
       try {
-        const { data, error } = await window.supabase.from(selectedTable).select("*");
+        let query;
+        
+        // Enhanced queries for specific tables to include related data
+        if (selectedTable === 'messages') {
+          query = window.supabase
+            .from(selectedTable)
+            .select(`
+              *,
+              paper:paper_id(paper_title),
+              author:author_id(author_name, email_id),
+              admin:admin_id(email)
+            `);
+        } else if (selectedTable === 'attachments') {
+          query = window.supabase
+            .from(selectedTable)
+            .select(`
+              *,
+              message:message_id(subject, type)
+            `);
+        } else if (selectedTable === 'paper') {
+          query = window.supabase
+            .from(selectedTable)
+            .select(`
+              *,
+              login:login_id(email),
+              track:track_id(*)
+            `);
+        } else if (selectedTable === 'author') {
+          query = window.supabase
+            .from(selectedTable)
+            .select(`
+              *,
+              paper:paper_id(paper_title)
+            `);
+        } else {
+          query = window.supabase.from(selectedTable).select("*");
+        }
+
+        const { data, error } = await query;
         if (error) throw error;
         setRows(data);
         if (data && data.length > 0) {
@@ -93,7 +183,8 @@ export default function AdminDashboard() {
     setError("");
     try {
       let insertData = { ...addForm };
-      // If adding to login table, hash password if present
+      
+      // Handle password hashing for login table
       if (selectedTable === 'login') {
         if (insertData.password) {
           const salt = await bcrypt.genSalt(10);
@@ -101,20 +192,31 @@ export default function AdminDashboard() {
           insertData.password_hash = hash;
           delete insertData.password;
         }
-        // If password_hash is present and not already hashed (not likely, but for safety)
         else if (insertData.password_hash && insertData.password_hash.length < 30) {
           const salt = await bcrypt.genSalt(10);
           const hash = await bcrypt.hash(insertData.password_hash, salt);
           insertData.password_hash = hash;
         }
       }
+      
+      // Handle message creation with current admin ID
+      if (selectedTable === 'messages') {
+        const adminData = JSON.parse(localStorage.getItem('ictest26_user') || '{}');
+        if (adminData.login_id && !insertData.admin_id) {
+          insertData.admin_id = adminData.login_id;
+        }
+        // Set default values
+        if (!insertData.status) insertData.status = 'unread';
+        if (!insertData.type) insertData.type = 'general';
+      }
+      
       const { error } = await window.supabase.from(selectedTable).insert([insertData]);
       if (error) throw error;
       setShowAddForm(false);
       setAddForm({});
-      // Refresh rows
-      const { data } = await window.supabase.from(selectedTable).select("*");
-      setRows(data);
+      
+      // Refresh rows with enhanced query
+      await refreshTableData();
     } catch (err) {
       setError("Failed to add row: " + (err.message || err));
     } finally {
@@ -154,9 +256,8 @@ export default function AdminDashboard() {
       if (error) throw error;
       setEditRowIdx(null);
       setEditForm({});
-      // Refresh rows
-      const { data } = await window.supabase.from(selectedTable).select("*");
-      setRows(data);
+      // Refresh rows with enhanced query
+      await refreshTableData();
     } catch (err) {
       setError("Failed to update row: " + (err.message || err));
     } finally {
@@ -174,9 +275,8 @@ export default function AdminDashboard() {
       const pkValue = rows[idx][pk];
       const { error } = await window.supabase.from(selectedTable).delete().eq(pk, pkValue);
       if (error) throw error;
-      // Refresh rows
-      const { data } = await window.supabase.from(selectedTable).select("*");
-      setRows(data);
+      // Refresh rows with enhanced query
+      await refreshTableData();
     } catch (err) {
       setError("Failed to delete row: " + (err.message || err));
     } finally {
@@ -324,12 +424,61 @@ export default function AdminDashboard() {
                 {columns.map(col => (
                   <div key={col} style={{ flex: '1 1 180px', minWidth: 120 }}>
                     <label style={{ color: '#b3c6e0', fontWeight: 600, fontSize: 14 }}>{col}</label>
-                    <input
-                      type="text"
-                      value={addForm[col] || ''}
-                      onChange={e => setAddForm({ ...addForm, [col]: e.target.value })}
-                      style={{ width: '100%', padding: '0.5rem', borderRadius: 6, border: '1.5px solid #375a7f', background: '#00224d', color: '#fff', marginTop: 4 }}
-                    />
+                    {/* Special handling for certain fields */}
+                    {col.includes('_id') && selectedTable === 'messages' && (col === 'paper_id' || col === 'author_id') ? (
+                      <select
+                        value={addForm[col] || ''}
+                        onChange={e => setAddForm({ ...addForm, [col]: e.target.value })}
+                        style={{ width: '100%', padding: '0.5rem', borderRadius: 6, border: '1.5px solid #375a7f', background: '#00224d', color: '#fff', marginTop: 4 }}
+                      >
+                        <option value="">Select {col.replace('_id', '')}</option>
+                        {/* This would need to be populated with actual data */}
+                      </select>
+                    ) : col === 'type' && selectedTable === 'messages' ? (
+                      <select
+                        value={addForm[col] || 'general'}
+                        onChange={e => setAddForm({ ...addForm, [col]: e.target.value })}
+                        style={{ width: '100%', padding: '0.5rem', borderRadius: 6, border: '1.5px solid #375a7f', background: '#00224d', color: '#fff', marginTop: 4 }}
+                      >
+                        <option value="general">General</option>
+                        <option value="paper_comment">Paper Comment</option>
+                        <option value="author_comment">Author Comment</option>
+                        <option value="system">System</option>
+                      </select>
+                    ) : col === 'status' && selectedTable === 'messages' ? (
+                      <select
+                        value={addForm[col] || 'unread'}
+                        onChange={e => setAddForm({ ...addForm, [col]: e.target.value })}
+                        style={{ width: '100%', padding: '0.5rem', borderRadius: 6, border: '1.5px solid #375a7f', background: '#00224d', color: '#fff', marginTop: 4 }}
+                      >
+                        <option value="unread">Unread</option>
+                        <option value="read">Read</option>
+                      </select>
+                    ) : col === 'role' && selectedTable === 'login' ? (
+                      <select
+                        value={addForm[col] || 'author'}
+                        onChange={e => setAddForm({ ...addForm, [col]: e.target.value })}
+                        style={{ width: '100%', padding: '0.5rem', borderRadius: 6, border: '1.5px solid #375a7f', background: '#00224d', color: '#fff', marginTop: 4 }}
+                      >
+                        <option value="author">Author</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    ) : col === 'content' && selectedTable === 'messages' ? (
+                      <textarea
+                        value={addForm[col] || ''}
+                        onChange={e => setAddForm({ ...addForm, [col]: e.target.value })}
+                        style={{ width: '100%', padding: '0.5rem', borderRadius: 6, border: '1.5px solid #375a7f', background: '#00224d', color: '#fff', marginTop: 4, minHeight: '80px' }}
+                        rows="3"
+                      />
+                    ) : (
+                      <input
+                        type={col.includes('password') ? 'password' : col.includes('email') ? 'email' : 'text'}
+                        value={addForm[col] || ''}
+                        onChange={e => setAddForm({ ...addForm, [col]: e.target.value })}
+                        style={{ width: '100%', padding: '0.5rem', borderRadius: 6, border: '1.5px solid #375a7f', background: '#00224d', color: '#fff', marginTop: 4 }}
+                        placeholder={col.includes('_id') ? 'Enter ID' : ''}
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -351,7 +500,28 @@ export default function AdminDashboard() {
                 <tbody>
                   {rows.map((row, idx) => (
                     <tr key={idx} style={{ background: '#00224d', verticalAlign: 'middle' }}>
-                      {columns.map(col => <td key={col}>{String(row[col])}</td>)}
+                      {columns.map(col => {
+                        let cellValue = row[col];
+                        
+                        // Handle nested objects for display
+                        if (typeof cellValue === 'object' && cellValue !== null) {
+                          if (col === 'paper' && cellValue.paper_title) {
+                            cellValue = cellValue.paper_title;
+                          } else if (col === 'author' && cellValue.author_name) {
+                            cellValue = `${cellValue.author_name} (${cellValue.email_id})`;
+                          } else if (col === 'admin' && cellValue.email) {
+                            cellValue = cellValue.email;
+                          } else if (col === 'login' && cellValue.email) {
+                            cellValue = cellValue.email;
+                          } else if (col === 'message' && cellValue.subject) {
+                            cellValue = `${cellValue.subject} (${cellValue.type})`;
+                          } else {
+                            cellValue = JSON.stringify(cellValue);
+                          }
+                        }
+                        
+                        return <td key={col}>{String(cellValue)}</td>;
+                      })}
                     </tr>
                   ))}
                 </tbody>
@@ -385,7 +555,28 @@ export default function AdminDashboard() {
                           </td>
                         ))
                       ) : (
-                        columns.map(col => <td key={col}>{String(row[col])}</td>)
+                        columns.map(col => {
+                          let cellValue = row[col];
+                          
+                          // Handle nested objects for display
+                          if (typeof cellValue === 'object' && cellValue !== null) {
+                            if (col === 'paper' && cellValue.paper_title) {
+                              cellValue = cellValue.paper_title;
+                            } else if (col === 'author' && cellValue.author_name) {
+                              cellValue = `${cellValue.author_name} (${cellValue.email_id})`;
+                            } else if (col === 'admin' && cellValue.email) {
+                              cellValue = cellValue.email;
+                            } else if (col === 'login' && cellValue.email) {
+                              cellValue = cellValue.email;
+                            } else if (col === 'message' && cellValue.subject) {
+                              cellValue = `${cellValue.subject} (${cellValue.type})`;
+                            } else {
+                              cellValue = JSON.stringify(cellValue);
+                            }
+                          }
+                          
+                          return <td key={col}>{String(cellValue)}</td>;
+                        })
                       )}
                       <td style={{ display: 'flex', gap: '5px', alignItems: 'center', justifyContent: 'center', minWidth: 120, width: 120, borderBottom: 'none', height: '100%' }}>
                         {editRowIdx === idx ? (
@@ -421,7 +612,28 @@ export default function AdminDashboard() {
                 <tbody>
                   {rows.map((row, idx) => (
                     <tr key={idx} style={{ background: '#00224d', verticalAlign: 'middle' }}>
-                      {columns.map(col => <td key={col}>{String(row[col])}</td>)}
+                      {columns.map(col => {
+                        let cellValue = row[col];
+                        
+                        // Handle nested objects for display
+                        if (typeof cellValue === 'object' && cellValue !== null) {
+                          if (col === 'paper' && cellValue.paper_title) {
+                            cellValue = cellValue.paper_title;
+                          } else if (col === 'author' && cellValue.author_name) {
+                            cellValue = `${cellValue.author_name} (${cellValue.email_id})`;
+                          } else if (col === 'admin' && cellValue.email) {
+                            cellValue = cellValue.email;
+                          } else if (col === 'login' && cellValue.email) {
+                            cellValue = cellValue.email;
+                          } else if (col === 'message' && cellValue.subject) {
+                            cellValue = `${cellValue.subject} (${cellValue.type})`;
+                          } else {
+                            cellValue = JSON.stringify(cellValue);
+                          }
+                        }
+                        
+                        return <td key={col}>{String(cellValue)}</td>;
+                      })}
                       <td style={{ display: 'flex', gap: '5px', alignItems: 'center', justifyContent: 'center', minWidth: 120, width: 120, borderBottom: 'none', height: '100%' }}>
                         <button onClick={() => handleDeleteRow(idx)} style={{ background: '#dc3545', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 0.8rem', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 2px 8px #001a3340', letterSpacing: 0.5, transition: 'background 0.2s', minWidth: 100 }}>Delete</button>
                       </td>

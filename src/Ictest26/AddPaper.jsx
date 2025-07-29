@@ -36,25 +36,52 @@ export default function AddPaper({ onSuccess }) {
   useEffect(() => {
     setLoading(true);
     const fetchPaper = async () => {
-      const email = localStorage.getItem("ictest26_user");
-      if (!email) return;
-      const { data: loginData, error: loginError } = await window.supabase
-        .from('login')
-        .select('login_id')
-        .eq('email', email)
-        .single();
-      if (loginError || !loginData) return;
-      const { data: paperData } = await window.supabase
-        .from('paper')
-        .select('*')
-        .eq('login_id', loginData.login_id)
-        // .maybeSingle();
-      if (paperData) {
-        setPaper(paperData);
-      } else {
-        setPaper(null);
+      try {
+        const userDataString = localStorage.getItem("ictest26_user");
+        if (!userDataString || userDataString === 'undefined' || userDataString === 'null') {
+          setLoading(false);
+          return;
+        }
+
+        let userData;
+        try {
+          userData = JSON.parse(userDataString);
+        } catch (parseError) {
+          // Handle old format (email as string)
+          userData = { email: userDataString };
+          // Fetch login_id from database for old format
+          const { data: loginData, error: loginError } = await window.supabase
+            .from('login')
+            .select('login_id')
+            .eq('email', userDataString)
+            .single();
+          if (loginError || !loginData) {
+            setLoading(false);
+            return;
+          }
+          userData.login_id = loginData.login_id;
+        }
+
+        if (!userData.login_id) {
+          setLoading(false);
+          return;
+        }
+
+        const { data: paperData } = await window.supabase
+          .from('paper')
+          .select('*')
+          .eq('login_id', userData.login_id);
+        
+        if (paperData) {
+          setPaper(paperData);
+        } else {
+          setPaper(null);
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching paper:', err);
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchPaper();
   }, [success]);
@@ -154,18 +181,30 @@ export default function AddPaper({ onSuccess }) {
         if (uploadError) throw uploadError;
         pdfUrl = uploadData.path;
       }
-      // 2. Get login_id from user email (assume a login table exists)
-      const email = localStorage.getItem("ictest26_user");
-      const { data: loginData, error: loginError } = await window.supabase
-        .from('login')
-        .select('login_id')
-        .eq('email', email)
-        .single();
-      if (loginError) throw loginError;
+      // 2. Get login_id from user data
+      const userDataString = localStorage.getItem("ictest26_user");
+      if (!userDataString) throw new Error("User not logged in");
+
+      let userData;
+      try {
+        userData = JSON.parse(userDataString);
+      } catch (parseError) {
+        // Handle old format (email as string)
+        const { data: loginData, error: loginError } = await window.supabase
+          .from('login')
+          .select('login_id')
+          .eq('email', userDataString)
+          .single();
+        if (loginError) throw loginError;
+        userData = { login_id: loginData.login_id };
+      }
+
+      if (!userData.login_id) throw new Error("Invalid user data");
+
       // 3. Insert into paper table
       const { error: insertError } = await window.supabase.from('paper').insert([
         {
-          login_id: loginData.login_id,
+          login_id: userData.login_id,
           paper_title: form.paper_title,
           track_id: form.track_id ? parseInt(form.track_id) : null,
           num_pages: form.num_pages ? parseInt(form.num_pages) : null,

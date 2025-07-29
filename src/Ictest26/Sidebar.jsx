@@ -14,8 +14,19 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
         setHasPaper(true);
         return;
       }
-      const email = localStorage.getItem("ictest26_user");
-      if (!email) return;
+      const userData = localStorage.getItem("ictest26_user");
+      if (!userData) return;
+      
+      let email;
+      try {
+        // Try parsing as JSON (new format)
+        const userObj = JSON.parse(userData);
+        email = userObj.email;
+      } catch (error) {
+        // Fall back to treating as string (legacy format)
+        email = userData;
+      }
+      
       if (window.supabase) {
         const { data: loginData } = await window.supabase
           .from("login")
