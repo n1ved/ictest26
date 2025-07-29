@@ -13,7 +13,17 @@ import Messages from "./Messages";
 import "./Messages.css";
 
 export default function Dashboard() {
-  const email = localStorage.getItem("ictest26_user");
+  const userData = localStorage.getItem("ictest26_user");
+  let email;
+  try {
+    // Try parsing as JSON (new format)
+    const userObj = JSON.parse(userData);
+    email = userObj.email;
+  } catch (error) {
+    // Fall back to treating as string (legacy format)
+    email = userData;
+  }
+  
   const role = localStorage.getItem("ictest26_role");
   const navigate = useNavigate();
   const [sidebar, setSidebar] = useState("welcome");

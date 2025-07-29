@@ -43,7 +43,16 @@ export default function AddAuthor({ paperId: propPaperId, onSuccess }) {
     setLoading(true);
     const fetchPaperId = async () => {
       if (!paperId) {
-        const email = localStorage.getItem("ictest26_user");
+        const userData = localStorage.getItem("ictest26_user");
+        let email;
+        try {
+          // Try parsing as JSON (new format)
+          const userObj = JSON.parse(userData);
+          email = userObj.email;
+        } catch (error) {
+          // Fall back to treating as string (legacy format)
+          email = userData;
+        }
         const { data: loginData } = await window.supabase
           .from("login")
           .select("login_id")

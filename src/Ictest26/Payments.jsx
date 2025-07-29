@@ -36,11 +36,22 @@ export default function Payments() {
 
   useEffect(() => {
     const fetchPapers = async () => {
-      const email = localStorage.getItem("ictest26_user");
-      if (!email) {
+      const userData = localStorage.getItem("ictest26_user");
+      if (!userData) {
         setLoading(false);
         return;
       }
+      
+      let email;
+      try {
+        // Try parsing as JSON (new format)
+        const userObj = JSON.parse(userData);
+        email = userObj.email;
+      } catch (error) {
+        // Fall back to treating as string (legacy format)
+        email = userData;
+      }
+      
       const { data: loginData } = await window.supabase
         .from("login")
         .select("login_id")

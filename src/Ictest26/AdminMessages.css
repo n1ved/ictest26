@@ -52,6 +52,12 @@
 .view-messages-btn:disabled {
   background: #6c757d;
   cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.view-messages-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
 }
 
 .admin-messages-error {
@@ -393,5 +399,697 @@
   .form-group select,
   .form-group textarea {
     font-size: 0.9rem;
+  }
+}
+
+/* Enhanced status styles for admin messages */
+.message-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.message-author-info {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background: rgba(55, 90, 127, 0.2);
+  border-radius: 6px;
+  color: #b3c6e0;
+}
+
+.message-author-info i {
+  margin-right: 0.5rem;
+  color: #4a90e2;
+}
+
+/* Current status display (simplified) */
+.message-current-status {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(55, 90, 127, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid #375a7f;
+}
+
+.current-status-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.current-status-display i {
+  font-size: 1.2rem;
+  color: inherit;
+}
+
+.current-status-display .status-text {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+.current-status-display .status-badge {
+  margin-left: auto;
+}
+
+/* Color the entire status display based on status */
+.current-status-display {
+  color: #666;
+}
+
+.message-current-status:has(.status-badge.status-unread) .current-status-display {
+  color: #ff6b6b;
+  border-left-color: #ff6b6b;
+}
+
+.message-current-status:has(.status-badge.status-read) .current-status-display {
+  color: #51cf66;
+  border-left-color: #51cf66;
+}
+
+.message-current-status:has(.status-badge.status-acknowledged) .current-status-display {
+  color: #339af0;
+  border-left-color: #339af0;
+}
+
+.message-current-status:has(.status-badge.status-completed) .current-status-display {
+  color: #40c057;
+  border-left-color: #40c057;
+}
+
+/* Fallback for browsers that don't support :has() */
+.message-current-status .current-status-display.status-unread {
+  color: #ff6b6b;
+}
+
+.message-current-status .current-status-display.status-read {
+  color: #51cf66;
+}
+
+.message-current-status .current-status-display.status-acknowledged {
+  color: #339af0;
+}
+
+.message-current-status .current-status-display.status-completed {
+  color: #40c057;
+}
+
+/* Status badges in message header */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.status-unread {
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+.status-badge.status-read {
+  background: rgba(81, 207, 102, 0.2);
+  color: #51cf66;
+  border: 1px solid #51cf66;
+}
+
+.status-badge.status-acknowledged {
+  background: rgba(51, 154, 240, 0.2);
+  color: #339af0;
+  border: 1px solid #339af0;
+}
+
+.status-badge.status-completed {
+  background: rgba(64, 192, 87, 0.2);
+  color: #40c057;
+  border: 1px solid #40c057;
+}
+
+/* Enhanced message status in header */
+.message-info .status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.message-info .status i {
+  font-size: 0.9rem;
+}
+
+/* Enhanced Message Status Section */
+.message-status-section {
+  background: rgba(55, 90, 127, 0.1);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  border: 1px solid #375a7f;
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.status-header h4 {
+  color: #fff;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.current-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-indicator {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.status-indicator i {
+  font-size: 0.9rem;
+}
+
+.status-text {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #fff;
+}
+
+/* Progress Bar */
+.status-progress {
+  margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(55, 90, 127, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  background: linear-gradient(90deg, currentColor 0%, rgba(255,255,255,0.2) 100%);
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  position: relative;
+}
+
+.step-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.progress-step.completed .step-icon {
+  background: #51cf66;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(81, 207, 102, 0.3);
+}
+
+.progress-step.pending .step-icon {
+  background: rgba(55, 90, 127, 0.3);
+  color: #b3c6e0;
+  border: 2px solid #375a7f;
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: #b3c6e0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-step.completed .step-label {
+  color: #51cf66;
+}
+
+/* Status Summary */
+.status-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(55, 90, 127, 0.3);
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.summary-label {
+  font-weight: 500;
+  color: #b3c6e0;
+  font-size: 0.9rem;
+}
+
+.priority-badge, .response-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.priority-badge.priority-high {
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+.priority-badge.priority-medium {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid #ffc107;
+}
+
+.priority-badge.priority-low {
+  background: rgba(81, 207, 102, 0.2);
+  color: #51cf66;
+  border: 1px solid #51cf66;
+}
+
+.response-badge.yes {
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+.response-badge.no {
+  background: rgba(81, 207, 102, 0.2);
+  color: #51cf66;
+  border: 1px solid #51cf66;
+}
+
+.update-time {
+  color: #868e96;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Enhanced message item styling */
+.message-item.status-unread {
+  border-left: 4px solid #ff6b6b;
+  background: linear-gradient(135deg, #002a4d 0%, rgba(255, 107, 107, 0.05) 100%);
+}
+
+.message-item.status-read {
+  border-left: 4px solid #51cf66;
+  background: linear-gradient(135deg, #002a4d 0%, rgba(81, 207, 102, 0.05) 100%);
+}
+
+.message-item.status-acknowledged {
+  border-left: 4px solid #339af0;
+  background: linear-gradient(135deg, #002a4d 0%, rgba(51, 154, 240, 0.05) 100%);
+}
+
+.message-item.status-completed {
+  border-left: 4px solid #40c057;
+  background: linear-gradient(135deg, #002a4d 0%, rgba(64, 192, 87, 0.05) 100%);
+}
+
+/* Message Threading Styles */
+.message-thread {
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.main-message {
+  background: #002147;
+  border: 1px solid #375a7f;
+}
+
+.reply-message {
+  background: rgba(55, 90, 127, 0.1);
+  border: 1px solid rgba(55, 90, 127, 0.3);
+  border-left: 3px solid #4a90e2;
+  margin-top: 0.5rem;
+  position: relative;
+}
+
+.reply-message::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 20px;
+  width: 12px;
+  height: 2px;
+  background: #4a90e2;
+}
+
+.reply-indicator {
+  background: rgba(74, 144, 226, 0.2);
+  color: #4a90e2;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.thread-replies {
+  padding-left: 1rem;
+  border-left: 2px solid rgba(55, 90, 127, 0.2);
+  margin-left: 1rem;
+}
+
+/* Message Actions */
+.message-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid rgba(55, 90, 127, 0.3);
+}
+
+.reply-btn {
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.reply-btn:hover {
+  background: #357abd;
+  transform: translateY(-1px);
+}
+
+/* Reply Modal Styles */
+.reply-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.reply-form {
+  background: #001a33;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 2px solid #375a7f;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #375a7f;
+}
+
+.reply-header h3 {
+  color: #fff;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.close-reply-btn {
+  background: none;
+  border: none;
+  color: #868e96;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.close-reply-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.original-message {
+  background: rgba(55, 90, 127, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-left: 3px solid #4a90e2;
+}
+
+.original-message h4 {
+  color: #4a90e2;
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+}
+
+.original-content {
+  color: #b3c6e0;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.original-content strong {
+  color: #fff;
+  margin-right: 0.5rem;
+}
+
+.reply-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: flex-end;
+}
+
+.send-reply-btn {
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.3s ease;
+}
+
+.send-reply-btn:hover {
+  background: #357abd;
+}
+
+.send-reply-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.cancel-reply-btn {
+  background: #6c757d;
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.cancel-reply-btn:hover {
+  background: #5a6268;
+}
+
+/* Enhanced message header styling */
+.sender-info, .message-timing {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.sender-info i, .message-timing i {
+  color: #4a90e2;
+  font-size: 0.8rem;
+}
+
+.sender {
+  font-weight: 600;
+  color: #b3c6e0;
+}
+
+.date {
+  color: #868e96;
+  font-size: 0.85rem;
+}
+
+/* Enhanced attachments styling */
+.attachments-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  color: #4a90e2;
+}
+
+.attachments-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.attachment-link a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(55, 90, 127, 0.2);
+  border-radius: 6px;
+  color: #4a90e2;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.attachment-link a:hover {
+  background: rgba(74, 144, 226, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Enhanced author info styling */
+.message-author-info {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(55, 90, 127, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid #4a90e2;
+}
+
+.message-author-info i {
+  color: #4a90e2;
+  margin-right: 0.5rem;
+}
+
+.message-author-info strong {
+  color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .current-status-display {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .current-status-display .status-badge {
+    margin-left: 0;
+    align-self: flex-start;
+  }
+  
+  .current-status {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .progress-steps {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .summary-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .status-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .message-status-section {
+    padding: 1rem;
+  }
+  
+  .reply-form {
+    margin: 1rem;
+    padding: 1rem;
+    max-height: 90vh;
+  }
+  
+  .reply-actions {
+    flex-direction: column;
+  }
+  
+  .thread-replies {
+    padding-left: 0.5rem;
+    margin-left: 0.5rem;
+  }
+  
+  .message-thread {
+    margin-bottom: 1rem;
   }
 }

@@ -5,9 +5,7 @@ const Messages = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedMessage, setSelectedMessage] = useState(null);
-  const [replyText, setReplyText] = useState('');
-  const [showReplyForm, setShowReplyForm] = useState(false);
+  // Remove reply state, only admin can send messages
   const [paperId, setPaperId] = useState(null);
   const [papers, setPapers] = useState([]);
   const [selectedPaper, setSelectedPaper] = useState(null);
@@ -18,38 +16,59 @@ const Messages = () => {
   // Fetch user info and papers on component mount
   useEffect(() => {
     const fetchUserAndPapers = async () => {
-      const email = localStorage.getItem("ictest26_user");
-      const role = localStorage.getItem("ictest26_role");
-      setUserRole(role);
-      
-      if (!email) {
-        setError('User not logged in');
-        setLoading(false);
-        return;
-      }
-
       try {
-        // Get user login_id
-        const { data: loginData, error: loginError } = await window.supabase
-          .from("login")
-          .select("login_id")
-          .eq("email", email)
-          .single();
+        const userDataString = localStorage.getItem("ictest26_user");
+        const role = localStorage.getItem("ictest26_role");
         
-        if (loginError) throw loginError;
-        setUserId(loginData.login_id);
+        if (!userDataString || userDataString === 'undefined' || userDataString === 'null') {
+          setError('User not logged in');
+          setLoading(false);
+          return;
+        }
+
+        let userData;
+        try {
+          userData = JSON.parse(userDataString);
+        } catch (parseError) {
+          console.error('Failed to parse user data:', parseError);
+          setError('Invalid user data. Please login again.');
+          setLoading(false);
+          return;
+        }
+
+        setUserRole(role);
+        
+        if (!userData.login_id) {
+          setError('User not logged in');
+          setLoading(false);
+          return;
+        }
+
+        setUserId(userData.login_id);
 
         // Fetch papers for this user (if not admin)
         if (role !== 'admin') {
+          // For authors, only show their own papers (no change)
           const { data: paperData, error: paperError } = await window.supabase
             .from("paper")
-            .select("paper_id, paper_title, has_admin_comments, has_unread_messages")
-            .eq("login_id", loginData.login_id)
+            .select("paper_id, paper_title")
+            .eq("login_id", userData.login_id)
             .order("paper_id", { ascending: true });
-          
           if (paperError) throw paperError;
           setPapers(paperData || []);
-          
+          if (paperData && paperData.length > 0) {
+            setSelectedPaper(paperData[0]);
+            setPaperId(paperData[0].paper_id);
+          }
+        } else {
+          // For admin, only show papers that are final submitted
+          const { data: paperData, error: paperError } = await window.supabase
+            .from("paper")
+            .select("paper_id, paper_title")
+            .eq("status", "final_submitted")
+            .order("paper_id", { ascending: true });
+          if (paperError) throw paperError;
+          setPapers(paperData || []);
           if (paperData && paperData.length > 0) {
             setSelectedPaper(paperData[0]);
             setPaperId(paperData[0].paper_id);
@@ -79,20 +98,33 @@ const Messages = () => {
     
     try {
       let query = window.supabase
-        .from("message_details")
-        .select("*")
+        .from("messages")
+        .select(`
+          *,
+          paper:paper_id(paper_title),
+          author:author_id(author_name, email_id),
+          admin:admin_id(email),
+          attachments(*)
+        `)
         .eq("paper_id", paperId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true }); // Changed to ascending for proper threading
 
       // Apply filters
       if (filter === 'unread') {
-        query = query.eq("is_read", false);
+        query = query.eq("status", "unread");
+      } else if (filter === 'acknowledged') {
+        query = query.eq("status", "acknowledged");
+      } else if (filter === 'completed') {
+        query = query.eq("status", "completed");
       }
       
       const { data, error } = await query;
       
       if (error) throw error;
-      setMessages(data || []);
+      
+      // Group messages by thread (original message and its replies)
+      const messageThreads = groupMessagesByThread(data || []);
+      setMessages(messageThreads);
     } catch (err) {
       console.error('Error fetching messages:', err);
       setError('Failed to load messages');
@@ -101,76 +133,64 @@ const Messages = () => {
     }
   };
 
-  const markAsRead = async (messageId) => {
+  // Group messages into threads (same function as AdminMessages)
+  const groupMessagesByThread = (messages) => {
+    const threads = [];
+    const processedMessageIds = new Set();
+    
+    messages.forEach(message => {
+      if (processedMessageIds.has(message.id)) return;
+      
+      // If this is a root message (no parent_message_id) or we haven't seen its parent
+      if (!message.parent_message_id || !messages.find(m => m.id === message.parent_message_id)) {
+        const thread = {
+          ...message,
+          replies: []
+        };
+        
+        // Find all replies to this message
+        const findReplies = (parentId, depth = 1) => {
+          return messages.filter(m => m.parent_message_id === parentId).map(reply => {
+            processedMessageIds.add(reply.id);
+            return {
+              ...reply,
+              depth,
+              replies: findReplies(reply.id, depth + 1)
+            };
+          });
+        };
+        
+        thread.replies = findReplies(message.id);
+        processedMessageIds.add(message.id);
+        threads.push(thread);
+      }
+    });
+    
+    return threads.reverse(); // Show newest threads first
+  };
+
+  // Remove markAsRead for authors, only admin can send messages
+
+  // Remove handleReply, only admin can send messages
+
+  // Only allow 'completed' action for author
+  const handleAction = async (messageId, actionType, note = '') => {
+    if (actionType !== 'completed') return;
     try {
+      const updateData = { status: 'completed' };
       const { error } = await window.supabase
         .from("messages")
-        .update({ is_read: true })
-        .eq("message_id", messageId);
-      
+        .update(updateData)
+        .eq("id", messageId);
       if (error) throw error;
-      
-      // Update local state
       setMessages(prev => 
         prev.map(msg => 
-          msg.message_id === messageId 
-            ? { ...msg, is_read: true }
+          msg.id === messageId 
+            ? { ...msg, ...updateData }
             : msg
         )
       );
-    } catch (err) {
-      console.error('Error marking message as read:', err);
-    }
-  };
-
-  const handleReply = async (e) => {
-    e.preventDefault();
-    if (!replyText.trim() || !selectedMessage) return;
-
-    try {
-      // Get receiver_id (opposite of sender)
-      const receiverId = selectedMessage.sender_id === userId 
-        ? selectedMessage.receiver_id 
-        : selectedMessage.sender_id;
-
-      const { error } = await window.supabase
-        .from("messages")
-        .insert([{
-          paper_id: paperId,
-          sender_id: userId,
-          receiver_id: receiverId,
-          message_type: selectedMessage.message_type,
-          subject: `Re: ${selectedMessage.subject}`,
-          message_content: replyText,
-          parent_message_id: selectedMessage.message_id
-        }]);
-
-      if (error) throw error;
-
-      setReplyText('');
-      setShowReplyForm(false);
-      setSelectedMessage(null);
-      fetchMessages(); // Refresh messages
-    } catch (err) {
-      console.error('Error sending reply:', err);
-      setError('Failed to send reply');
-    }
-  };
-
-  const handleAction = async (messageId, actionType, note = '') => {
-    try {
-      const { error } = await window.supabase
-        .from("message_actions")
-        .insert([{
-          message_id: messageId,
-          user_id: userId,
-          action_type: actionType,
-          action_note: note
-        }]);
-
-      if (error) throw error;
-
-      fetchMessages(); // Refresh to show updated actions
+      fetchMessages();
     } catch (err) {
       console.error('Error performing action:', err);
       setError('Failed to perform action');
@@ -178,10 +198,23 @@ const Messages = () => {
   };
 
   const getMessageStatusColor = (message) => {
-    if (!message.is_read) return '#ff6b6b';
-    if (message.actions_taken && message.actions_taken.includes('completed')) return '#51cf66';
-    if (message.actions_taken && message.actions_taken.includes('acknowledged')) return '#74c0fc';
-    return '#868e96';
+    switch (message.status) {
+      case 'unread': return '#ff6b6b';
+      case 'read': return '#51cf66';
+      case 'acknowledged': return '#339af0';
+      case 'completed': return '#40c057';
+      default: return '#51cf66';
+    }
+  };
+
+  const getMessageStatusText = (message) => {
+    switch (message.status) {
+      case 'unread': return 'Awaiting Review';
+      case 'read': return 'Under Review';
+      case 'acknowledged': return 'Acknowledged';
+      case 'completed': return 'Completed';
+      default: return 'Under Review';
+    }
   };
 
   const formatDateTime = (dateString) => {
@@ -216,7 +249,6 @@ const Messages = () => {
               {papers.map(paper => (
                 <option key={paper.paper_id} value={paper.paper_id}>
                   {paper.paper_title}
-                  {paper.has_unread_messages && ' (New)'}
                 </option>
               ))}
             </select>
@@ -237,6 +269,18 @@ const Messages = () => {
           >
             Unread
           </button>
+          <button 
+            className={filter === 'acknowledged' ? 'active' : ''}
+            onClick={() => setFilter('acknowledged')}
+          >
+            Acknowledged
+          </button>
+          <button 
+            className={filter === 'completed' ? 'active' : ''}
+            onClick={() => setFilter('completed')}
+          >
+            Completed
+          </button>
         </div>
       </div>
 
@@ -256,27 +300,37 @@ const Messages = () => {
           </div>
         ) : (
           messages.map(message => (
-            <div key={message.message_id} className={`message-item ${!message.is_read ? 'unread' : ''}`}>
+            <div key={message.id} className={`message-item status-${message.status} ${message.status === 'unread' ? 'unread' : ''}`}>
               <div className="message-header">
                 <div className="message-info">
-                  <span className="message-sender">
-                    From: {message.sender_email} ({message.sender_role})
-                  </span>
-                  <span className="message-date">{formatDateTime(message.created_at)}</span>
-                  <span 
-                    className="message-status"
-                    style={{ color: getMessageStatusColor(message) }}
-                  >
-                    {!message.is_read ? 'New' : 
-                     message.actions_taken?.includes('completed') ? 'Completed' :
-                     message.actions_taken?.includes('acknowledged') ? 'Acknowledged' : 'Read'}
+                  <div className="message-sender">
+                    <i className="fa fa-user-shield"></i>
+                    From: {message.admin && message.admin.email ? `Admin (${message.admin.email})` : 'System'}
+                  </div>
+                  <div className="message-date">
+                    <i className="fa fa-clock"></i>
+                    {formatDateTime(message.created_at)}
+                  </div>
+                </div>
+                <div className="message-status-info">
+                  <span className={`status-badge status-${message.status}`}
+                        style={{
+                          background: message.status === 'completed' ? '#40c057' : '#868e96',
+                          color: '#fff',
+                          padding: '0.3em 1em',
+                          borderRadius: '20px',
+                          fontWeight: 600
+                        }}>
+                    {message.status === 'completed' ? 'Completed' : 'Not Completed'}
                   </span>
                 </div>
-                <div className="message-type">
-                  <span className={`type-badge ${message.message_type}`}>
-                    {message.message_type.replace('_', ' ')}
-                  </span>
-                </div>
+              </div>
+              
+              <div className="message-type-section">
+                <span className={`type-badge ${message.type}`}>
+                  <i className="fa fa-tag"></i>
+                  {message.type.replace('_', ' ').toUpperCase()}
+                </span>
               </div>
               
               <div className="message-subject">
@@ -284,94 +338,40 @@ const Messages = () => {
               </div>
               
               <div className="message-content">
-                {message.message_content}
+                {message.content}
               </div>
+
+              {/* Show attachments if any */}
+              {message.attachments && message.attachments.length > 0 && (
+                <div className="message-attachments">
+                  <strong>Attachments:</strong>
+                  {message.attachments.map((attachment, index) => (
+                    <div key={index} className="attachment-link">
+                      <a href={attachment.file_url} target="_blank" rel="noopener noreferrer">
+                        <i className="fa fa-paperclip"></i> Attachment {index + 1}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Message actions */}
               <div className="message-actions">
-                {!message.is_read && (
+                {userRole !== 'admin' && message.status !== 'completed' && (
                   <button 
-                    className="action-btn read-btn"
-                    onClick={() => markAsRead(message.message_id)}
+                    className="action-btn complete-btn"
+                    onClick={() => handleAction(message.id, 'completed', 'Marked as complete by author')}
                   >
-                    <i className="fa fa-eye"></i> Mark as Read
+                    <i className="fa fa-check-circle"></i> Mark as Complete
                   </button>
                 )}
-                
-                <button 
-                  className="action-btn reply-btn"
-                  onClick={() => {
-                    setSelectedMessage(message);
-                    setShowReplyForm(true);
-                  }}
-                >
-                  <i className="fa fa-reply"></i> Reply
-                </button>
-
-                {/* Action buttons for authors */}
-                {userRole !== 'admin' && (
-                  <>
-                    <button 
-                      className="action-btn acknowledge-btn"
-                      onClick={() => handleAction(message.message_id, 'acknowledged', 'Message acknowledged')}
-                    >
-                      <i className="fa fa-check"></i> Acknowledge
-                    </button>
-                    
-                    <button 
-                      className="action-btn complete-btn"
-                      onClick={() => handleAction(message.message_id, 'completed', 'Changes completed')}
-                    >
-                      <i className="fa fa-check-circle"></i> Mark Complete
-                    </button>
-                  </>
-                )}
               </div>
-
-              {/* Show actions taken */}
-              {message.actions_taken && (
-                <div className="actions-taken">
-                  <small>Actions: {message.actions_taken}</small>
-                </div>
-              )}
             </div>
           ))
         )}
       </div>
 
-      {/* Reply form modal */}
-      {showReplyForm && selectedMessage && (
-        <div className="reply-modal">
-          <div className="reply-form">
-            <h3>Reply to: {selectedMessage.subject}</h3>
-            <form onSubmit={handleReply}>
-              <textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Type your reply..."
-                required
-                rows="4"
-              />
-              <div className="reply-actions">
-                <button type="submit" className="send-btn">
-                  <i className="fa fa-send"></i> Send Reply
-                </button>
-                <button 
-                  type="button" 
-                  className="cancel-btn"
-                  onClick={() => {
-                    setShowReplyForm(false);
-                    setSelectedMessage(null);
-                    setReplyText('');
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* No reply modal for authors, only admin can send messages */}
     </div>
   );
 };
