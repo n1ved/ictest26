@@ -20,11 +20,6 @@ const PaperSharing = () => {
             <p>
                 All submissions will undergo a rigorous peer-review process led by an International Technical Program Committee. Accepted and presented papers will be submitted to IEEE Xplore Digital Library, ensuring wide visibility and impact for your research work. All submissions are processed through Crossref Similarity Check (iThenticate) to screen for plagiarism.
             </p>
-
-            <h3 className='paper-sharing'>CMT ACKNOWLEDGMENT : </h3>
-            <p>
-                The Microsoft CMT service was used for managing the peer-reviewing process for this conference. This service was provided for free by Microsoft and they bore all expenses, including costs for Azure cloud services as well as for software development and support.
-            </p>
         </div>
     );
 };

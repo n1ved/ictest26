@@ -27,7 +27,7 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <h1>
-        <span>Second International Conference on Trends in </span>
+        <span>Third International Conference on Trends in </span>
         <span>
           ​Engineering Systems and Technologies{" "}
           <span className="number-specific">2026</span>{" "}
@@ -86,7 +86,7 @@ export default function Dashboard() {
         </span>
       </h3>
       <p>
-        The 2nd International Conference on Trends in Engineering Systems and
+        The 3rd International Conference on Trends in Engineering Systems and
         Technologies (ICTEST) 2026 is organized ​by Govt. Model Engineering
         College, Thrikkakara, with the Technical Sponsorship of IEEE Kerala
         Section. For over ​35 years, Govt. Model Engineering College has
