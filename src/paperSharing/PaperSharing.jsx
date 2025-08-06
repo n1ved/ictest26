@@ -11,7 +11,7 @@ const PaperSharing = () => {
                 The full text papers should be submitted by one of the authors of the paper through electronic submission. Submissions by anyone other than the authors will not be accepted. The submitting author takes responsibility for the paper during submission and peer review.
             </p>
             <p>
-                Authors are invited to submit papers through Microsoft's Conference Management Toolkit (CMT). The authors are invited to submit full papers up to 6 pages through: <a href="https://cmt3.research.microsoft.com/ICTEST2025">"https://cmt3.research.microsoft.com/ICTEST2025"</a></p>
+                Authors are invited to submit papers through Microsoft's Conference Management Toolkit (CMT). The authors are invited to submit full papers up to 6 pages through: <a href="#">Microsoft CMT3 (Link will be added soon)</a></p>
             <p> After logging into the Conference Management System, please click on the “Create new submission” tab and follow the instructions. The Title of the paper and the Abstract are to be entered separately, along with the full paper.
             </p>
             <p>
@@ -19,6 +19,11 @@ const PaperSharing = () => {
             </p>
             <p>
                 All submissions will undergo a rigorous peer-review process led by an International Technical Program Committee. Accepted and presented papers will be submitted to IEEE Xplore Digital Library, ensuring wide visibility and impact for your research work. All submissions are processed through Crossref Similarity Check (iThenticate) to screen for plagiarism.
+            </p>
+
+            <h3 className='paper-sharing'>CMT ACKNOWLEDGMENT : </h3>
+            <p>
+                The Microsoft CMT service was used for managing the peer-reviewing process for this conference. This service was provided for free by Microsoft and they bore all expenses, including costs for Azure cloud services as well as for software development and support.
             </p>
         </div>
     );

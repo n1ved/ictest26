@@ -30,11 +30,11 @@ export default function Dashboard() {
         <span>Second International Conference on Trends in </span>
         <span>
           ​Engineering Systems and Technologies{" "}
-          <span className="number-specific">2025</span>{" "}
+          <span className="number-specific">2026</span>{" "}
         </span>
         <span>
           {" "}
-          ​(ICTEST <span className="number-specific">2025</span>)
+          ​(ICTEST <span className="number-specific">2026</span>)
         </span>
       </h1>
       <h2>
@@ -65,11 +65,11 @@ export default function Dashboard() {
       {/*</div>*/}
       <h3>About the Conference</h3>
       <p>
-        The ICTEST-2025 conference covers all aspects of intelligent and smart
+        The ICTEST-2026 conference covers all aspects of intelligent and smart
         computing systems design, including software and hardware. IEEE Kerala
         Section is a technical co-sponsor of the conference. Attendees can learn
         about current research and development in Information Technology at
-        ICTEST-2025. In addition to Intelligent Systems and Applications, Big
+        ICTEST-2026. In addition to Intelligent Systems and Applications, Big
         Data Processing, Internet of Things and Blockchain, Secure Information
         Processing, Cloud Computing, Edge and Fog Computing, Robotics and
         automation, Scalable Computing, Neuromorphic Engineering, Multimedia
@@ -87,7 +87,7 @@ export default function Dashboard() {
       </h3>
       <p>
         The 2nd International Conference on Trends in Engineering Systems and
-        Technologies (ICTEST) 2025 is organized ​by Govt. Model Engineering
+        Technologies (ICTEST) 2026 is organized ​by Govt. Model Engineering
         College, Thrikkakara, with the Technical Sponsorship of IEEE Kerala
         Section. For over ​35 years, Govt. Model Engineering College has
         empowered its students to lead the way in engineering and ​technology
