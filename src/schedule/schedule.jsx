@@ -61,15 +61,16 @@ export default function Schedule() {
             </>
           ))}
         </div>
-        <div className="button-container">
-          <button onClick={handleRedirectPaperSubmission}>Submit Paper</button>
-          <button onClick={handleRedirectRegistration}>
-            Author Registration - ICTEST 2025
-          </button>
-          <button onClick={handleGuildlinesURL}>
-            Common guidelines for CRP
-          </button>
-        </div>
+        {/*TODO : BUTTONS FOR REGISTRATION*/}
+        {/*<div className="button-container">*/}
+        {/*  <button onClick={handleRedirectPaperSubmission}>Submit Paper</button>*/}
+        {/*  <button onClick={handleRedirectRegistration}>*/}
+        {/*    Author Registration - ICTEST 2025*/}
+        {/*  </button>*/}
+        {/*  <button onClick={handleGuildlinesURL}>*/}
+        {/*    Common guidelines for CRP*/}
+        {/*  </button>*/}
+        {/*</div>*/}
         <div className="contact-info">
           <h3>contact information</h3>
           <span>email: ictest25@mec.ac.in</span>

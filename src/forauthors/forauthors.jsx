@@ -7,7 +7,8 @@ export default function ForAuthors() {
     return (
         <div className="schedule-main">
             <Schedule />
-            <RegistrationFees />
+            {/*TODO : REGISTRATION FEE SECTION*/}
+            {/*<RegistrationFees />*/}
         </div>
     );
 }
