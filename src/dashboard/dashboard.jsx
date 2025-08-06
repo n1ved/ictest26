@@ -39,7 +39,7 @@ export default function Dashboard() {
       </h1>
       <h2>
         <span>
-          April <span className="number-specific">3-5, 2025</span> Kochi{" "}
+          July <span className="number-specific">16-18, 2026</span> Kochi{" "}
           <span className="number-specific">21</span>, India
         </span>
       </h2>

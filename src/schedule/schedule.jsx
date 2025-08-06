@@ -5,7 +5,7 @@ export default function Schedule() {
   const events = [
     {
       name: "Conference Dates",
-      date: "April 3, 4 and 5, 2025",
+      date: "July 16, 17 and 18, 2026",
     },
     {
       name: "Conference Location",
@@ -13,23 +13,23 @@ export default function Schedule() {
     },
     {
       name: "Call for Papers Announcement",
-      date: "1st September, 2024",
+      date: "August 15th, 2025",
     },
     {
       name: "Last date for draft paper submission",
-      date: "March 1, 2025"
+      date: "January 10th, 2026"
     },
     {
       name: "Notification of Acceptance",
-      date: "March 5, 2025"
+      date: "March 15th, 2026"
     },
-    {
-      name: "Author Registration",
-      date: "Mar 5 - Mar 15, 2025",
-    },
+    // {
+    //   name: "Author Registration",
+    //   date: "Mar 5 - Mar 15, 2025",
+    // },
     {
       name: "Deadline for Submitting Final Camera-ready Paper",
-      date: "March 15, 2025",
+      date: "April 15th, 2026",
     },
   ];
   const handleRedirectPaperSubmission = () => {
