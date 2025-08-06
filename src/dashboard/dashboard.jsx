@@ -43,25 +43,26 @@ export default function Dashboard() {
           <span className="number-specific">21</span>, India
         </span>
       </h2>
-      <div className="blinking-buttons">
-        <a href="https://forms.gle/aWHQbBVx7hr3HSLj6" target="_blank">
-          Author Registration Started
-        </a>
+      {/*TODO : BUTTONS FOR REGISTRATION */}
+      {/*<div className="blinking-buttons">*/}
+      {/*  <a href="https://forms.gle/aWHQbBVx7hr3HSLj6" target="_blank">*/}
+      {/*    Author Registration Started*/}
+      {/*  </a>*/}
 
-        <a href="/docs/ICTEST.pdf" target="_blank">
-          Download Brochure
-        </a>
-      </div>
-      <div style={{ minHeight: "20px" }} />
-      <div className="non-blinking-buttons">
-        <a href="docs/Master_ SCHEDULE_OFF.pdf" target="_blank">
-          Presentation Schedule (OFFLINE)
-        </a>
+      {/*  <a href="/docs/ICTEST.pdf" target="_blank">*/}
+      {/*    Download Brochure*/}
+      {/*  </a>*/}
+      {/*</div>*/}
+      {/*<div style={{ minHeight: "20px" }} />*/}
+      {/*<div className="non-blinking-buttons">*/}
+      {/*  <a href="docs/Master_ SCHEDULE_OFF.pdf" target="_blank">*/}
+      {/*    Presentation Schedule (OFFLINE)*/}
+      {/*  </a>*/}
 
-        <a href="/docs/Master_ SCHEDULE_OL.pdf" target="_blank">
-          Presentation Schedule (ONLINE)
-        </a>
-      </div>
+      {/*  <a href="/docs/Master_ SCHEDULE_OL.pdf" target="_blank">*/}
+      {/*    Presentation Schedule (ONLINE)*/}
+      {/*  </a>*/}
+      {/*</div>*/}
       <h3>About the Conference</h3>
       <p>
         The ICTEST-2025 conference covers all aspects of intelligent and smart
