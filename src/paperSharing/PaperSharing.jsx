@@ -5,13 +5,16 @@ const PaperSharing = () => {
         <div className='sharing'>
             <h2 className='paper-sharing'>Paper Submission : </h2>
             <p>
-                Technical papers describing original, previously unpublished research results, experimental or theoretical, are solicited in all areas described above. The template for the conference is available at :
-                <a href="https://www.ieee.org/conferences/publishing/templates.html" target='_blank'> here</a></p>
+                Technical papers describing original, previously unpublished research results—experimental or theoretical—are solicited in all relevant areas. Authors must format their papers using the official IEEE conference template, which is available for download at the{" "}
+                <a className="blue-link" href="https://www.ieee.org/conferences/publishing/templates.html" target="_blank" rel="noopener noreferrer">IEEE Conference Publishing Templates page</a>
+            </p>
             <p>
                 The full text papers should be submitted by one of the authors of the paper through electronic submission. Submissions by anyone other than the authors will not be accepted. The submitting author takes responsibility for the paper during submission and peer review.
             </p>
             <p>
-                Authors are invited to submit papers through Microsoft's Conference Management Toolkit (CMT). The authors are invited to submit full papers up to 6 pages through: <a href="#">Microsoft CMT3 (Link will be added soon)</a></p>
+                Authors are required to submit their full papers (maximum 6 pages) through the Microsoft Conference Management Toolkit (CMT). Submissions must be made through the{" "}
+                <a className="blue-link" href="https://cmt3.research.microsoft.com/ICTEST2026" target="_blank" rel="noopener noreferrer">ICTEST2026 CMT Submission Portal</a>
+            </p>
             <p> After logging into the Conference Management System, please click on the “Create new submission” tab and follow the instructions. The Title of the paper and the Abstract are to be entered separately, along with the full paper.
             </p>
             <p>

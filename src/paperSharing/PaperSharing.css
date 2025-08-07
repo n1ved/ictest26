@@ -3,6 +3,19 @@
     padding-left: 9rem;
 }
 
+.blue-link {
+    color: #0056b3 !important;  /* Force blue color regardless of context */
+    text-decoration: underline;
+    font-weight: 500;
+    padding: 0 2px;
+    transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.blue-link:hover {
+    color: #003d82;
+    text-decoration: none;
+}
+
 @media (max-width:680px) {
     .paper-sharing{
         align-items: flex-start !important;
@@ -17,8 +30,8 @@
     p{
         display: block;
     }
-    a{
-        color: white;
+    .blue-link {
+        color: #0056b3 !important;
     }
 
 
