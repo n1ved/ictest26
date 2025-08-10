@@ -81,24 +81,46 @@ button:hover {
     color: white;
     border-color: (--light-blue);
 }
-.contact-info h3 {
-    text-align: center;
-    align-self: center;
-    font-size: 15px;
-    color: white; /* Changed text color to stand out against the dark background */
-    margin: 0px;
-    text-transform: uppercase;
-}
-.contact-info span {
-    text-align: center;
-    align-self: center;
-    font-size: 13px;
-    color: white; /* Changed text color to stand out against the dark background */
-    margin: 0px;
-    text-transform: uppercase;
-}
 .contact-info {
     text-align: center;
+    margin-top: 40px;
+    padding: 25px 40px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 80%;
+}
+
+.contact-info h3 {
+    text-align: center;
+    font-size: 18px;
+    color: white;
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+}
+
+.contact-info span {
+    text-align: center;
+    font-size: 15px;
+    color: #e6e6e6;
+    margin: 6px 0;
+    display: inline-block;
+    text-transform: none;
+    letter-spacing: 0.5px;
+}
+
+.contact-info .contact-link {
+    color: #4dabf7;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.contact-info .contact-link:hover {
+    color: #74c0fc;
+    text-decoration: underline;
 }
 
 @media (max-width: 680px) {
@@ -183,24 +205,35 @@ button:hover {
         transition: all 0.3s ease;
         margin: 5px;
     }
-    .contact-info h3 {
-        text-align: center;
-        align-self: center;
-        font-size: 15px;
-        color: white; /* Changed text color to stand out against the dark background */
-        margin: 0px;
-        text-transform: uppercase;
-    }
-    .contact-info span {
-        text-align: center;
-        align-self: center;
-        font-size: 13px;
-        color: white; /* Changed text color to stand out against the dark background */
-        margin: 0px;
-        text-transform: uppercase;
-    }
     .contact-info {
         text-align: center;
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 350px;
+    }
+    
+    .contact-info h3 {
+        text-align: center;
+        font-size: 16px;
+        color: white;
+        margin: 0 0 10px 0;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        font-weight: 600;
+    }
+    
+    .contact-info span {
+        text-align: center;
+        font-size: 14px;
+        color: #e6e6e6;
+        margin: 5px 0;
+        display: inline-block;
+        text-transform: none;
+        letter-spacing: 0.5px;
     }
 }
 
