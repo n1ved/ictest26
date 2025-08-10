@@ -1,10 +1,9 @@
 import "../schedule/schedule.css";
 import "./ICtest26InfoPage.css";
 import Navbar from "../navbar/navbar";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { SquareArrowOutUpRight } from "lucide-react";
 
-// Import components - we'll create ICTEST26 versions
 import Notifications26 from "./Notifications26";
 import Venue26 from "./Venue26";
 import Accommodations26 from "./Accommodations26";
@@ -22,74 +21,11 @@ export default function ICtest26Info() {
     window.open(url, name);
   };
 
-  // Create refs for each section
-  const sectionRefs = useRef([]);
-  const [activeSection, setActiveSection] = useState(0);
-
-  // Intersection Observer for scroll tracking
-  useEffect(() => {
-    const observers = [];
-    const options = {
-      root: null,
-      rootMargin: '-80px 0px -50% 0px', // Account for navbar and better section detection
-      threshold: [0.1, 0.5, 0.8], // Multiple thresholds for better detection
-    };
-
-    sectionRefs.current.forEach((section, index) => {
-      if (section) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
-              setActiveSection(index);
-            }
-          });
-        }, options);
-
-        observer.observe(section);
-        observers.push(observer);
-      }
-    });
-
-    // Backup scroll listener for more accurate detection
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + 200; // Account for navbar
-      
-      sectionRefs.current.forEach((section, index) => {
-        if (section) {
-          const sectionTop = section.offsetTop;
-          const sectionHeight = section.offsetHeight;
-          const sectionBottom = sectionTop + sectionHeight;
-          
-          if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
-            setActiveSection(index);
-          }
-        }
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial call to set correct active section
-
-    return () => {
-      observers.forEach((observer) => observer.disconnect());
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  const scrollToSection = (index) => {
-    if (sectionRefs.current[index]) {
-      sectionRefs.current[index].scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  };
-
   const menuSelectionHandler = (index, data) => {
     if (data.url) {
       window.open(data.url, data.name);
     } else {
-      scrollToSection(index);
+      setCurrentSection(index);
     }
   };
 
@@ -100,6 +36,8 @@ export default function ICtest26Info() {
       </div>
     );
   };
+
+  const [currentSection, setCurrentSection] = useState(0);
 
   const sections = [
     {
@@ -112,7 +50,7 @@ export default function ICtest26Info() {
     },
     {
       name: "List of accepted papers ",
-      content: <ComingSoon />, // Will be updated later
+      content: <ComingSoon />,
     },
     {
       name: "General Instructions for CRP",
@@ -128,7 +66,7 @@ export default function ICtest26Info() {
     },
     {
       name: "Presentation Schedule",
-      content: <PaperSchedule26/>
+      content: <PaperSchedule26 />,
     },
     {
       name: "Gala Night",
@@ -140,11 +78,11 @@ export default function ICtest26Info() {
     },
     {
       name: "Pre-Conference Events",
-      content: <PreConfTalk26 />
+      content: <PreConfTalk26 />,
     },
     {
       name: "Our Sponsors",
-      content: <Sponsors26 />
+      content: <Sponsors26 />,
     },
   ];
 
@@ -157,7 +95,7 @@ export default function ICtest26Info() {
         {sections.map((data, index) => (
           <div
             className={
-              activeSection === index
+              currentSection == index
                 ? "navigation-btn navigation-btn-active"
                 : "navigation-btn"
             }
@@ -170,18 +108,7 @@ export default function ICtest26Info() {
           </div>
         ))}
       </div>
-      <div className="info-bg">
-        {sections.map((section, index) => (
-          <div
-            key={index}
-            ref={(el) => (sectionRefs.current[index] = el)}
-            className="info-section"
-            id={`section-${index}`}
-          >
-            {section.content}
-          </div>
-        ))}
-      </div>
+      <div className="info-bg">{sections[currentSection].content}</div>
       <div className="info-bg-m">
         <div className="info-container">
           <h2>Quick Links</h2>
