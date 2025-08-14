@@ -75,7 +75,7 @@ export default function Schedule() {
           <h3>Contact Information</h3>
           <span>Email: <a href="mailto:ictest@mec.ac.in" className="contact-link">ictest@mec.ac.in</a></span>
           <br></br>
-          <span>Phone: +91 9447991108, +91 9447219957</span>
+          <span>Phone: +91 9447991108, +91 9447380826</span>
         </div>
       </div>
     </>
