@@ -47,6 +47,24 @@
     display: block;
     align-self: center;
 }
+.logo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ihrd-logo {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+}
+.mec-logo-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
 .navbar li {
     position: relative;
     display: flex;

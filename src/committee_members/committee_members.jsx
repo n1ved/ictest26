@@ -1,7 +1,7 @@
 import "./committee_members.css";
 import Navbar from "../navbar/navbar.jsx";
 
-import principal_img from "../committee_images/principal.png";
+import principal_img from "../committee_images/jayachandran.jpg";
 import arunkumar_img from "../committee_images/arunkumar.jpg";
 import rajesh_img from "../committee_images/rajesh-vg.png";
 // import jaimon_img from "../committee_images/jaimon.jpg"; // no longer used
@@ -34,7 +34,7 @@ export default function Committee_members() {
     {
       image: principal_img,
       title: "Principal",
-      name: "Dr. Mini M G",
+      name: "Dr. Jayachandran E S",
       position: "Principal, Govt. Model Engineering College, Ernakulam",
     },
     {

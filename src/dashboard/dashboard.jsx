@@ -27,15 +27,11 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <h1>
-        <span>Third International Conference on Trends in </span>
+        <span>3<sup className="ordinal">rd</sup> International Conference on Trends in </span>
         <span>
-          ​Engineering Systems and Technologies{" "}
-          <span className="number-specific">2026</span>{" "}
+          Engineering Systems and Technologies <span className="number-specific">2026</span>
         </span>
-        <span>
-          {" "}
-          ​(ICTEST <span className="number-specific">2026</span>)
-        </span>
+        <span>(ICTEST <span className="number-specific">2026</span>)</span>
       </h1>
       <h2>
         <span>
@@ -74,7 +70,7 @@ export default function Dashboard() {
         Processing, Cloud Computing, Edge and Fog Computing, Robotics and
         automation, Scalable Computing, Neuromorphic Engineering, Multimedia
         Systems, Electronic Design Automation, Emerging Technologies, Healthcare
-        systems, Power and Energy Systems, and more, ICTEST'25 covers a wide
+        systems, Power and Energy Systems, and more, ICTEST'26 covers a wide
         range of topics. Accepted papers will be submitted for inclusion into
         IEEE Xplore subject to meeting IEEE Xplore's scope and quality
         requirements.
@@ -87,16 +83,16 @@ export default function Dashboard() {
       </h3>
       <p>
         The 3rd International Conference on Trends in Engineering Systems and
-        Technologies (ICTEST) 2026 is organized ​by Govt. Model Engineering
-        College, Thrikkakara, with the Technical Sponsorship of IEEE Kerala
-        Section. For over ​35 years, Govt. Model Engineering College has
-        empowered its students to lead the way in engineering and ​technology
+        Technologies (ICTEST) 2026 is organized by Govt. Model Engineering
+        College, Thrikkakara, under the Institute of Human Resources
+        Development (IHRD), with the technical sponsorship of IEEE Kerala
+        Section. For over 35 years, Govt. Model Engineering College has
+        empowered its students to lead in engineering and technology
         innovation. Affiliated with APJ Abdul Kalam Technological University
-        (KTU), Kerala, this pioneering ​institution was the first engineering
-        college established by the Government of Kerala under the aegis of the
-        Institute ​of Human Resource Development (IHRD). Previously affiliated
-        with Cochin University of Science and Technology ​(CUSAT), the college
-        has consistently achieved record-breaking placements.
+        (KTU), Kerala, the college was the first engineering institution
+        established by the Government of Kerala under IHRD. Previously
+        affiliated with Cochin University of Science and Technology (CUSAT),
+        the college has consistently achieved record-breaking placements.
       </p>
       
       {allowAuthorLogin && (

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import "./navbar.css";
 import mecLogo from "../assets/mecLogo.png";
 import kerala_chapter from "../assets/kerala_chapter.jpg";
+import ihrdLogo from "../assets/ihrdlogo.jpg";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { IoCloseOutline } from "react-icons/io5";
 
@@ -40,7 +41,7 @@ export default function Navbar() {
         </li>
         <li>
           <div className="hover-circle"></div>
-          <a href={"/forauthors"}>For Authors</a>
+          <a href={"/forauthors"}>Schedule</a>
         </li>
         <li>
           <div className="hover-circle"></div>
@@ -48,7 +49,7 @@ export default function Navbar() {
         </li>
         <li>
           <div className="hover-circle"></div>
-          <a href={"/guidelines"}>guidelines </a>
+          <a href={"/guidelines"}>Author guidelines </a>
         </li>
         <li
           className="dropdown"
@@ -86,9 +87,14 @@ export default function Navbar() {
       </ul>
       <div className="logo-div mec-logo">
         <div className="logo-text">
-          <a href="https://www.mec.ac.in/" target="_blank">
-            <img className="mec-logo" src={mecLogo} alt="" />
-          </a>
+          <div className="logo-row">
+            <a href="https://ihrd.ac.in/" target="_blank" aria-label="IHRD">
+              <img className="ihrd-logo" src={ihrdLogo} alt="IHRD" />
+            </a>
+            <a href="https://www.mec.ac.in/" target="_blank" aria-label="Govt. Model Engineering College">
+              <img className="mec-logo-img" src={mecLogo} alt="Govt. Model Engineering College" />
+            </a>
+          </div>
           <span>Govt. Model Engineering College</span>
         </div>
       </div>

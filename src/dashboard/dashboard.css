@@ -27,6 +27,17 @@
     line-height: 3.5rem;
     font-size: 40px;
     margin-top: 150px;
+    /* Ensure digits (like the leading 3) align with uppercase letters */
+    font-variant-numeric: lining-nums tabular-nums;
+    -webkit-font-feature-settings: "lnum" 1, "tnum" 1;
+    font-feature-settings: "lnum" 1, "tnum" 1;
+}
+.dashboard h1 sup.ordinal {
+    text-transform: none; /* keep 'rd' lowercase */
+    font-size: 0.55em;
+    vertical-align: super;
+    line-height: 0;
+    margin-left: 1px;
 }
 .dashboard h2 {
     display: flex;
@@ -39,6 +50,10 @@
     font-size: 28px;
     margin: 0px;
     margin-bottom: 20px;
+    /* Same numeric alignment for consistency */
+    font-variant-numeric: lining-nums tabular-nums;
+    -webkit-font-feature-settings: "lnum" 1, "tnum" 1;
+    font-feature-settings: "lnum" 1, "tnum" 1;
 }
 .dashboard h3 {
     display: flex;
@@ -156,8 +171,11 @@
     left: 1rem;
 }
 .number-specific {
-    font-family: sans-serif;
+    font-family: inherit; /* keep numbers in the same font as the heading */
     font-weight: bold;
+    font-variant-numeric: lining-nums tabular-nums;
+    -webkit-font-feature-settings: "lnum" 1, "tnum" 1;
+    font-feature-settings: "lnum" 1, "tnum" 1;
 }
 
 
