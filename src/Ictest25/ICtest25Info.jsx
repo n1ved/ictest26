@@ -15,6 +15,7 @@ import GalaNight from "./GalaNight.jsx";
 import Sponsors from "./Sponsors.jsx";
 import PreConfTalk from "./PreConfTalk.jsx";
 import PaperSchedule from "./PaperSchedule.jsx";
+import Publications2025 from "./Publications.jsx";
 
 export default function ICTEST25Info() {
   const openNewWindowHandler = (url, name) => {
@@ -40,6 +41,10 @@ export default function ICTEST25Info() {
   const [currentSection, setCurrentSection] = useState(0);
 
   const sections = [
+      {
+        name : "Publications",
+          content: <Publications2025/>
+      },
     {
       name: "Notifications",
       content: <Notifications />,

@@ -15,6 +15,13 @@ const ImageGallery = () => {
         <div className='gallery-container'>
             <h2 className='gallery-title'>Event Highlights</h2>
             <div>
+                <center>
+                    <a href="https://ieeexplore.ieee.org/xpl/conhome/10576062/proceeding" target={'_blank'}>
+                        <button className='ieee-button'>
+                            Visit IEEE Xplore for ICTEST 2024 Publications
+                        </button>
+                    </a>
+                </center>
                 <p>The first International Conference on Trends in Engineering Systems and Technologies (ICTEST-2024) was successfully conducted by Govt. Model Engineering College, Thrikkakara from April 11 to 13, 2024 with the  technical sponsorship of IEEE Kerala section and with the title sponsorship of Defence Research & Development Organisation (DRDO). This conference brought together scholars, researchers, and industry professionals across different regions in the country and abroad to discuss and explore the latest advancements in various engineering disciplines.
                     The conference featured a diverse range of tracks, each focusing on cutting-edge topics in engineering and technology. The key tracks included:<br />
                 </p>
@@ -68,7 +75,7 @@ const ImageGallery = () => {
                 </div>
             </div>
             <p>A big thank you to everyone who contributed to ICTEST-2024, and here’s to continuing the momentum of collaboration, innovation, and knowledge exchange in the years to come! 🌍💡</p>
-            <p>All Publications can be found <a href="https://ieeexplore.ieee.org/xpl/conhome/10576062/proceeding" target='_blank'>here</a></p>
+
         </div>
     );
 };

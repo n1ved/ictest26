@@ -10,7 +10,11 @@ const GalaNight = () => {
       <p className="text-lg mb-2">Join us for an unforgettable evening of music, dance, and entertainment!</p>
       <p className="text-lg font-semibold highlight">Date: April 4, 2025 (Day 2)</p>
       <p className="text-lg font-semibold highlight">Venue: Model Engineering College, Kochi</p>
-
+        <a href="https://www.youtube.com/watch?v=aPWTBVYMrtQ" target={"_blank"}>
+            <button className="watch-button mt-4">
+                Watch Highlights from ICTEST 2024 Gala Night
+            </button>
+        </a>
       <div className="performances mt-6">
         <h2 className="text-2xl font-semibold mb-3">Featured Performances</h2>
         <ul className="list-disc list-inside text-lg">
