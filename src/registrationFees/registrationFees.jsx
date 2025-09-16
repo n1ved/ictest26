@@ -4,8 +4,8 @@ import QR from './upi.png';
 
 export default function RegistrationFees() {
   const rate = [
-    { name: "Faculty, IEEE Member:", rate: "INR 6500" },
-    { name: "Faculty, Non-IEEE Member:", rate: "INR 8000" },
+    { name: "Faculty, IEEE Member:", rate: "INR 7500" },
+    { name: "Faculty, Non-IEEE Member:", rate: "INR 8500" },
     { name: "Research Scholar/Student, IEEE Member:", rate: "INR 6500" },
     { name: "Research Scholar/Student, Non-IEEE Member:", rate: "INR 8000" },
     { name: "Industry Professional, IEEE Member:", rate: "INR 8000" },
@@ -17,13 +17,13 @@ export default function RegistrationFees() {
     },
     { name: "Foreign Delegate, Student IEEE Member:", rate: "125 USD" },
     { name: "Foreign Delegate, Non-Student IEEE Member:", rate: "150 USD" },
-    { name: "Additional Authors from India:", rate: "INR 1000 (for one day)" },
+    { name: "Additional Authors from India:", rate: "INR 2000 (for one day)" },
     {
       name: "Additional Authors from Outside India:",
       rate: "20 USD (for one day)",
     },
-    { name: "Attendees from India:", rate: "INR 1000 (for one day)" },
-    { name: "Attendees from Outside India:", rate: "20 USD (for one day)" },
+    { name: "Attendees from India:", rate: "INR 3000 (for one day)" },
+    { name: "Attendees from Outside India:", rate: "50 USD (for one day)" },
   ];
   // Split the rates into two columns
   const leftColumn = rate.slice(0, 7);
