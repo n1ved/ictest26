@@ -5,31 +5,27 @@ export default function Schedule() {
   const events = [
     {
       name: "Conference Dates",
-      date: "July 16, 17 and 18, 2026",
+      date: "16-18 July, 2026",
     },
     {
       name: "Conference Location",
       date: "Kochi 21, Kerala, India",
     },
     {
-      name: "Call for Papers Announcement",
-      date: "August 15th, 2025",
+      name: "Call For Papers Announcement",
+      date: "1 September, 2025",
     },
     {
-      name: "Last date for draft paper submission",
-      date: "January 10th, 2026"
+      name: "Last Date For Draft Paper Submission",
+      date: "10 February, 2026"
     },
     {
-      name: "Notification of Acceptance",
-      date: "March 15th, 2026"
+      name: "Notification Of Acceptance",
+      date: "15 March, 2026"
     },
-    // {
-    //   name: "Author Registration",
-    //   date: "Mar 5 - Mar 15, 2025",
-    // },
     {
-      name: "Deadline for Submitting Final Camera-ready Paper",
-      date: "April 15th, 2026",
+      name: "Deadline For Submitting Final Camera-Ready Paper",
+      date: "15 April, 2026",
     },
   ];
   const handleRedirectPaperSubmission = () => {
