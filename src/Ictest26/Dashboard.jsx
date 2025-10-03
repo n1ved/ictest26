@@ -11,6 +11,8 @@ import Payments from "./Payments";
 import "./Payments.css";
 import Messages from "./Messages";
 import "./Messages.css";
+import AuthorCertificates from "./AuthorCertificates";
+import "./AuthorCertificates.css";
 
 export default function Dashboard() {
   const userData = localStorage.getItem("ictest26_user");
@@ -72,6 +74,9 @@ export default function Dashboard() {
           )}
           {sidebar === "messages" && (
             <Messages />
+          )}
+          {sidebar === "certificates" && (
+            <AuthorCertificates />
           )}
           {sidebar === "final-submit" && (
             <FinalSubmitPage />
