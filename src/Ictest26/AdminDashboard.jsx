@@ -5,6 +5,14 @@ import AdminMessages from './AdminMessages';
 import './AdminMessages.css';
 import AdminSettings from './AdminSettings';
 import './AdminSettings.css';
+import AdminCertificates from './AdminCertificates';
+import './AdminCertificates.css';
+import { supabase } from './supabaseClient';
+
+// Ensure supabase is available globally for legacy code
+if (typeof window !== 'undefined' && !window.supabase) {
+  window.supabase = supabase;
+}
 
 export default function AdminDashboard() {
   const [tables, setTables] = useState([]);
@@ -20,7 +28,28 @@ export default function AdminDashboard() {
   const [editForm, setEditForm] = useState({});
   const [showMessages, setShowMessages] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCertificates, setShowCertificates] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+
+  // Check authentication on component mount
+  useEffect(() => {
+    const checkAuth = () => {
+      const userData = localStorage.getItem("ictest26_user");
+      const userRole = localStorage.getItem("ictest26_role");
+      
+      if (!userData || !userRole || userRole !== "admin") {
+        // Redirect to login if not authenticated or not admin
+        navigate("/2026/login");
+        return false;
+      }
+      
+      setIsAuthenticated(true);
+      return true;
+    };
+    
+    checkAuth();
+  }, [navigate]);
 
   // Function to refresh table data with enhanced queries
   const refreshTableData = async () => {
@@ -29,7 +58,7 @@ export default function AdminDashboard() {
       let query;
       
       if (selectedTable === 'messages') {
-        query = window.supabase
+        query = supabase
           .from(selectedTable)
           .select(`
             *,
@@ -38,14 +67,14 @@ export default function AdminDashboard() {
             admin:admin_id(email)
           `);
       } else if (selectedTable === 'attachments') {
-        query = window.supabase
+        query = supabase
           .from(selectedTable)
           .select(`
             *,
             message:message_id(subject, type)
           `);
       } else if (selectedTable === 'paper') {
-        query = window.supabase
+        query = supabase
           .from(selectedTable)
           .select(`
             *,
@@ -53,14 +82,14 @@ export default function AdminDashboard() {
             track:track_id(*)
           `);
       } else if (selectedTable === 'author') {
-        query = window.supabase
+        query = supabase
           .from(selectedTable)
           .select(`
             *,
             paper:paper_id(paper_title)
           `);
       } else {
-        query = window.supabase.from(selectedTable).select("*");
+        query = supabase.from(selectedTable).select("*");
       }
 
       const { data, error } = await query;
@@ -101,9 +130,11 @@ export default function AdminDashboard() {
 
   // Fetch all table names from Supabase
   useEffect(() => {
+    if (!isAuthenticated) return;
+    
     const fetchTables = async () => {
       try {
-        const { data, error } = await window.supabase
+        const { data, error } = await supabase
           .rpc('list_tables');
         if (error) throw error;
         setTables(data);
@@ -112,11 +143,11 @@ export default function AdminDashboard() {
       }
     };
     fetchTables();
-  }, []);
+  }, [isAuthenticated]);
 
   // Fetch rows and columns for selected table
   useEffect(() => {
-    if (!selectedTable) return;
+    if (!selectedTable || !isAuthenticated) return;
     setLoading(true);
     setError("");
     const fetchRows = async () => {
@@ -125,7 +156,7 @@ export default function AdminDashboard() {
         
         // Enhanced queries for specific tables to include related data
         if (selectedTable === 'messages') {
-          query = window.supabase
+          query = supabase
             .from(selectedTable)
             .select(`
               *,
@@ -134,14 +165,14 @@ export default function AdminDashboard() {
               admin:admin_id(email)
             `);
         } else if (selectedTable === 'attachments') {
-          query = window.supabase
+          query = supabase
             .from(selectedTable)
             .select(`
               *,
               message:message_id(subject, type)
             `);
         } else if (selectedTable === 'paper') {
-          query = window.supabase
+          query = supabase
             .from(selectedTable)
             .select(`
               *,
@@ -149,14 +180,14 @@ export default function AdminDashboard() {
               track:track_id(*)
             `);
         } else if (selectedTable === 'author') {
-          query = window.supabase
+          query = supabase
             .from(selectedTable)
             .select(`
               *,
               paper:paper_id(paper_title)
             `);
         } else {
-          query = window.supabase.from(selectedTable).select("*");
+          query = supabase.from(selectedTable).select("*");
         }
 
         const { data, error } = await query;
@@ -210,7 +241,7 @@ export default function AdminDashboard() {
         if (!insertData.type) insertData.type = 'general';
       }
       
-      const { error } = await window.supabase.from(selectedTable).insert([insertData]);
+      const { error } = await supabase.from(selectedTable).insert([insertData]);
       if (error) throw error;
       setShowAddForm(false);
       setAddForm({});
@@ -252,7 +283,7 @@ export default function AdminDashboard() {
           updateData.password_hash = hash;
         }
       }
-      const { error } = await window.supabase.from(selectedTable).update(updateData).eq(pk, pkValue);
+      const { error } = await supabase.from(selectedTable).update(updateData).eq(pk, pkValue);
       if (error) throw error;
       setEditRowIdx(null);
       setEditForm({});
@@ -273,7 +304,7 @@ export default function AdminDashboard() {
     try {
       const pk = columns[0];
       const pkValue = rows[idx][pk];
-      const { error } = await window.supabase.from(selectedTable).delete().eq(pk, pkValue);
+      const { error } = await supabase.from(selectedTable).delete().eq(pk, pkValue);
       if (error) throw error;
       // Refresh rows with enhanced query
       await refreshTableData();
@@ -283,6 +314,18 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   };
+
+  // Render - show loading while checking authentication
+  if (!isAuthenticated) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0a1833', color: '#e6eaff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Checking authentication...</div>
+          <div style={{ color: '#b3c6e0' }}>Redirecting to login if not authenticated.</div>
+        </div>
+      </div>
+    );
+  }
 
   // Render
   return (
@@ -295,6 +338,7 @@ export default function AdminDashboard() {
               onClick={() => {
                 setShowMessages(!showMessages);
                 setShowSettings(false);
+                setShowCertificates(false);
               }} 
               style={{ 
                 background: showMessages ? '#375a7f' : '#254a7c', 
@@ -315,8 +359,32 @@ export default function AdminDashboard() {
             </button>
             <button 
               onClick={() => {
+                setShowCertificates(!showCertificates);
+                setShowMessages(false);
+                setShowSettings(false);
+              }} 
+              style={{ 
+                background: showCertificates ? '#375a7f' : '#254a7c', 
+                color: '#e6eaff', 
+                border: 'none', 
+                borderRadius: 8, 
+                padding: '0.7rem 2rem', 
+                fontWeight: 700, 
+                cursor: 'pointer', 
+                fontSize: '1.08rem', 
+                boxShadow: '0 2px 8px #001a3340', 
+                letterSpacing: 0.5, 
+                transition: 'background 0.2s', 
+                height: 48 
+              }}
+            >
+              {showCertificates ? 'Back to Dashboard' : 'Certificates'}
+            </button>
+            <button 
+              onClick={() => {
                 setShowSettings(!showSettings);
                 setShowMessages(false);
+                setShowCertificates(false);
               }} 
               style={{ 
                 background: showSettings ? '#375a7f' : '#254a7c', 
@@ -340,6 +408,8 @@ export default function AdminDashboard() {
         </div>
         {showMessages ? (
           <AdminMessages />
+        ) : showCertificates ? (
+          <AdminCertificates />
         ) : showSettings ? (
           <AdminSettings />
         ) : (

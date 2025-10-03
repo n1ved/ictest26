@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MdDashboard, MdPeople, MdOutlineMessage, MdLogout } from "react-icons/md";
 import { IoNewspaperOutline } from "react-icons/io5";
 import { LuSend } from "react-icons/lu";
-import { FaRupeeSign } from "react-icons/fa";
+import { FaRupeeSign, FaCertificate } from "react-icons/fa";
 import "./Sidebar.css";
 
 export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded }) {
@@ -137,6 +137,23 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
           >
             <MdOutlineMessage className="sidebar-icon" />
             <span className="sidebar-text">Messages</span>
+          </button>
+        </li>
+        <li>
+          <button
+            className={sidebar === "certificates" ? "sidebar-link active" : "sidebar-link"}
+            onClick={() => hasPaper && setSidebar("certificates")}
+            disabled={!hasPaper}
+            style={{
+              cursor: hasPaper ? "pointer" : "not-allowed",
+              opacity: hasPaper ? 1 : 0.5,
+              background: sidebar === "certificates" ? "#003366" : "none"
+            }}
+            onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
+            onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "certificates" ? "#003366" : "none"; }}
+          >
+            <FaCertificate className="sidebar-icon" />
+            <span className="sidebar-text">Certificates</span>
           </button>
         </li>
         
