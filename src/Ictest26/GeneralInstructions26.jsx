@@ -58,26 +58,26 @@ const GeneralInstructions26 = () => {
                 </ul>
             </div>
 
-            {/*TODO Step 2, do after getting ISBN*/}
-            {/*<div className="instruction-section">*/}
-            {/*    <h3>Step 2: IEEE Copyright Notice</h3>*/}
-            {/*    <p>Include the following IEEE copyright notice at the bottom of the first page of your paper:</p>*/}
-            {/*    <p className="copyright-notice">979-8-3315-0537-0/25/$31.00 ©2025 IEEE</p>*/}
-            {/*    <p>Ensure that the correct copyright notice is inserted before submission.</p>*/}
-            {/*</div>*/}
+
+            <div className="instruction-section">
+                <h3>Step 2: IEEE Copyright Notice</h3>
+                <p>Include the following IEEE copyright notice at the bottom of the first page of your paper:</p>
+                <p className="copyright-notice">979-8-3315-9071-0/26/$31.00 ©2026 IEEE</p>
+                <p>Ensure that the correct copyright notice is inserted before submission.</p>
+            </div>
 
             {/* Step 3 */}
             <div className="instruction-section">
                 <h3>Step 3: PDF eXpress Verification</h3>
                 <p>Before submitting the final paper, it must be verified through <a href="https://ieee-pdf-express.org/">IEEE PDF eXpress</a>.</p>
-                <p><strong>Conference ID:</strong> 69239</p>
+                <p><strong>Conference ID:</strong> 69239X</p>
 
                 <h4>Instructions for First-Time Users:</h4>
                 <ol>
                     <li>Click “New Users – Click here”.</li>
                     <li>Enter:
                         <ul>
-                            <li>Conference ID: 69239</li>
+                            <li>Conference ID: 69239X</li>
                             <li>Your email address</li>
                             <li>Create a password</li>
                         </ul>
