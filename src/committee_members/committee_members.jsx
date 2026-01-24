@@ -21,6 +21,9 @@ import vinitha_img from "../committee_images/vinitha.jpg";
 import priya_img from "../committee_images/priya.jpg";
 import jibi_img from "../committee_images/jibi.jpg";
 import aparnadevi_img from "../committee_images/aparnadevi.jpg";
+import jayaram_img from "../committee_images/jayaram.jpg"
+import minu_img from "../committee_images/minukk.png"
+import { image } from "framer-motion/client";
 
 export default function Committee_members() {
   const events = [
@@ -110,7 +113,7 @@ export default function Committee_members() {
     {
   image: vinitha_img,
       title: "Publication Chair",
-      name: "Vinitha George E.",
+      name: "Dr. Vinitha George E.",
       position:
         "Associate Professor in Electronics Engineering, Govt. Model Engineering College",
       email: "vinithageorge@mec.ac.in",
@@ -162,21 +165,22 @@ export default function Committee_members() {
 
     // Finance Committee Chair(s)
     {
-      image: sindhu_img,
+      image: minu_img,
       title: "Finance Committee Chair",
-      name: "Dr. Sindhu S",
+      name: "Mr. Minu K K",
       position:
-        "Associate Professor in the Dept. of Applied Science, Govt. Model Engineering College",
-      email: "sindhus@mec.ac.in",
-      phone: "9446445501",
+        "Asst. Professor in the Dept. of Applied Science, Govt. Model Engineering College",
+      email: "",
+      phone: "",
     },
     {
+      image: jayaram_img,
       title: "Finance Committee Chair",
-      name: "Ms. Radha Balakrishnan",
+      name: "Mr. Jayaram D.S.",
       position:
-        "Asst Professor in the Dept. of Applied Science, Govt. Model Engineering College",
-      email: "radha@mec.ac.in",
-      phone: "9446565860",
+        "Asst. Professor in the Dept. of Applied Science, Govt. Model Engineering College",
+      email: "",
+      phone: "",
     },
   ];
 
