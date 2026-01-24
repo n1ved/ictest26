@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
+import QR from '../registrationFees/upi.png';
 import "./Payments.css";
 import jsPDF from "jspdf";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function Payments() {
+  // Supabase bucket name for payment screenshots
+  const PAYMENT_BUCKET = 'payment-screenshots';
+  const [userMarkedPaid, setUserMarkedPaid] = useState(false);
   const [paperId, setPaperId] = useState(null);
   const [papers, setPapers] = useState([]);
   const [selectedPaper, setSelectedPaper] = useState(null);
@@ -20,9 +24,13 @@ export default function Payments() {
     isPaid: false,
     paymentId: null,
     paymentDate: null,
-    paymentMethod: null
+    paymentMethod: null,
+    screenshotUrl: null
   });
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  // Remove payment gateway modal
+  const [screenshotFile, setScreenshotFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   // Remove hardcoded category fees since we'll use database fees
   // Registration fees are now fetched from the database
@@ -279,7 +287,7 @@ export default function Payments() {
       try {
         const { data, error } = await window.supabase
           .from('payments')
-          .select('payment_id, amount, currency, payment_method, payment_date, payment_status')
+          .select('payment_id, amount, currency, payment_method, payment_date, payment_status, screenshot_url')
           .eq('paper_id', paperId)
           .eq('payment_status', 'completed')
           .order('created_at', { ascending: false })
@@ -291,7 +299,8 @@ export default function Payments() {
             isPaid: true,
             paymentId: payment.payment_id,
             paymentDate: payment.payment_date,
-            paymentMethod: payment.payment_method
+            paymentMethod: payment.payment_method,
+            screenshotUrl: payment.screenshot_url
           });
         }
       } catch (error) {
@@ -306,64 +315,111 @@ export default function Payments() {
     return `ICTEST26_${paperId}_${Date.now()}`;
   };
 
-  const handlePayment = () => {
-    setShowPaymentForm(true);
+  // Remove handlePayment (no gateway)
+
+  // Remove processPayment (no gateway)
+  // Handle screenshot upload
+  const handleScreenshotChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setScreenshotFile(e.target.files[0]);
+      setUploadSuccess(false);
+    }
   };
 
-  const processPayment = async (paymentMethod) => {
-    // Here you would integrate with your payment gateway
-    // For now, we'll simulate a successful payment
-    const paymentId = generatePaymentId();
-    
-    // Simulate payment processing
-    setTimeout(async () => {
-      const newPaymentStatus = {
-        isPaid: true,
-        paymentId: paymentId,
-        paymentDate: new Date().toISOString().split('T')[0],
-        paymentMethod: paymentMethod
-      };
+  const handleScreenshotUpload = async () => {
+    if (!screenshotFile || !paperId) return;
+    setUploading(true);
+    try {
+      // Generate a unique filename
+      const fileExt = screenshotFile.name.split('.').pop();
+      const fileName = `payment_${paperId}_${Date.now()}.${fileExt}`;
+      const paymentId = generatePaymentId();
       
-      setPaymentStatus(newPaymentStatus);
-      setShowPaymentForm(false);
-      
-      // Save payment to database
-      try {
-        const { data: paymentData, error: paymentError } = await window.supabase
+      // Upload to Supabase Storage
+      const { data, error } = await window.supabase.storage
+        .from(PAYMENT_BUCKET)
+        .upload(fileName, screenshotFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      if (error) throw error;
+
+      // Get public URL
+      const { data: { publicUrl } } = window.supabase.storage
+        .from(PAYMENT_BUCKET)
+        .getPublicUrl(fileName);
+
+      // Check if payment already exists for this paper
+      const { data: existingPayment } = await window.supabase
+        .from('payments')
+        .select('payment_id')
+        .eq('paper_id', paperId)
+        .single();
+
+      let finalPaymentId = paymentId;
+
+      if (existingPayment) {
+        // Update existing payment
+        finalPaymentId = existingPayment.payment_id;
+        const { error: updateError } = await window.supabase
+          .from('payments')
+          .update({
+            amount: paymentDetails.totalAmount,
+            currency: paymentDetails.currency === 'Mixed' ? 'INR' : paymentDetails.currency,
+            payment_method: 'Bank Transfer / UPI',
+            payment_date: new Date().toISOString().split('T')[0],
+            payment_status: 'completed',
+            screenshot_url: publicUrl
+          })
+          .eq('paper_id', paperId);
+        if (updateError) throw updateError;
+      } else {
+        // Insert new payment
+        const { error: insertError } = await window.supabase
           .from('payments')
           .insert({
             payment_id: paymentId,
             paper_id: paperId,
             amount: paymentDetails.totalAmount,
             currency: paymentDetails.currency === 'Mixed' ? 'INR' : paymentDetails.currency,
-            payment_method: paymentMethod,
+            payment_method: 'Bank Transfer / UPI',
             payment_date: new Date().toISOString().split('T')[0],
-            payment_status: 'completed'
+            payment_status: 'completed',
+            screenshot_url: publicUrl
           });
+        if (insertError) throw insertError;
 
-        if (!paymentError) {
-          // Save individual payment items
-          const paymentItems = paymentDetails.breakdown.map(item => ({
-            payment_id: paymentId,
-            author_id: authors.find(a => `${a.salutation} ${a.author_name}` === item.authorName)?.author_id,
-            category: item.category,
-            amount: item.fee,
-            currency: item.currency
-          }));
+        // Save individual payment items (only for new payments)
+        const paymentItems = paymentDetails.breakdown.map(item => ({
+          payment_id: paymentId,
+          author_id: authors.find(a => `${a.salutation} ${a.author_name}` === item.authorName)?.author_id,
+          category: item.category,
+          amount: item.fee,
+          currency: item.currency
+        }));
 
-          await window.supabase
-            .from('payment_items')
-            .insert(paymentItems);
-
-          console.log('Payment saved to database successfully');
-        }
-      } catch (error) {
-        console.error('Error saving payment to database:', error);
-        // Payment still succeeds even if database save fails
+        await window.supabase
+          .from('payment_items')
+          .insert(paymentItems);
       }
-      
-      alert(`Payment successful!\nPayment ID: ${paymentId}\nAmount: ${paymentDetails.totalAmount} ${paymentDetails.currency}`);
-    }, 2000);
+
+      // Update payment status state
+      setPaymentStatus({
+        isPaid: true,
+        paymentId: finalPaymentId,
+        paymentDate: new Date().toISOString().split('T')[0],
+        paymentMethod: 'Bank Transfer / UPI',
+        screenshotUrl: publicUrl
+      });
+
+      setUploading(false);
+      setUploadSuccess(true);
+      setScreenshotFile(null);
+      setUserMarkedPaid(false);
+    } catch (err) {
+      setUploading(false);
+      alert('Error uploading screenshot: ' + (err.message || err));
+    }
   };
 
   // Generate Invoice PDF with NOT PAID watermark
@@ -536,7 +592,8 @@ export default function Payments() {
       isPaid: false,
       paymentId: null,
       paymentDate: null,
-      paymentMethod: null
+      paymentMethod: null,
+      screenshotUrl: null
     });
   };
 
@@ -624,7 +681,25 @@ export default function Payments() {
             <div style={{marginBottom:8, wordBreak:'break-all', overflowWrap:'break-word'}}><strong>Payment ID:</strong> {paymentStatus.paymentId}</div>
             <div style={{marginBottom:8}}><strong>Amount:</strong> ₹{paymentDetails.totalAmount.toLocaleString()}</div>
             <div style={{marginBottom:8}}><strong>Payment Date:</strong> {paymentStatus.paymentDate}</div>
-            <div><strong>Payment Method:</strong> {paymentStatus.paymentMethod}</div>
+            <div style={{marginBottom:8}}><strong>Payment Method:</strong> {paymentStatus.paymentMethod}</div>
+            {paymentStatus.screenshotUrl && (
+              <div style={{marginTop:16}}>
+                <strong>Payment Screenshot:</strong>
+                <div style={{marginTop:8}}>
+                  <img 
+                    src={paymentStatus.screenshotUrl} 
+                    alt="Payment Screenshot" 
+                    style={{
+                      maxWidth:'100%', 
+                      maxHeight:'400px', 
+                      borderRadius:8, 
+                      border:'2px solid #ddd',
+                      objectFit:'contain'
+                    }} 
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -831,57 +906,83 @@ export default function Payments() {
             </div>
           )}
 
-          {/* Payment Method Selection Modal */}
-          {showPaymentForm && (
-            <div style={{position:'fixed', top:0, left:0, width:'100%', height:'100%', background:'rgba(0,0,0,0.8)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000}}>
-              <div style={{background:'#001a33', borderRadius:12, padding:'2rem', maxWidth:400, width:'90%', border:'2px solid #375a7f'}}>
-                <h4 style={{color:'#ffe066', marginBottom:20, textAlign:'center'}}>Select Payment Method</h4>
-                <div style={{display:'flex', flexDirection:'column', gap:'1rem'}}>
-                  <button 
-                    onClick={() => processPayment('Online Payment Gateway')}
-                    style={{padding:'1rem', background:'#28a745', color:'#fff', border:'none', borderRadius:8, fontSize:'1rem', cursor:'pointer'}}
-                  >
-                    💳 Online Payment Gateway
-                  </button>
-                  <button 
-                    onClick={() => processPayment('Bank Transfer')}
-                    style={{padding:'1rem', background:'#007bff', color:'#fff', border:'none', borderRadius:8, fontSize:'1rem', cursor:'pointer'}}
-                  >
-                    🏦 Bank Transfer
-                  </button>
-                  <button 
-                    onClick={() => processPayment('UPI Payment')}
-                    style={{padding:'1rem', background:'#6f42c1', color:'#fff', border:'none', borderRadius:8, fontSize:'1rem', cursor:'pointer'}}
-                  >
-                    📱 UPI Payment
-                  </button>
-                  <button 
-                    onClick={() => setShowPaymentForm(false)}
-                    style={{padding:'1rem', background:'#6c757d', color:'#fff', border:'none', borderRadius:8, fontSize:'1rem', cursor:'pointer'}}
-                  >
-                    Cancel
-                  </button>
+          {/* Bank Account Details Section - only if payment not completed */}
+          {!paymentStatus.isPaid && (
+            <div style={{marginBottom: 32, background:'#00224d', borderRadius:12, padding:'1.5rem', border:'1.5px solid #375a7f'}}>
+              <h4 style={{textAlign:'center', color:'#28a7e0', fontWeight:700, fontSize:'1.15rem', marginBottom:'1.5rem', letterSpacing:1}}>
+                Bank Account Details
+              </h4>
+              <div style={{display:'flex', flexDirection: window.innerWidth <= 768 ? 'column' : 'row', alignItems:'center', justifyContent:'center', gap:'2rem'}}>
+                <img src={QR} alt="Scan to pay" style={{width: window.innerWidth <= 768 ? '180px' : '200px', height: window.innerWidth <= 768 ? '180px' : '200px', borderRadius:'8px', boxShadow:'0 2px 8px #00336655', background:'#fff'}} />
+                <div style={{background:'#001a33', borderRadius:8, padding:'1.5rem', fontFamily:'monospace', fontSize:'1rem', color:'#fff', minWidth: window.innerWidth <= 768 ? 'auto' : '340px', boxShadow:'0 2px 8px #00336655'}}>
+                  <p>Account Name: <strong>International Conference on Trends in Engineering Systems and technologies</strong></p>
+                  <p>Account Number: <strong>42346083528</strong></p>
+                  <p>IFSC Code: <strong>SBIN0070218</strong></p>
+                  <p>Bank Name: <strong>State bank of India</strong></p>
+                  <p>Branch: <strong>Edappally</strong></p>
+                  <p>MICR Code: <strong>682002905</strong></p>
                 </div>
+              </div>
+              <div style={{marginTop:'1.5rem', color:'#ffe066', fontSize:'1rem', textAlign:'center'}}>
+                You can pay via UPI using the QR code or via bank transfer using the details above.<br/>
+                Please upload your payment screenshot after completing the payment.
               </div>
             </div>
           )}
 
-          {/* Payment Instructions */}
-          <div style={{marginBottom: 32, background:'#00224d', borderRadius:12, padding: window.innerWidth <=768 ? '1rem' : '1.5rem', border:'1.5px solid #375a7f'}}>
-            <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
-              Payment Instructions
-            </h4>
-            <ul style={{margin:0, paddingLeft: window.innerWidth <=768 ? '10' : '20', lineHeight:1.8, color:'#fff'}}>
-              <li><strong>Primary authors</strong> pay full registration fee based on their category</li>
-              <li><strong>Co-authors</strong> pay ₹1000 only if attending at venue (otherwise ₹0)</li>
-              <li><strong>Page charges:</strong> Up to 6 pages are free; pages 7-8 cost ₹500 per page</li>
-              <li>Primary author registration fee is mandatory regardless of attendance</li>
-              <li>Co-authors are only charged if marked as "attending at venue"</li>
-              <li>Payment should be completed before the conference deadline</li>
-              <li>Foreign delegates pay in USD as per the breakdown</li>
-              <li>Keep your payment receipt for conference registration</li>
-            </ul>
-          </div>
+          {/* Payment Confirmation and Screenshot Upload Section */}
+          {!paymentStatus.isPaid && (
+            <div style={{marginBottom: 32, background:'#00224d', borderRadius:12, padding:'1.5rem', border:'1.5px solid #375a7f'}}>
+              <label style={{display:'flex', alignItems:'center', marginBottom:'1rem', fontSize:'1.05rem', color:'#ffe066'}}>
+                <input
+                  type="checkbox"
+                  checked={userMarkedPaid}
+                  onChange={e => setUserMarkedPaid(e.target.checked)}
+                  style={{marginRight:'0.75rem', width:'1.2rem', height:'1.2rem'}}
+                />
+                I have completed the payment
+              </label>
+              {userMarkedPaid && (
+                <>
+                  <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
+                    Upload Payment Screenshot
+                  </h4>
+                  <input type="file" accept="image/*" onChange={handleScreenshotChange} style={{marginBottom:'1rem'}} />
+                  <button
+                    onClick={handleScreenshotUpload}
+                    disabled={!screenshotFile || uploading}
+                    style={{background:'#28a745', color:'#fff', border:'none', borderRadius:8, padding:'0.8rem 2rem', fontWeight:700, fontSize:'1rem', cursor:'pointer'}}
+                  >
+                    {uploading ? 'Uploading...' : 'Upload Screenshot'}
+                  </button>
+                  {uploadSuccess && (
+                    <div style={{color:'#28a745', marginTop:'1rem', fontWeight:700}}>
+                      Screenshot uploaded successfully!
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Payment Instructions - only if payment not completed */}
+          {!paymentStatus.isPaid && (
+            <div style={{marginBottom: 32, background:'#00224d', borderRadius:12, padding: window.innerWidth <=768 ? '1rem' : '1.5rem', border:'1.5px solid #375a7f'}}>
+              <h4 style={{fontWeight:700, fontSize:'1.15rem', marginBottom:12, color:'#ffe066'}}>
+                Payment Instructions
+              </h4>
+              <ul style={{margin:0, paddingLeft: window.innerWidth <=768 ? '10' : '20', lineHeight:1.8, color:'#fff'}}>
+                <li><strong>Primary authors</strong> pay full registration fee based on their category</li>
+                <li><strong>Co-authors</strong> pay ₹1000 only if attending at venue (otherwise ₹0)</li>
+                <li><strong>Page charges:</strong> Up to 6 pages are free; pages 7-8 cost ₹500 per page</li>
+                <li>Primary author registration fee is mandatory regardless of attendance</li>
+                <li>Co-authors are only charged if marked as "attending at venue"</li>
+                <li>Payment should be completed before the conference deadline</li>
+                <li>Foreign delegates pay in USD as per the breakdown</li>
+                <li>Keep your payment receipt for conference registration</li>
+              </ul>
+            </div>
+          )}
 
           {/* Download Invoice Button (before payment) */}
           {paymentDetails.breakdown.length > 0 && !paymentStatus.isPaid && (
@@ -919,41 +1020,7 @@ export default function Payments() {
             </div>
           )}
 
-          {/* Payment Button */}
-          {paymentDetails.breakdown.length > 0 && paymentDetails.totalAmount > 0 && !paymentStatus.isPaid && (
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
-              width: '100%'
-            }}>
-              <button 
-                onClick={handlePayment}
-                style={{
-                  background:'linear-gradient(90deg,#28a745 60%,#218838 100%)', 
-                  color:'#fff', 
-                  border:'none', 
-                  borderRadius:12, 
-                  padding:'1.2rem 3rem', 
-                  fontWeight:900, 
-                  fontSize:'1.18rem', 
-                  cursor:'pointer', 
-                  boxShadow:'0 4px 12px 0 rgba(40,167,69,0.3)', 
-                  transition:'all 0.3s ease',
-                  letterSpacing:1
-                }}
-                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                Proceed to Payment
-              </button>
-              <div style={{marginTop:12, fontSize:'0.9rem', color:'#b3c6e0'}}>
-                Secure payment powered by trusted gateway
-              </div>
-            </div>
-          )}
+          {/* Remove payment gateway button section */}
         </>
       )}
     </div>
