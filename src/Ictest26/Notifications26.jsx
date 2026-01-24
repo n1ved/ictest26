@@ -3,33 +3,38 @@ import '../Ictest25/Notifications.css';
 
 export default function Notifications26() {
   return (
-    <div className="notifications-container" id="notifications">
-      <h2>Notifications</h2>
-      <div className="instruction-container">
-        <h3 className="instruction-title">
-          ICTEST 2026 - Updates Coming Soon
-        </h3>
-        <div className="instruction-content">
-          Welcome to ICTEST 2026! We are currently preparing all the details for the upcoming conference.
-          <br />
-          Please stay tuned for important announcements regarding:
-          <div className="spacer" />
-          <ul>
-            <li>Call for papers and submission deadlines</li>
-            <li>
-              Review process and guidelines for authors
-            </li>
-            <li>
-              Registration details and conference schedule
-            </li>
-            <li>
-              Venue information and accommodation options
-            </li>
-          </ul>
-          <div className="spacer" />
-          All updates will be posted here as they become available. Make sure to check back regularly for the latest information.
+      <div className="notifications-container" id="notifications">
+        <h2>Notifications</h2>
+        <div className="instruction-container">
+          <h3 className="instruction-title">
+            Regarding Paper Review Comments
+          </h3>
+          <div className="instruction-content">
+            The review comments for your paper are available on the conference
+            paper management site (
+            <a href="https://cmt3.research.microsoft.com/ICTEST2026">
+              https://cmt3.research.microsoft.com/ICTEST2026
+            </a>
+            )
+            <br />
+            Please log in using your email to view and address the comments:
+            <div className="spacer" />
+            <ul>
+              <li>Revise your paper as per the review comments.</li>
+              <li>
+                Submit the final camera-ready version by the deadline,
+                ensuring IEEE formatting compliance.
+              </li>
+              <li>
+                Complete the registration process as per conference
+                guidelines.
+              </li>
+            </ul>
+            <div className="spacer" />
+            Failure to incorporate all required changes may result in the
+            withdrawal of your paper from the final program and publication.
+          </div>
         </div>
       </div>
-    </div>
   );
 }
