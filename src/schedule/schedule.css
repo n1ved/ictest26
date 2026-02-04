@@ -2,7 +2,8 @@
     margin: 0;
     width: 100vw;
     box-sizing: border-box;
-    background: linear-gradient(
+    background:
+        linear-gradient(
             to right,
             rgba(0, 40, 80, 1) 60%,
             rgba(0, 40, 80, 0.8),
@@ -22,7 +23,9 @@
     flex-direction: column;
     align-items: center;
 }
-
+s {
+    margin-right: 20px;
+}
 .event {
     display: flex;
     flex-direction: row;
@@ -48,7 +51,7 @@ h1 {
 }
 .schedule h2 {
     margin: 0px;
-    text-align: center;
+    text-align: left;
     align-self: center;
 }
 .schedule p {
@@ -128,7 +131,8 @@ button:hover {
         margin: 0;
         width: 100vw;
         box-sizing: border-box;
-        background: linear-gradient(
+        background:
+            linear-gradient(
                 to right,
                 rgba(0, 40, 80, 1) 60%,
                 rgba(0, 40, 80, 0.8),
@@ -148,14 +152,19 @@ button:hover {
         flex-direction: column;
         align-items: center;
     }
+    s {
+        display: block;
+        margin-left: 0;
+        text-align: center;
+    }
 
     .event {
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
+        flex-direction: column;
+        justify-content: center;
         align-items: center;
-        width: 65vw;
-        /* height: 10vh; */
+        width: 85vw;
+        height: 15vh;
         color: white;
         /* padding: 0 0px ; */
         border-radius: 10px;
@@ -174,7 +183,7 @@ button:hover {
     }
     .schedule h2 {
         margin: 0px;
-        text-align: left;
+        text-align: center;
         align-self: center;
         letter-spacing: 1px;
         line-height: 1.5rem;
@@ -182,13 +191,13 @@ button:hover {
     }
     .schedule p {
         letter-spacing: 1px;
-        padding: 20px 0px 20px 10px;
+        padding: 20px 10px 20px 10px;
         font-size: 16px;
         margin: 0;
-        text-align: right;
+        text-align: center;
     }
     .schedule hr {
-        margin: 0px;
+        margin: 10px;
     }
     .button-container {
         flex-direction: column;
@@ -215,7 +224,7 @@ button:hover {
         width: 90%;
         max-width: 350px;
     }
-    
+
     .contact-info h3 {
         text-align: center;
         font-size: 16px;
@@ -225,7 +234,7 @@ button:hover {
         letter-spacing: 1.2px;
         font-weight: 600;
     }
-    
+
     .contact-info span {
         text-align: center;
         font-size: 14px;
