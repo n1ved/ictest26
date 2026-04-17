@@ -48,11 +48,13 @@ a:focus {
   padding: 200px 40px 200px 320px;
   align-items: flex-start;
   flex-direction: column;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .info-main {
   margin: 0;
-  width: 100vw;
+  width: 100%;
   box-sizing: border-box;
   background: linear-gradient(
       to right,
@@ -69,6 +71,7 @@ a:focus {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+  overflow-x: hidden;
 }
 
 .ic26-navigation {
