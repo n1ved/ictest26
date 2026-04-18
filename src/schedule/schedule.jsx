@@ -82,7 +82,7 @@ export default function Schedule() {
             </a>
           </span>
           <br></br>
-          <span>Phone: +91 9388815039, +91 9605497787</span>
+          <span>Phone: +91 9447991108, +91 9447380826</span>
         </div>
       </div>
     </>
