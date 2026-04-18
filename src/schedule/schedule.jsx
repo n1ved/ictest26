@@ -28,7 +28,7 @@ export default function Schedule() {
     {
       name: "Deadline For Submitting Final Camera-Ready Paper",
       oldDate: "15 April, 2026",
-      date: "20 April, 2026",
+      date: "10 May, 2026",
     },
   ];
   const handleRedirectPaperSubmission = () => {
@@ -82,7 +82,7 @@ export default function Schedule() {
             </a>
           </span>
           <br></br>
-          <span>Phone: +91 9447991108, +91 9447380826</span>
+          <span>Phone: +91 9388815039, +91 9605497787</span>
         </div>
       </div>
     </>
