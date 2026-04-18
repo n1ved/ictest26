@@ -93,3 +93,137 @@
         font-size: 14px;
     }
 }
+
+/* ICTEST 2026 specific enhancements */
+.notifications-container-26 {
+    position: relative;
+    gap: 10px;
+    padding-top: 18px;
+    padding-right: 24px;
+}
+
+.notifications-container-26 h2 {
+    font-size: clamp(32px, 4vw, 44px);
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    line-height: 1.1;
+    margin: 6px 0 10px;
+    padding: 6px 0;
+    color: #1a8eff;
+}
+
+.instruction-container-26 {
+    background: #0b1b31;
+    border: 1px solid rgba(126, 163, 204, 0.22);
+    border-radius: 14px;
+    width: min(92%, 860px);
+    padding: 24px 22px;
+    box-shadow: 0 14px 30px rgba(2, 10, 26, 0.24);
+}
+
+.instruction-container-26:hover {
+    transform: none;
+    box-shadow: 0 14px 30px rgba(2, 10, 26, 0.24);
+}
+
+.instruction-container-26 .instruction-title {
+    margin: 0 0 14px;
+    font-size: clamp(22px, 2.5vw, 28px);
+    font-weight: 700;
+    letter-spacing: 0.1px;
+    color: #f5f9ff;
+}
+
+.instruction-container-26 .instruction-content {
+    background: #071527;
+    border: 1px solid rgba(126, 163, 204, 0.26);
+    border-left: 3px solid #2d98ff;
+    border-radius: 10px;
+    padding: 20px 20px 18px;
+    font-size: 17px;
+    line-height: 1.78;
+    color: #dfe9f6;
+}
+
+.instruction-container-26 .instruction-content p {
+    margin: 0;
+}
+
+.instruction-container-26 .instruction-content p + p {
+    margin-top: 14px;
+}
+
+.instruction-container-26 .instruction-content strong {
+    display: inline-block;
+    font-size: 18px;
+    color: #f5f9ff;
+    letter-spacing: 0.2px;
+}
+
+.instruction-container-26 .instruction-content a {
+    color: #53adff;
+    font-weight: 600;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.instruction-container-26 .instruction-content a:hover {
+    color: #79bfff;
+    text-decoration-color: #79bfff;
+}
+
+.instruction-container-26 .instruction-content .contact-numbers,
+.instruction-container-26 .instruction-content .date-values {
+    font-family: "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: 0.01em;
+    font-weight: 600;
+}
+
+@media screen and (max-width: 900px) {
+    .notifications-container-26 {
+        padding-top: 10px;
+        padding-right: 16px;
+    }
+
+    .instruction-container-26 {
+        width: min(95%, 860px);
+        padding: 18px;
+    }
+
+    .instruction-container-26 .instruction-content {
+        padding: 16px;
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .notifications-container-26 {
+        padding-right: 12px;
+    }
+
+    .notifications-container-26 h2 {
+        margin-top: 0;
+    }
+
+    .instruction-container-26 {
+        border-radius: 12px;
+        padding: 14px;
+    }
+
+    .instruction-container-26 .instruction-title {
+        margin-bottom: 10px;
+    }
+
+    .instruction-container-26 .instruction-content {
+        border-left-width: 2px;
+        border-radius: 8px;
+        font-size: 15px;
+        line-height: 1.65;
+    }
+
+    .instruction-container-26 .instruction-content strong {
+        font-size: 17px;
+    }
+}
