@@ -95,11 +95,13 @@ export default function Dashboard() {
         the college has consistently achieved record-breaking placements.
       </p>
       
-      {allowAuthorLogin && (
-        <a href="/2026/login" className="ictest26-login-btn">
-          Author Login for ICTEST 2026
-        </a>
-      )}
+      {/*
+        {allowAuthorLogin && (
+          <a href="/2026/login" className="ictest26-login-btn">
+            Author Login for ICTEST 2026
+          </a>
+        )}
+      */}
     </div>
   );
 }
