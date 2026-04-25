@@ -1,49 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { MdDashboard, MdPeople, MdOutlineMessage, MdLogout } from "react-icons/md";
+import React from "react";
+import { MdDashboard, MdOutlineMessage, MdLogout } from "react-icons/md";
 import { IoNewspaperOutline } from "react-icons/io5";
-import { LuSend } from "react-icons/lu";
-import { FaRupeeSign, FaCertificate } from "react-icons/fa";
+import { FaCertificate } from "react-icons/fa";
 import "./Sidebar.css";
 
-export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded }) {
-  const [hasPaper, setHasPaper] = useState(!!paperAdded);
-
-  useEffect(() => {
-    async function checkPaper() {
-      if (paperAdded) {
-        setHasPaper(true);
-        return;
-      }
-      const userData = localStorage.getItem("ictest26_user");
-      if (!userData) return;
-      
-      let email;
-      try {
-        // Try parsing as JSON (new format)
-        const userObj = JSON.parse(userData);
-        email = userObj.email;
-      } catch (error) {
-        // Fall back to treating as string (legacy format)
-        email = userData;
-      }
-      
-      if (window.supabase) {
-        const { data: loginData } = await window.supabase
-          .from("login")
-          .select("login_id")
-          .eq("email", email)
-          .single();
-        if (loginData) {
-          const { data: paperData } = await window.supabase
-            .from("paper")
-            .select("paper_id")
-            .eq("login_id", loginData.login_id);
-          setHasPaper(!!paperData);
-        }
-      }
-    }
-    checkPaper();
-  }, [paperAdded]);
+export default function Sidebar({ sidebar, setSidebar, handleLogout }) {
+  const isMessagesDisabled = true;
+  const isCertificatesDisabled = true;
 
   return (
     <div className="dashboard-sidebar">
@@ -62,78 +25,27 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
         </li>
         <li>
           <button
-            className={sidebar === "add-paper" ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => setSidebar("add-paper")}
+            className={sidebar === "registration" ? "sidebar-link active" : "sidebar-link"}
+            onClick={() => setSidebar("registration")}
             onMouseOver={e => e.currentTarget.style.background = "#003366"}
-            onMouseOut={e => e.currentTarget.style.background = sidebar === "add-paper" ? "#003366" : "none"}
+            onMouseOut={e => e.currentTarget.style.background = sidebar === "registration" ? "#003366" : "none"}
           >
             <IoNewspaperOutline className="sidebar-icon" />
-            <span className="sidebar-text">Add Paper</span>
-          </button>
-        </li>
-        <li>
-          <button
-            className={sidebar === "add-authors" ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => hasPaper && setSidebar("add-authors")}
-            disabled={!hasPaper}
-            style={{
-              cursor: hasPaper ? "pointer" : "not-allowed",
-              opacity: hasPaper ? 1 : 0.5,
-              background: sidebar === "add-authors" ? "#003366" : "none"
-            }}
-            onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
-            onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "add-authors" ? "#003366" : "none"; }}
-          >
-            <MdPeople className="sidebar-icon" />
-            <span className="sidebar-text">Add Authors</span>
-          </button>
-        </li>
-        <li>
-          <button
-            className={sidebar === "final-submit" ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => hasPaper && setSidebar("final-submit")}
-            disabled={!hasPaper}
-            style={{
-              cursor: hasPaper ? "pointer" : "not-allowed",
-              opacity: hasPaper ? 1 : 0.5,
-              background: sidebar === "final-submit" ? "#003366" : "none"
-            }}
-            onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
-            onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "final-submit" ? "#003366" : "none"; }}
-          >
-            <LuSend className="sidebar-icon" />
-            <span className="sidebar-text">Final Submit</span>
-          </button>
-        </li>
-        <li>
-          <button
-            className={sidebar === "payments" ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => hasPaper && setSidebar("payments")}
-            disabled={!hasPaper}
-            style={{
-              cursor: hasPaper ? "pointer" : "not-allowed",
-              opacity: hasPaper ? 1 : 0.5,
-              background: sidebar === "payments" ? "#003366" : "none"
-            }}
-            onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
-            onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "payments" ? "#003366" : "none"; }}
-          >
-            <FaRupeeSign className="sidebar-icon" />
-            <span className="sidebar-text">Payments</span>
+            <span className="sidebar-text">Details & Authors</span>
           </button>
         </li>
         <li>
           <button
             className={sidebar === "messages" ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => hasPaper && setSidebar("messages")}
-            disabled={!hasPaper}
+            onClick={() => !isMessagesDisabled && setSidebar("messages")}
+            disabled={isMessagesDisabled}
             style={{
-              cursor: hasPaper ? "pointer" : "not-allowed",
-              opacity: hasPaper ? 1 : 0.5,
-              background: sidebar === "messages" ? "#003366" : "none"
+              cursor: isMessagesDisabled ? "not-allowed" : "pointer",
+              opacity: isMessagesDisabled ? 0.5 : 1,
+              background: isMessagesDisabled ? "none" : (sidebar === "messages" ? "#003366" : "none")
             }}
-            onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
-            onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "messages" ? "#003366" : "none"; }}
+            onMouseOver={e => { if (!isMessagesDisabled) e.currentTarget.style.background = "#003366"; }}
+            onMouseOut={e => { if (!isMessagesDisabled) e.currentTarget.style.background = sidebar === "messages" ? "#003366" : "none"; }}
           >
             <MdOutlineMessage className="sidebar-icon" />
             <span className="sidebar-text">Messages</span>
@@ -142,15 +54,15 @@ export default function Sidebar({ sidebar, setSidebar, handleLogout, paperAdded 
         <li>
           <button
             className={sidebar === "certificates" ? "sidebar-link active" : "sidebar-link"}
-            onClick={() => hasPaper && setSidebar("certificates")}
-            disabled={!hasPaper}
+            onClick={() => !isCertificatesDisabled && setSidebar("certificates")}
+            disabled={isCertificatesDisabled}
             style={{
-              cursor: hasPaper ? "pointer" : "not-allowed",
-              opacity: hasPaper ? 1 : 0.5,
-              background: sidebar === "certificates" ? "#003366" : "none"
+              cursor: isCertificatesDisabled ? "not-allowed" : "pointer",
+              opacity: isCertificatesDisabled ? 0.5 : 1,
+              background: isCertificatesDisabled ? "none" : (sidebar === "certificates" ? "#003366" : "none")
             }}
-            onMouseOver={e => { if (hasPaper) e.currentTarget.style.background = "#003366"; }}
-            onMouseOut={e => { if (hasPaper) e.currentTarget.style.background = sidebar === "certificates" ? "#003366" : "none"; }}
+            onMouseOver={e => { if (!isCertificatesDisabled) e.currentTarget.style.background = "#003366"; }}
+            onMouseOut={e => { if (!isCertificatesDisabled) e.currentTarget.style.background = sidebar === "certificates" ? "#003366" : "none"; }}
           >
             <FaCertificate className="sidebar-icon" />
             <span className="sidebar-text">Certificates</span>

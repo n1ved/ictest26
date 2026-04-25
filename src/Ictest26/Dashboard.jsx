@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
-import AddPaper from "./AddPaper";
+import Registration from "./Registration";
 import Sidebar from "./Sidebar";
 import "./Sidebar.css";
-import AddAuthor from "./AddAuthor";
-import "./AddAuthor.css";
 import FinalSubmitPage from "./FinalSubmitPage";
 import Payments from "./Payments";
 import "./Payments.css";
@@ -56,18 +54,14 @@ export default function Dashboard() {
               <div style={{ background: "#00224d", borderRadius: 12, boxShadow: "0 2px 12px rgba(0,0,0,0.10)", padding: "2rem", maxWidth: 600, width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <h3 style={{ color: "#b3c6e0", fontWeight: 700, marginBottom: 12, textAlign: "center" }}>Quick Start</h3>
                 <ul style={{ color: "#fff", fontSize: 16, lineHeight: 1.7, paddingLeft: 20, textAlign: "left" }}>
-                  <li>Submit your paper using the <b>Add Paper</b> link.</li>
-                  <li>Check your submission status here after submission.</li>
+                  <li>Add paper details and authors using the <b>Details & Authors</b> link.</li>
                   <li>Contact support for any queries.</li>
                 </ul>
               </div>
             </div>
           )}
-          {sidebar === "add-paper" && (
-            <AddPaper />
-          )}
-          {sidebar === "add-authors" && (
-            <AddAuthor />
+          {sidebar === "registration" && (
+            <Registration />
           )}
           {sidebar === "payments" && (
             <Payments />

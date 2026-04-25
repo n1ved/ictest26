@@ -1,0 +1,14 @@
+.pr-paper-card {
+  background: #001a33;
+  border-radius: 18px;
+  border: 2px solid #375a7f;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.22);
+}
+
+@media (max-width: 768px) {
+  .pr-paper-card {
+    padding: 1.2rem 1rem;
+  }
+}
