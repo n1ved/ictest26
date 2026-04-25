@@ -40,7 +40,7 @@ export default function AdminDashboard() {
       
       if (!userData || !userRole || userRole !== "admin") {
         // Redirect to login if not authenticated or not admin
-        navigate("/2026/login");
+        navigate("/2026/login", { replace: true });
         return false;
       }
       
@@ -49,6 +49,16 @@ export default function AdminDashboard() {
     };
     
     checkAuth();
+
+    // Re-check auth when a page is restored from browser back/forward cache.
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        checkAuth();
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
   }, [navigate]);
 
   // Function to refresh table data with enhanced queries
@@ -125,7 +135,7 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem("ictest26_user");
     localStorage.removeItem("ictest26_role");
-    navigate("/2026/login");
+    navigate("/2026/login", { replace: true });
   };
 
   // Fetch all table names from Supabase

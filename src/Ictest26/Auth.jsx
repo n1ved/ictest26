@@ -13,6 +13,7 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -58,6 +59,14 @@ export default function Auth() {
           navigate("/2026/dashboard");
         }
       } else {
+        if (!confirmPassword) {
+          setError("Please confirm your password.");
+          return;
+        }
+        if (password !== confirmPassword) {
+          setError("Password and confirm password do not match.");
+          return;
+        }
         // SIGNUP: check if email exists, then insert
         const { data: exists, error: existsError } = await window.supabase
           .from('login')
@@ -122,14 +131,24 @@ export default function Auth() {
             autoComplete={isLogin ? "current-password" : "new-password"}
             required
           />
+          {!isLogin && (
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              required
+            />
+          )}
           {error && <div className="auth-error">{error}</div>}
           <button type="submit">{isLogin ? "Login" : "Sign Up"}</button>
         </form>
         <div className="auth-toggle">
           {isLogin ? (
-            <span>Don't have an account? <button onClick={() => { setIsLogin(false); setError(""); }}>Sign Up</button></span>
+            <span>Don't have an account? <button onClick={() => { setIsLogin(false); setError(""); setConfirmPassword(""); }}>Sign Up</button></span>
           ) : (
-            <span>Already have an account? <button onClick={() => { setIsLogin(true); setError(""); }}>Login</button></span>
+            <span>Already have an account? <button onClick={() => { setIsLogin(true); setError(""); setConfirmPassword(""); }}>Login</button></span>
           )}
         </div>
       </div>
