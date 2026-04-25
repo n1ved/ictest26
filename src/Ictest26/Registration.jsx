@@ -145,7 +145,7 @@ export default function Registration() {
         return;
       }
 
-      const { data, error } = await window.supabase.from("paper").insert([{
+      const { error } = await window.supabase.from("paper").insert([{
         paper_id: parsedPaperId,
         login_id: loginIdRef.current,
         paper_title: paperForm.paper_title.trim(),
@@ -157,7 +157,7 @@ export default function Registration() {
       setPaperForm({ external_id: "", paper_title: "" });
       setShowAddPaperForm(false);
       await refreshPapers();
-      setActivePaperId(data.paper_id);
+      setActivePaperId(null);
       setAuthorForm(defaultAuthorForm);
       setEditAuthorId(null);
       setAuthorError("");
@@ -228,6 +228,7 @@ export default function Registration() {
   const handleAuthorSubmit = async (e) => {
     e.preventDefault();
     if (!activePaperId) return;
+    const paperId = activePaperId;
     if (!authorForm.proof_reg_cat_url) {
       setAuthorError("Please upload a proof of registration category file.");
       return;
@@ -281,20 +282,23 @@ export default function Registration() {
       if (editAuthorId) {
         const { error } = await window.supabase
           .from("author")
-          .update({ paper_id: activePaperId, ...submitData })
+          .update({ paper_id: paperId, ...submitData })
           .eq("author_id", editAuthorId);
         if (error) throw error;
         setAuthorSuccess("Author updated successfully!");
       } else {
         const { error } = await window.supabase
           .from("author")
-          .insert([{ paper_id: activePaperId, ...submitData }]);
+          .insert([{ paper_id: paperId, ...submitData }]);
         if (error) throw error;
         setAuthorSuccess("Author added successfully!");
       }
       setAuthorForm(defaultAuthorForm);
       setEditAuthorId(null);
-      await refreshAuthorsForPaper(activePaperId);
+      setMobileError("");
+      setProofFileName("");
+      setActivePaperId(null);
+      await refreshAuthorsForPaper(paperId);
     } catch (err) {
       if (err?.code === "23505") {
         setAuthorError("Only one primary author is allowed for a paper.");
