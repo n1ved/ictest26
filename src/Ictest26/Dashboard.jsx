@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 import Registration from "./Registration";
@@ -24,17 +24,46 @@ export default function Dashboard() {
     email = userData;
   }
   
-  const role = localStorage.getItem("ictest26_role");
   const navigate = useNavigate();
   const [sidebar, setSidebar] = useState("welcome");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const savedUser = localStorage.getItem("ictest26_user");
+      const savedRole = localStorage.getItem("ictest26_role");
+
+      if (!savedUser || !savedRole) {
+        setIsAuthenticated(false);
+        navigate("/2026/login", { replace: true });
+        return;
+      }
+
+      setIsAuthenticated(true);
+    };
+
+    checkAuth();
+
+    // Re-check auth when a page is restored from browser back/forward cache.
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        checkAuth();
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("ictest26_user");
     localStorage.removeItem("ictest26_role");
-    navigate("/2026/login");
+    navigate("/2026/login", { replace: true });
   };
+
+  if (!isAuthenticated) return null;
 
   const getMainContentPadding = () => {
     const isMobile = window.innerWidth <= 768;
