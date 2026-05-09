@@ -9,31 +9,37 @@ const CertificateTemplate = ({
   type = 'participation', 
   recipientName = '', 
   paperTitle = '',
+  institution = '',
   isPreview = false,
   namePosition = null,
-  paperTitlePosition = null
+  paperTitlePosition = null,
+  institutionPosition = null
 }) => {
   // Certificate template configurations
   const certificateConfig = {
     participation: {
       templateImage: participantTemplate,
       namePosition: { top: '55%', left: '50%' }, // Adjust based on your template
-      paperTitlePosition: null // No paper title for participation
+      paperTitlePosition: null, // No paper title for participation
+      institutionPosition: { top: '61%', left: '50%' }
     },
     author: {
       templateImage: authorTemplate,
       namePosition: { top: '47%', left: '50%' }, // Adjusted to center between lines
-      paperTitlePosition: { top: '59%', left: '50%' } // Moved lower to the "for presenting a paper titled" section
+      paperTitlePosition: { top: '59%', left: '50%' }, // Moved lower to the "for presenting a paper titled" section
+      institutionPosition: { top: '52%', left: '50%' }
     },
     reviewer: {
       templateImage: reviewerTemplate,
-      namePosition: { top: '42%', left: '50%' },
-      paperTitlePosition: null
+      namePosition: { top: '39%', left: '50%' },
+      paperTitlePosition: null,
+      institutionPosition: { top: '48%', left: '50%' }
     },
     session_chair: {
       templateImage: sessionChairTemplate,
       namePosition: { top: '42%', left: '50%' },
-      paperTitlePosition: null
+      paperTitlePosition: null,
+      institutionPosition: { top: '47%', left: '50%' }
     }
   };
 
@@ -42,6 +48,7 @@ const CertificateTemplate = ({
   // Use custom positions if provided, otherwise use default
   const finalNamePosition = namePosition || config.namePosition;
   const finalPaperTitlePosition = paperTitlePosition || config.paperTitlePosition;
+  const finalInstitutionPosition = institutionPosition || config.institutionPosition;
 
   const certificateStyle = {
     width: isPreview ? '600px' : '2000px', // Match template width exactly when not preview
@@ -109,6 +116,23 @@ const CertificateTemplate = ({
     letterSpacing: isPreview ? '0.3px' : '1px' // Improved letter spacing
   } : null;
 
+  const institutionOverlayStyle = finalInstitutionPosition ? {
+    position: 'absolute',
+    top: finalInstitutionPosition.top,
+    left: finalInstitutionPosition.left,
+    transform: 'translate(-50%, -50%)',
+    textAlign: 'center',
+    fontFamily: '"Times New Roman", serif',
+    fontSize: isPreview ? '13px' : '36px',
+    fontWeight: '600',
+    color: '#1a1a1a',
+    textShadow: isPreview ? '1px 1px 3px rgba(255,255,255,0.9)' : '2px 2px 5px rgba(255,255,255,0.9)',
+    maxWidth: isPreview ? '420px' : '1400px',
+    wordWrap: 'break-word',
+    lineHeight: '1.1',
+    letterSpacing: isPreview ? '0.3px' : '1px'
+  } : null;
+
   return (
     <div style={certificateStyle}>
       {/* Background Certificate Template */}
@@ -125,6 +149,13 @@ const CertificateTemplate = ({
         <div style={nameOverlayStyle}>
           {recipientName || (isPreview ? 'Recipient Name' : '')}
         </div>
+
+        {/* Institution line (optional) */}
+        {!!institution && institutionOverlayStyle && (
+          <div style={institutionOverlayStyle}>
+            {institution}
+          </div>
+        )}
         
         {/* Paper Title Overlay (only for author certificates) */}
         {type === 'author' && paperTitle && paperTitleOverlayStyle && (
