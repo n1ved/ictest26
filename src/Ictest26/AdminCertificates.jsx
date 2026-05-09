@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import * as XLSX from 'xlsx';
 import { supabase } from './supabaseClient';
 import CertificateTemplate from './components/CertificateTemplate';
 import {
@@ -24,6 +25,12 @@ const AdminCertificates = () => {
   const [activeTab, setActiveTab] = useState('generate');
   const certificateRef = useRef(null);
 
+  // Reviewer upload workflow
+  const [useReviewerUploadList, setUseReviewerUploadList] = useState(false);
+  const [reviewerUploadFileName, setReviewerUploadFileName] = useState('');
+  const [uploadedReviewers, setUploadedReviewers] = useState([]); // { name, email, institution }
+  const [selectedUploadedReviewerIdxs, setSelectedUploadedReviewerIdxs] = useState([]);
+
   useEffect(() => {
     fetchUsers();
     fetchPapers();
@@ -31,18 +38,29 @@ const AdminCertificates = () => {
     fetchCertificates();
   }, []);
 
+  // Reset reviewer upload state when switching away from reviewer certificates
+  useEffect(() => {
+    if (certificateType !== 'reviewer') {
+      setUseReviewerUploadList(false);
+      setReviewerUploadFileName('');
+      setUploadedReviewers([]);
+      setSelectedUploadedReviewerIdxs([]);
+    }
+  }, [certificateType]);
+
   // Refetch users when certificate type changes
   useEffect(() => {
     fetchUsers(certificateType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [certificateType]);
 
   // Define role mapping for certificate types
   const getCertificateRoles = (certType) => {
     const roleMapping = {
-      'participation': ['author', 'participant', 'attendee', 'user'], // All participants (common role names)
-      'author': [], // Handle separately with paper check
-      'reviewer': ['reviewer'], // Only reviewers
-      'session_chair': ['session_chair', 'chair'] // Session chairs
+      participation: ['author', 'participant', 'attendee', 'user'],
+      author: [],
+      reviewer: ['reviewer'],
+      session_chair: ['session_chair', 'chair']
     };
     return roleMapping[certType] || [];
   };
@@ -51,50 +69,44 @@ const AdminCertificates = () => {
     try {
       // Special handling for author certificates - only users with papers
       if (certType === 'author') {
-        // Get users who have submitted papers
         const { data: paperUsers, error: paperError } = await supabase
           .from('paper')
           .select('login_id')
           .not('login_id', 'is', null);
-        
+
         if (paperError) {
           console.error('Error fetching paper users:', paperError);
           throw paperError;
         }
-        
-        const userIds = [...new Set(paperUsers.map(p => p.login_id))]; // Remove duplicates
-        
+
+        const userIds = [...new Set((paperUsers || []).map(p => p.login_id))];
+
         if (userIds.length > 0) {
           const { data, error } = await supabase
             .from('login')
             .select('*')
             .in('login_id', userIds)
             .order('email');
-          
+
           if (error) throw error;
-          setUsers(data);
+          setUsers(data || []);
         } else {
-          // No users with papers found
           setUsers([]);
         }
       } else {
-        // Filter by roles based on certificate type
         const allowedRoles = getCertificateRoles(certType);
         let query = supabase.from('login').select('*').order('email');
-        
+
         if (allowedRoles.length > 0) {
-          // Check if role column exists, if not fall back to showing all users for participation
           if (certType === 'participation') {
             // For participation, show all users regardless of role
             const { data, error } = await query;
             if (error) throw error;
-            setUsers(data);
+            setUsers(data || []);
           } else {
-            // For reviewer and session_chair, filter by role
             const { data, error } = await query.in('role', allowedRoles);
             if (error) {
               console.error('Role filtering error:', error);
-              // If role column doesn't exist, show empty list for reviewers/chairs
               if (certType === 'reviewer' || certType === 'session_chair') {
                 setUsers([]);
               } else {
@@ -105,17 +117,14 @@ const AdminCertificates = () => {
             }
           }
         } else {
-          // No role mapping defined, show empty list
           setUsers([]);
         }
       }
-      
-      // Clear selected users when filtering changes
+
       setSelectedUsers([]);
     } catch (err) {
       console.error('Error fetching users:', err);
-      console.error('Error details:', err.message);
-      setError('Failed to fetch users: ' + err.message);
+      setError('Failed to fetch users: ' + (err.message || err));
     }
   };
 
@@ -170,12 +179,227 @@ const AdminCertificates = () => {
     }
   };
 
+  const handleUploadedReviewerSelection = (idx, checked) => {
+    if (checked) {
+      setSelectedUploadedReviewerIdxs([...selectedUploadedReviewerIdxs, idx]);
+    } else {
+      setSelectedUploadedReviewerIdxs(selectedUploadedReviewerIdxs.filter(i => i !== idx));
+    }
+  };
+
   const selectAllUsers = () => {
     setSelectedUsers(users.map(user => user.login_id));
   };
 
+  const selectAllUploadedReviewers = () => {
+    setSelectedUploadedReviewerIdxs(uploadedReviewers.map((_, idx) => idx));
+  };
+
   const clearSelection = () => {
     setSelectedUsers([]);
+  };
+
+  const clearUploadedReviewerSelection = () => {
+    setSelectedUploadedReviewerIdxs([]);
+  };
+
+  const isReviewerUploadMode = certificateType === 'reviewer' && useReviewerUploadList;
+
+  const selectedCount = isReviewerUploadMode ? selectedUploadedReviewerIdxs.length : selectedUsers.length;
+  const totalCount = isReviewerUploadMode ? uploadedReviewers.length : users.length;
+
+  const selectedUploadedReviewers = useMemo(() => {
+    if (!isReviewerUploadMode) return [];
+    return selectedUploadedReviewerIdxs
+      .slice()
+      .sort((a, b) => a - b)
+      .map((idx) => uploadedReviewers[idx])
+      .filter(Boolean);
+  }, [isReviewerUploadMode, selectedUploadedReviewerIdxs, uploadedReviewers]);
+
+  const normalizeHeader = (value) => String(value || '').toLowerCase().replace(/[\s_\-]/g, '');
+
+  const extractReviewersFromRows = (rows) => {
+    // rows: array of objects (header-based)
+    if (!Array.isArray(rows) || rows.length === 0) return [];
+
+    const headers = Object.keys(rows[0] || {});
+    const headerMap = new Map(headers.map((h) => [normalizeHeader(h), h]));
+
+    const firstNameKey =
+      headerMap.get('firstname') ||
+      headerMap.get('first') ||
+      headerMap.get('givenname') ||
+      headerMap.get('given') ||
+      headerMap.get('fname');
+
+    const lastNameKey =
+      headerMap.get('lastname') ||
+      headerMap.get('last') ||
+      headerMap.get('surname') ||
+      headerMap.get('familyname') ||
+      headerMap.get('lname');
+
+    const nameKey =
+      headerMap.get('name') ||
+      headerMap.get('fullname') ||
+      headerMap.get('reviewername') ||
+      headerMap.get('reviewer') ||
+      headerMap.get('reviewerfullname') ||
+      headerMap.get('reviewer_full_name');
+
+    const institutionKey =
+      headerMap.get('institution') ||
+      headerMap.get('institute') ||
+      headerMap.get('organisation') ||
+      headerMap.get('organization') ||
+      headerMap.get('affiliation') ||
+      headerMap.get('college') ||
+      headerMap.get('university');
+
+    const emailKey =
+      headerMap.get('email') ||
+      headerMap.get('emailid') ||
+      headerMap.get('emailaddress') ||
+      headerMap.get('mail') ||
+      headerMap.get('email_id');
+
+    const mapped = rows
+      .map((row) => {
+        const rawFirst = firstNameKey ? row[firstNameKey] : '';
+        const rawLast = lastNameKey ? row[lastNameKey] : '';
+        const combinedName = `${String(rawFirst || '').trim()} ${String(rawLast || '').trim()}`.trim();
+
+        const rawName = nameKey ? row[nameKey] : (combinedName || row[headers[0]]);
+        const rawEmail = emailKey ? row[emailKey] : row[headers[1]];
+        const rawInstitution = institutionKey ? row[institutionKey] : row[headers[2]];
+
+        const name = String(rawName || '').trim();
+        const email = String(rawEmail || '').trim();
+        const institution = String(rawInstitution || '').trim();
+
+        return { name, email, institution };
+      })
+      .filter((r) => r.name);
+
+    // Deduplicate by email if present, otherwise by name
+    const seen = new Set();
+    const deduped = [];
+    for (const r of mapped) {
+      const key = (r.email || r.name).toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      deduped.push(r);
+    }
+    return deduped;
+  };
+
+  const parseReviewerFile = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+    const firstSheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[firstSheetName];
+
+    // Try header-based parsing first
+    const objectRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    let reviewers = extractReviewersFromRows(objectRows);
+
+    // If header-based parsing fails, try as a simple row-based sheet (headerless)
+    if (reviewers.length === 0) {
+      const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+      const dataRows = matrix.slice(0).filter((r) => Array.isArray(r) && r.some((v) => String(v).trim() !== ''));
+      // Remove a potential header row if it looks like one
+      const maybeHeader = dataRows[0] || [];
+      const headerLike = maybeHeader.some((v) => {
+        const n = normalizeHeader(v);
+        return (
+          n.includes('name') ||
+          n.includes('email') ||
+          n.includes('reviewer') ||
+          n.includes('firstname') ||
+          n.includes('lastname') ||
+          n.includes('institution') ||
+          n.includes('affiliation')
+        );
+      });
+      const startIdx = headerLike ? 1 : 0;
+      reviewers = dataRows
+        .slice(startIdx)
+        .map((row) => {
+          const cols = Array.isArray(row) ? row : [];
+          const c0 = String(cols[0] || '').trim();
+          const c1 = String(cols[1] || '').trim();
+          const c2 = String(cols[2] || '').trim();
+          const c3 = String(cols[3] || '').trim();
+
+          // Common layouts:
+          // - [firstName, lastName, institution]
+          // - [firstName, lastName, institution, email]
+          // - [name, email]
+          // - [name]
+          if (cols.length >= 4) {
+            return {
+              name: `${c0} ${c1}`.trim() || c0,
+              institution: c2,
+              email: c3
+            };
+          }
+
+          if (cols.length === 3) {
+            return {
+              name: `${c0} ${c1}`.trim() || c0,
+              institution: c2,
+              email: ''
+            };
+          }
+
+          if (cols.length === 2) {
+            return {
+              name: c0,
+              institution: '',
+              email: c1
+            };
+          }
+
+          return {
+            name: c0,
+            institution: '',
+            email: ''
+          };
+        })
+        .filter((r) => r.name);
+    }
+
+    return reviewers;
+  };
+
+  const handleReviewerFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setError('');
+    setSuccess('');
+    setReviewerUploadFileName(file.name);
+
+    try {
+      const reviewers = await parseReviewerFile(file);
+      if (reviewers.length === 0) {
+        setUploadedReviewers([]);
+        setSelectedUploadedReviewerIdxs([]);
+        setError('No reviewers found in the uploaded file. Expected columns like First Name, Last Name, Institution (email optional).');
+        return;
+      }
+
+      setUploadedReviewers(reviewers);
+      setSelectedUploadedReviewerIdxs(reviewers.map((_, idx) => idx)); // default: select all
+      setUseReviewerUploadList(true);
+      setSuccess(`Loaded ${reviewers.length} reviewer(s) from ${file.name}`);
+    } catch (err) {
+      console.error('Failed to parse reviewer file:', err);
+      setUploadedReviewers([]);
+      setSelectedUploadedReviewerIdxs([]);
+      setError('Failed to parse Excel/CSV file. Please upload a valid .xlsx/.xls/.csv file.');
+    }
   };
 
   const getUserPaper = (userId) => {
@@ -225,7 +449,7 @@ const AdminCertificates = () => {
           current: `Processing: ${userName}`
         });
 
-        const result = await generateSingleCertificate(userId, certificateType, userName, paperTitle);
+        const result = await generateSingleCertificate(userId, certificateType, userName, paperTitle, '');
         
         if (result.success) {
           successCount++;
@@ -251,7 +475,151 @@ const AdminCertificates = () => {
     }
   };
 
-  const generateSingleCertificate = async (userId, type, recipientName, paperTitle = '') => {
+  const generateLocalCertificateBlob = async (type, recipientName, paperTitle = '', institution = '') => {
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '-9999px';
+    tempContainer.style.width = '210mm';
+    tempContainer.style.height = '297mm';
+    document.body.appendChild(tempContainer);
+
+    const certificateElement = React.createElement(CertificateTemplate, {
+      type,
+      recipientName,
+      paperTitle,
+      institution,
+      isPreview: false
+    });
+
+    const { createRoot } = await import('react-dom/client');
+    const root = createRoot(tempContainer);
+    root.render(certificateElement);
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const imageBlob = await generateCertificateImage(
+      tempContainer,
+      `certificate_${type}_${recipientName.replace(/\s+/g, '_')}`
+    );
+
+    root.unmount();
+    document.body.removeChild(tempContainer);
+    return imageBlob;
+  };
+
+  const generateCertificatesForUploadedReviewers = async () => {
+    if (certificateType !== 'reviewer') {
+      setError('Uploaded list generation is only available for reviewer certificates.');
+      return;
+    }
+
+    if (selectedUploadedReviewers.length === 0) {
+      setError('Please select at least one reviewer from the uploaded list');
+      return;
+    }
+
+    setIsGenerating(true);
+    setError('');
+    setSuccess('');
+    setProgress({ completed: 0, total: selectedUploadedReviewers.length, current: '' });
+
+    try {
+      let downloadOnlyCount = 0;
+      let uploadedCount = 0;
+
+      for (let i = 0; i < selectedUploadedReviewers.length; i++) {
+        const reviewer = selectedUploadedReviewers[i];
+        const recipientName = reviewer.name;
+        const email = reviewer.email;
+        const institution = reviewer.institution;
+
+        setProgress({
+          completed: i,
+          total: selectedUploadedReviewers.length,
+          current: `Processing: ${recipientName}`
+        });
+
+        // Try to map to an existing user by email so the reviewer can see it in their dashboard.
+        let userId = null;
+        if (email) {
+          const { data: loginRow, error: loginErr } = await supabase
+            .from('login')
+            .select('login_id, email')
+            .eq('email', email)
+            .maybeSingle();
+          if (!loginErr && loginRow?.login_id) {
+            userId = loginRow.login_id;
+          }
+        }
+
+        const safeName = recipientName.replace(/[^a-z0-9\-_ ]/gi, '').trim().replace(/\s+/g, '_') || 'reviewer';
+
+        if (!userId) {
+          const blob = await generateLocalCertificateBlob('reviewer', recipientName, '', institution);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `ICTEST2026_Reviewer_${safeName}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          downloadOnlyCount++;
+
+          setProgress({
+            completed: i + 1,
+            total: selectedUploadedReviewers.length,
+            current: `Completed (download only): ${recipientName}`
+          });
+        } else {
+          const result = await generateSingleCertificate(userId, 'reviewer', recipientName, '', institution);
+          if (result?.success) {
+            uploadedCount++;
+            setProgress({
+              completed: i + 1,
+              total: selectedUploadedReviewers.length,
+              current: `Completed (stored): ${recipientName}`
+            });
+          } else {
+            const blob = await generateLocalCertificateBlob('reviewer', recipientName, '', institution);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `ICTEST2026_Reviewer_${safeName}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            downloadOnlyCount++;
+
+            setProgress({
+              completed: i + 1,
+              total: selectedUploadedReviewers.length,
+              current: `Completed (download only): ${recipientName}`
+            });
+          }
+        }
+      }
+
+      // Refresh the certificates list for any successfully stored certs
+      if (uploadedCount > 0) {
+        fetchCertificates();
+      }
+
+      setSuccess(
+        `Reviewer certificates done. Stored in system: ${uploadedCount}. Download-only: ${downloadOnlyCount}.`
+      );
+    } catch (err) {
+      console.error('Error generating uploaded reviewer certificates:', err);
+      setError('Failed to generate reviewer certificates from file: ' + (err.message || err));
+    } finally {
+      setIsGenerating(false);
+      setProgress({ completed: 0, total: 0, current: '' });
+    }
+  };
+
+  const generateSingleCertificate = async (userId, type, recipientName, paperTitle = '', institution = '') => {
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Certificate generation timeout after 60 seconds')), 60000); // Increased from 30 to 60 seconds
     });
@@ -272,6 +640,7 @@ const AdminCertificates = () => {
         type: type,
         recipientName: recipientName,
         paperTitle: paperTitle,
+        institution,
         isPreview: false
       });
 
@@ -333,7 +702,8 @@ const AdminCertificates = () => {
       setPreviewUser({
         id: userId,
         name: getUserName(userId),
-        paperTitle: certificateType === 'author' ? getUserPaper(userId) : ''
+        paperTitle: certificateType === 'author' ? getUserPaper(userId) : '',
+        institution: ''
       });
     }
   };
@@ -397,15 +767,62 @@ const AdminCertificates = () => {
               </select>
             </div>
 
+            {certificateType === 'reviewer' && (
+              <div className="reviewer-upload-controls">
+                <div className="reviewer-upload-row">
+                  <label className="reviewer-upload-toggle">
+                    <input
+                      type="checkbox"
+                      checked={useReviewerUploadList}
+                      onChange={(e) => setUseReviewerUploadList(e.target.checked)}
+                      disabled={isGenerating}
+                    />
+                    Generate from uploaded Excel/CSV
+                  </label>
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls,.csv"
+                    onChange={handleReviewerFileChange}
+                    disabled={isGenerating}
+                  />
+                </div>
+                {useReviewerUploadList && (
+                  <div className="reviewer-upload-hint">
+                    {reviewerUploadFileName ? (
+                      <span>Loaded file: <strong>{reviewerUploadFileName}</strong></span>
+                    ) : (
+                      <span>Upload a file with columns like <strong>First Name</strong>, <strong>Last Name</strong>, <strong>Institution</strong> (email optional).</span>
+                    )}
+                    <span className="reviewer-upload-note">
+                      If an uploaded reviewer email matches an existing user in <strong>login</strong>, the certificate is stored for that user; otherwise it’s generated as a direct download only.
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="user-selection-controls">
-              <button onClick={selectAllUsers} disabled={isGenerating}>
-                Select All Users
-              </button>
-              <button onClick={clearSelection} disabled={isGenerating}>
-                Clear Selection
-              </button>
+              {!isReviewerUploadMode ? (
+                <>
+                  <button onClick={selectAllUsers} disabled={isGenerating}>
+                    Select All Users
+                  </button>
+                  <button onClick={clearSelection} disabled={isGenerating}>
+                    Clear Selection
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={selectAllUploadedReviewers} disabled={isGenerating}>
+                    Select All Reviewers
+                  </button>
+                  <button onClick={clearUploadedReviewerSelection} disabled={isGenerating}>
+                    Clear Selection
+                  </button>
+                </>
+              )}
               <span className="selection-count">
-                {selectedUsers.length} of {users.length} users selected
+                {selectedCount} of {totalCount} selected
               </span>
               {certificateType === 'author' && (
                 <span className="filter-info">
@@ -414,7 +831,11 @@ const AdminCertificates = () => {
               )}
               {certificateType === 'reviewer' && (
                 <span className="filter-info">
-                  {users.length === 0 ? '(No reviewers assigned yet)' : '(Showing only users with reviewer role)'}
+                  {isReviewerUploadMode
+                    ? '(Using uploaded reviewers list)'
+                    : users.length === 0
+                      ? '(No reviewers assigned yet)'
+                      : '(Showing only users with reviewer role)'}
                 </span>
               )}
               {certificateType === 'session_chair' && (
@@ -431,8 +852,8 @@ const AdminCertificates = () => {
 
             <button 
               className="generate-button"
-              onClick={generateCertificatesForUsers}
-              disabled={isGenerating || selectedUsers.length === 0}
+              onClick={isReviewerUploadMode ? generateCertificatesForUploadedReviewers : generateCertificatesForUsers}
+              disabled={isGenerating || selectedCount === 0}
             >
               {isGenerating ? 'Generating...' : 'Generate Certificates'}
             </button>
@@ -448,63 +869,103 @@ const AdminCertificates = () => {
               </div>
               <div className="progress-text">
                 {progress.completed} of {progress.total} completed
-                {progress.current && <span> - Processing: {progress.current}</span>}
+                {progress.current && <span> - {progress.current}</span>}
               </div>
             </div>
           )}
 
           <div className="users-list">
             <div className="users-header">
-              <h3>Select Users for Certificate Generation</h3>
+              <h3>{isReviewerUploadMode ? 'Select Reviewers from Uploaded List' : 'Select Users for Certificate Generation'}</h3>
             </div>
             <div className="users-grid">
-              {users.length === 0 ? (
-                <div className="no-users-message">
-                  <div className="no-users-icon">👥</div>
-                  <h4>No users available for {certificateType.replace('_', ' ')} certificates</h4>
-                  {certificateType === 'author' && (
-                    <p>No users have submitted papers yet.</p>
-                  )}
-                  {certificateType === 'reviewer' && (
-                    <p>No users have been assigned the reviewer role yet.</p>
-                  )}
-                  {certificateType === 'session_chair' && (
-                    <p>No users have been assigned the session chair role yet.</p>
-                  )}
-                  {certificateType === 'participation' && (
-                    <p>No users are registered in the system yet.</p>
-                  )}
-                </div>
-              ) : (
-                users.map(user => (
-                <div key={user.login_id} className="user-card">
-                  <div className="user-checkbox">
-                    <input
-                      type="checkbox"
-                      id={`user-${user.login_id}`}
-                      checked={selectedUsers.includes(user.login_id)}
-                      onChange={(e) => handleUserSelection(user.login_id, e.target.checked)}
-                      disabled={isGenerating}
-                    />
-                    <label htmlFor={`user-${user.login_id}`}>
-                      <div className="user-info">
-                        <div className="user-name">{getUserName(user.login_id)}</div>
-                        <div className="user-email">{user.email}</div>
-                        {certificateType === 'author' && (
-                          <div className="user-paper">{getUserPaper(user.login_id) || 'No paper found'}</div>
-                        )}
-                      </div>
-                    </label>
+              {isReviewerUploadMode ? (
+                uploadedReviewers.length === 0 ? (
+                  <div className="no-users-message">
+                    <div className="no-users-icon">📄</div>
+                    <h4>No reviewers loaded</h4>
+                    <p>Upload an Excel/CSV file to load reviewers.</p>
                   </div>
-                  <button 
-                    className="preview-button"
-                    onClick={() => handlePreview(user.login_id)}
-                    disabled={isGenerating}
-                  >
-                    Preview
-                  </button>
-                </div>
-                ))
+                ) : (
+                  uploadedReviewers.map((reviewer, idx) => (
+                    <div key={`${reviewer.email || reviewer.name}-${idx}`} className="user-card">
+                      <div className="user-checkbox">
+                        <input
+                          type="checkbox"
+                          id={`uploaded-reviewer-${idx}`}
+                          checked={selectedUploadedReviewerIdxs.includes(idx)}
+                          onChange={(e) => handleUploadedReviewerSelection(idx, e.target.checked)}
+                          disabled={isGenerating}
+                        />
+                        <label htmlFor={`uploaded-reviewer-${idx}`}>
+                          <div className="user-info">
+                            <div className="user-name">{reviewer.name}</div>
+                            <div className="user-email">{reviewer.email || '(no email)'}</div>
+                            {reviewer.institution && (
+                              <div className="user-paper">{reviewer.institution}</div>
+                            )}
+                          </div>
+                        </label>
+                      </div>
+                      <button
+                        className="preview-button"
+                        onClick={() => setPreviewUser({ id: idx, name: reviewer.name, paperTitle: '', institution: reviewer.institution })}
+                        disabled={isGenerating}
+                      >
+                        Preview
+                      </button>
+                    </div>
+                  ))
+                )
+              ) : (
+                users.length === 0 ? (
+                  <div className="no-users-message">
+                    <div className="no-users-icon">👥</div>
+                    <h4>No users available for {certificateType.replace('_', ' ')} certificates</h4>
+                    {certificateType === 'author' && (
+                      <p>No users have submitted papers yet.</p>
+                    )}
+                    {certificateType === 'reviewer' && (
+                      <p>No users have been assigned the reviewer role yet.</p>
+                    )}
+                    {certificateType === 'session_chair' && (
+                      <p>No users have been assigned the session chair role yet.</p>
+                    )}
+                    {certificateType === 'participation' && (
+                      <p>No users are registered in the system yet.</p>
+                    )}
+                  </div>
+                ) : (
+                  users.map(user => (
+                    <div key={user.login_id} className="user-card">
+                      <div className="user-checkbox">
+                        <input
+                          type="checkbox"
+                          id={`user-${user.login_id}`}
+                          checked={selectedUsers.includes(user.login_id)}
+                          onChange={(e) => handleUserSelection(user.login_id, e.target.checked)}
+                          disabled={isGenerating}
+                        />
+                        <label htmlFor={`user-${user.login_id}`}>
+                          <div className="user-info">
+                            <div className="user-name">{getUserName(user.login_id)}</div>
+                            <div className="user-email">{user.email}</div>
+                            {certificateType === 'author' && (
+                              <div className="user-paper">{getUserPaper(user.login_id) || 'No paper found'}</div>
+                            )}
+                          </div>
+                        </label>
+                      </div>
+                      <button
+                        className="preview-button"
+                        onClick={() => handlePreview(user.login_id)}
+                        disabled={isGenerating}
+                      >
+                        Preview
+                      </button>
+                    </div>
+                  ))
+                )
               )}
             </div>
           </div>
@@ -564,6 +1025,7 @@ const AdminCertificates = () => {
                 type={certificateType}
                 recipientName={previewUser.name}
                 paperTitle={previewUser.paperTitle}
+                institution={previewUser.institution}
                 isPreview={true}
               />
             </div>
