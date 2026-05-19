@@ -9,37 +9,108 @@ export default function Accommodations26() {
 
   const recommendedHotels = [
     {
-      name: "Hotel recommendations will be provided",
-      location: "Location details to be announced",
-      url: "#"
+      name: "The Renai Cochin",
+      location: "Palarivattom, Kochi, Kerala",
+      url: "https://maps.app.goo.gl/z4ZFD9nHANW9wDvQA",
     },
     {
-      name: "Accommodation options to be updated",
-      location: "Based on venue confirmation",
-      url: "#"
+      name: "Itsy Hotels Rain Tulsi Stayz",
+      location: "Palarivattom, Kochi, Kerala",
+      url: "https://maps.app.goo.gl/avkpL6A9eKdiJpzT7",
     },
     {
-      name: "Details coming soon",
-      location: "Stay tuned for updates",
-      url: "#"
-    }
+      name: "Luxo Kochi",
+      location: "Palarivattom, Kochi, Kerala",
+      url: "https://maps.app.goo.gl/vPvXv73G9Y9MqWqLA",
+    },
+    {
+      name: "Monsoon Empress Hotel",
+      location: "Palarivattom, Kochi, Kerala",
+      url: "https://maps.app.goo.gl/GYDwnuU4cam1zVEM9",
+    },
+    {
+      name: "Uniro Hotels & Appartments",
+      location: "Palarivattom, Kochi, Kerala",
+      url: "https://maps.app.goo.gl/R11TxSQKoxnPnffP8",
+    },
+    {
+      name: "Townbridge Hotels & Suites",
+      location: "Ernakulam South, Ernakulam, Kerala",
+      url: "https://maps.app.goo.gl/fWdLBj2HYUrgQqWV7",
+    },
+    {
+      name: "Hotel O by OYO",
+      location: "Palarivattom, Kochi, Kerala",
+      url: "https://maps.app.goo.gl/vqKce73yHTPduxhf6",
+    },
+    {
+      name: "Pleasant Inn",
+      location: "Padivattom, Edappally, Kochi",
+      url: "https://maps.app.goo.gl/XMtjHHsqjtNYufE29",
+    },
+    {
+      name: "Casilda By The Oaks Inn",
+      location: "Palarivattom, Kochi, Kerala",
+      url: "https://maps.app.goo.gl/XWoz6Ed7MkBHRU398",
+    },
+    {
+      name: "Laimar Hotels",
+      location: "Edappally, Kochi",
+      url: "https://maps.app.goo.gl/5f4AZQCk3phAumRj8",
+    },
+    {
+      name: "Esquina Residency",
+      location: "Edappally, Kochi",
+      url: "https://maps.app.goo.gl/Cuzcx6F9Fvmx5Qy18",
+    },
+    {
+      name: "Abab Residency",
+      location: "Edappally, Kochi",
+      url: "https://maps.app.goo.gl/5f4AZQCk3phAumRj8",
+    },
+    {
+      name: "Kochi Marriott Hotel",
+      location: "Edappally, Kochi",
+      url: "https://maps.app.goo.gl/9pTCx35KxEFG575t9",
+    },
+    {
+      name: "Gokulam Park Hotel",
+      location: "Kaloor, Kochi",
+      url: "https://maps.app.goo.gl/qPNeRRqAQfQd8LWf7",
+    },
+    {
+      name: "PGS Vedanta",
+      location: "Kaloor, Kochi",
+      url: "https://maps.app.goo.gl/PunzW21Rd5ZDtvFU6",
+    },
   ];
 
   return (
     <div className="accommodation-container">
       <h2 className="accommodation-title">Accommodation</h2>
-      <p>ICTEST 2026 accommodation details will be provided once the venue is confirmed. We will list recommended hotels and lodging options for your convenience.</p>
-      <div className="instruction-content" style={{marginBottom: "2rem", textAlign: "center"}}>
-        <p><strong>Accommodation information for ICTEST 2026 will be updated soon!</strong></p>
-      </div>
+      <p>
+        ICTEST 2026 accommodation details will be provided once the venue is
+        confirmed. We will list recommended hotels and lodging options for your
+        convenience.
+      </p>
+      {/* <div
+        className="instruction-content"
+        style={{ marginBottom: "2rem", textAlign: "center" }}
+      >
+        <p>
+          <strong>
+            Accommodation information for ICTEST 2026 will be updated soon!
+          </strong>
+        </p>
+      </div>*/}
       <div className="hotel-grid">
         {recommendedHotels.map((hotel, index) => (
           <div className="hotel-card" key={index}>
             <div className="hotel-info">
               <h3>{hotel.name}</h3>
               <p className="hotel-address">{hotel.location}</p>
-              <button onClick={() => alert("Accommodation details will be updated soon!")}>
-                Details Coming Soon <Map className="map-icon" />
+              <button onClick={() => navigationHandler(hotel.url)}>
+                Get Directions <Map className="map-icon" />
               </button>
             </div>
           </div>
