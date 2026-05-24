@@ -21,8 +21,8 @@ import vinitha_img from "../committee_images/vinitha.jpg";
 import priya_img from "../committee_images/priya.jpg";
 import jibi_img from "../committee_images/jibi.jpg";
 import aparnadevi_img from "../committee_images/aparnadevi.jpg";
-import jayaram_img from "../committee_images/jayaram.jpg"
-import minu_img from "../committee_images/minukk.png"
+import jayaram_img from "../committee_images/jayaram.jpg";
+import minu_img from "../committee_images/minukk.png";
 import { image } from "framer-motion/client";
 
 export default function Committee_members() {
@@ -53,7 +53,7 @@ export default function Committee_members() {
       title: "General Chair",
       name: "Dr. Shaija P. J.",
       position:
-        "Asst. Professor, Department of Electrical Engineering, Govt. Model Engineering College",
+        "Associate Professor, Department of Electrical Engineering, Govt. Model Engineering College",
       email: "shaija@mec.ac.in",
       phone: "9447991108",
       ieeeNumber: "99120551",
@@ -63,7 +63,7 @@ export default function Committee_members() {
       title: "General Chair",
       name: "Dr. Manju K",
       position:
-        "Asst. Professor in Computer Science and Engineering, Govt. Model Engineering College",
+        "Associate Professor in Computer Science and Engineering, Govt. Model Engineering College",
       email: "manju@mec.ac.in",
       phone: "9447380826",
     },
@@ -82,7 +82,7 @@ export default function Committee_members() {
 
     // Co-TPC Chair(s)
     {
-  image: bindu_img,
+      image: bindu_img,
       title: "Co-TPC Chair",
       name: "Dr. Bindu V.",
       position:
@@ -102,16 +102,16 @@ export default function Committee_members() {
 
     // Publication Chair(s)
     {
-  image: sajitha_img,
+      image: sajitha_img,
       title: "Publication Chair",
       name: "Dr. Sajitha S.",
       position:
-        "Asst. Professor, Department of Biomedical Engineering, Govt. Model Engineering College",
+        "Associate Professor, Department of Biomedical Engineering, Govt. Model Engineering College",
       email: "sajitha@mec.ac.in",
       phone: "9605497787",
     },
     {
-  image: vinitha_img,
+      image: vinitha_img,
       title: "Publication Chair",
       name: "Dr. Vinitha George E.",
       position:
@@ -135,7 +135,7 @@ export default function Committee_members() {
 
     // Publicity Chair(s)
     {
-  image: priya_img,
+      image: priya_img,
       title: "Publicity Chair",
       name: "Dr. Priya S",
       position:
@@ -144,7 +144,7 @@ export default function Committee_members() {
       phone: "9447348670",
     },
     {
-  image: jibi_img,
+      image: jibi_img,
       title: "Publicity Chair",
       name: "Ms. Jibi John",
       position:
@@ -153,11 +153,11 @@ export default function Committee_members() {
       phone: "9846466044",
     },
     {
-  image: aparnadevi_img,
+      image: aparnadevi_img,
       title: "Publicity Chair",
       name: "Ms. Aparna Devi",
       position:
-        "Asst Professor in Electronics Engineering, Govt. Model Engineering College",
+        "Associate Professor in Electronics Engineering, Govt. Model Engineering College",
       email: "aparnadevi@mec.ac.in",
       phone: "9447249042",
       ieeeNumber: "80120579",
@@ -169,7 +169,7 @@ export default function Committee_members() {
       title: "Finance Committee Chair",
       name: "Mr. Minu K K",
       position:
-        "Asst. Professor in the Dept. of Applied Science, Govt. Model Engineering College",
+        "Associate Professor in the Dept. of Applied Science, Govt. Model Engineering College",
       email: "",
       phone: "",
     },
