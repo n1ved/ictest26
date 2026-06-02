@@ -14,7 +14,6 @@ import GeneralInstructions26 from "./GeneralInstructions26";
 import GalaNight26 from "./GalaNight26";
 import Sponsors26 from "./Sponsors26";
 import PreConfTalk26 from "./PreConfTalk26";
-import PaperSchedule26 from "./PaperSchedule26";
 
 export default function ICtest26Info() {
   const openNewWindowHandler = (url, name) => {
@@ -50,7 +49,7 @@ export default function ICtest26Info() {
     },
     {
       name: "List of accepted papers ",
-      content: <ComingSoon />,
+      url: "/docs/Accepted Papers List - ICTEST2026.pdf",
     },
     {
       name: "General Instructions for CRP",
@@ -66,7 +65,7 @@ export default function ICtest26Info() {
     },
     {
       name: "Presentation Schedule",
-      content: <PaperSchedule26 />,
+      url: "/docs/Presentation Schedule.pdf",
     },
     {
       name: "Gala Night",
