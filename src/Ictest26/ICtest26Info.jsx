@@ -21,6 +21,7 @@ export default function ICtest26Info() {
   };
 
   const menuSelectionHandler = (index, data) => {
+    if (!data.isActive) return;
     if (data.url) {
       window.open(data.url, data.name);
     } else {
@@ -42,14 +43,21 @@ export default function ICtest26Info() {
     {
       name: "Notifications",
       content: <Notifications26 />,
+      isActive: true,
+    },
+    {
+      name: "List of Accepted Papers ",
+      url: "/docs/Accepted Papers List - ICTEST2026.pdf",
+      isActive: true,
+    },
+    {
+      name: "Presentation Schedule",
+      url: "/docs/Presentation Schedule.pdf",
+      isActive: true,
     },
     {
       name: "Plenary sessions and speakers",
       content: <Sessions26 />,
-    },
-    {
-      name: "List of accepted papers ",
-      url: "/docs/Accepted Papers List - ICTEST2026.pdf",
     },
     {
       name: "General Instructions for CRP",
@@ -62,10 +70,6 @@ export default function ICtest26Info() {
     {
       name: "Program Schedule",
       content: <ProgramSchedule26 />,
-    },
-    {
-      name: "Presentation Schedule",
-      url: "/docs/Presentation Schedule.pdf",
     },
     {
       name: "Gala Night",
@@ -94,7 +98,9 @@ export default function ICtest26Info() {
         {sections.map((data, index) => (
           <div
             className={
-              currentSection == index
+              !data.isActive
+                ? "navigation-btn navigation-btn-disabled"
+                : currentSection == index
                 ? "navigation-btn navigation-btn-active"
                 : "navigation-btn"
             }

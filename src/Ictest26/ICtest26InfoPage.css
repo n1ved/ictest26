@@ -144,6 +144,17 @@ a:focus {
   transition: all;
 }
 
+.navigation-btn-disabled {
+  color: #888888 !important;
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
+.navigation-btn-disabled:hover {
+  background-color: transparent;
+  color: #888888 !important;
+}
+
 .info-bg-m {
   display: none;
 }
