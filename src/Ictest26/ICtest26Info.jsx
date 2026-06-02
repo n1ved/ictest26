@@ -7,10 +7,8 @@ import { SquareArrowOutUpRight } from "lucide-react";
 import Notifications26 from "./Notifications26";
 import Venue26 from "./Venue26";
 import Accommodations26 from "./Accommodations26";
-import GuideLines from "../guidelines/GuideLines.jsx";
 import Sessions26 from "./Sessions26";
 import ProgramSchedule26 from "./ProgramSchedule26";
-import GeneralInstructions26 from "./GeneralInstructions26";
 import GalaNight26 from "./GalaNight26";
 import Sponsors26 from "./Sponsors26";
 import PreConfTalk26 from "./PreConfTalk26";
@@ -46,6 +44,11 @@ export default function ICtest26Info() {
       isActive: true,
     },
     {
+      name: "General Instructions for CRP",
+      url: "/docs/General Instructions for CRP - ICTEST 2026.pdf",
+      isActive: true,
+    },
+    {
       name: "List of Accepted Papers ",
       url: "/docs/Accepted Papers List - ICTEST2026.pdf",
       isActive: true,
@@ -58,10 +61,6 @@ export default function ICtest26Info() {
     {
       name: "Plenary sessions and speakers",
       content: <Sessions26 />,
-    },
-    {
-      name: "General Instructions for CRP",
-      content: <GeneralInstructions26 />,
     },
     {
       name: "Venue",
