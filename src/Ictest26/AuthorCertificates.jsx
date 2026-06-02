@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
-import { getCertificatesForUser, downloadCertificateAsImage } from './utils/certificateUtils';
+import { getCertificatesForUser } from './utils/certificateUtils';
 import CertificateTemplate from './components/CertificateTemplate';
 import './AuthorCertificates.css';
 
@@ -48,12 +48,18 @@ const AuthorCertificates = () => {
     }
   };
 
-  // Removed PDF download function - only PNG certificates now
-
-  const handleDownloadImage = async (certificate) => {
+  const handleDownload = async (certificate) => {
     try {
-      // If certificate has stored URL, download directly
-      if (certificate.image_url) {
+      // Prefer PDF, fallback to older PNG records
+      if (certificate.pdf_url) {
+        const link = document.createElement('a');
+        link.href = certificate.pdf_url;
+        link.download = `${certificate.recipient_name}_${certificate.certificate_type}_certificate.pdf`;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else if (certificate.image_url) {
         const link = document.createElement('a');
         link.href = certificate.image_url;
         link.download = `${certificate.recipient_name}_${certificate.certificate_type}_certificate.png`;
@@ -62,11 +68,11 @@ const AuthorCertificates = () => {
         link.click();
         document.body.removeChild(link);
       } else {
-        setError('Certificate image not found. Please contact admin.');
+        setError('Certificate file not found. Please contact admin.');
       }
     } catch (err) {
       console.error('Error downloading certificate image:', err);
-      setError('Failed to download certificate image. Please try again.');
+      setError('Failed to download certificate. Please try again.');
     }
   };
 
@@ -85,6 +91,7 @@ const AuthorCertificates = () => {
       'participation': 'Certificate of Participation',
       'author': 'Certificate of Appreciation (Author)',
       'reviewer': 'Certificate of Appreciation (Reviewer)',
+      'meta_reviewer': 'Certificate of Appreciation (Meta Reviewer)',
       'session_chair': 'Certificate of Appreciation (Session Chair)'
     };
     return labels[type] || type;
@@ -95,6 +102,7 @@ const AuthorCertificates = () => {
       'participation': '#2e7fd6',
       'author': '#2ecc71',
       'reviewer': '#e67e22',
+      'meta_reviewer': '#e74c3c',
       'session_chair': '#9b59b6'
     };
     return colors[type] || '#6c757d';
@@ -183,7 +191,7 @@ const AuthorCertificates = () => {
                       </button>
                       <button 
                         className="action-button primary"
-                        onClick={() => handleDownloadImage(certificate)}
+                        onClick={() => handleDownload(certificate)}
                       >
                         Download
                       </button>

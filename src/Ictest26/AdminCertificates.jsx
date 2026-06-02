@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import { supabase } from './supabaseClient';
 import CertificateTemplate from './components/CertificateTemplate';
 import {
-  generateCertificateImage,
+  generateCertificatePdfBlob,
   uploadCertificateToSupabase,
   createCertificateRecord,
   getAllCertificates
@@ -30,6 +30,169 @@ const AdminCertificates = () => {
   const [reviewerUploadFileName, setReviewerUploadFileName] = useState('');
   const [uploadedReviewers, setUploadedReviewers] = useState([]); // { name, email, institution }
   const [selectedUploadedReviewerIdxs, setSelectedUploadedReviewerIdxs] = useState([]);
+  const [editingUploadedReviewerIdx, setEditingUploadedReviewerIdx] = useState(null);
+  const [uploadedReviewerEdit, setUploadedReviewerEdit] = useState({ name: '', email: '', institution: '', certificateNumber: '' });
+
+  const CERT_NUMBERING_STORAGE_KEY = 'ictest26_cert_numbering_v1';
+
+  const normalizeKeyPart = (value) => String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+
+  const getCertificateNumberingPrefix = (type) => {
+    if (type === 'reviewer') return 'ICTEST26/REVR/';
+    if (type === 'meta_reviewer') return 'ICTEST26/MRVR/';
+    return '';
+  };
+
+  const loadCertificateNumberingState = () => {
+    try {
+      const raw = localStorage.getItem(CERT_NUMBERING_STORAGE_KEY);
+      if (!raw) return { nextByPrefix: {}, assigned: {} };
+      const parsed = JSON.parse(raw);
+      return {
+        nextByPrefix: parsed?.nextByPrefix && typeof parsed.nextByPrefix === 'object' ? parsed.nextByPrefix : {},
+        assigned: parsed?.assigned && typeof parsed.assigned === 'object' ? parsed.assigned : {}
+      };
+    } catch {
+      return { nextByPrefix: {}, assigned: {} };
+    }
+  };
+
+  const saveCertificateNumberingState = (state) => {
+    localStorage.setItem(CERT_NUMBERING_STORAGE_KEY, JSON.stringify(state));
+  };
+
+  const getCertificateIdentityKeys = ({ type, userId = '', email = '', recipientName = '', institution = '' }) => {
+    const prefix = getCertificateNumberingPrefix(type);
+    if (!prefix) return { prefix: '', uniqueKey: '', legacyKey: '' };
+
+    const normalizedEmail = normalizeKeyPart(email);
+    const normalizedName = normalizeKeyPart(recipientName);
+    const normalizedInstitution = normalizeKeyPart(institution);
+
+    const stableIdentity = userId
+      ? `uid:${userId}`
+      : normalizedEmail
+        ? `email:${normalizedEmail}`
+        : `name:${normalizedName}|inst:${normalizedInstitution}`;
+
+    const uniqueKey = [prefix, type, stableIdentity].filter(Boolean).join('|');
+
+    const legacyKey = [
+      prefix,
+      type,
+      userId ? `uid:${userId}` : '',
+      normalizedEmail ? `email:${normalizedEmail}` : '',
+      `name:${normalizedName}`,
+      `inst:${normalizedInstitution}`
+    ]
+      .filter(Boolean)
+      .join('|');
+
+    return { prefix, uniqueKey, legacyKey };
+  };
+
+  const peekAssignedCertificateNumber = ({ type, userId = '', email = '', recipientName = '', institution = '' }) => {
+    const { prefix, uniqueKey, legacyKey } = getCertificateIdentityKeys({ type, userId, email, recipientName, institution });
+    if (!prefix) return '';
+    const state = loadCertificateNumberingState();
+    const existing = state.assigned[uniqueKey] ?? state.assigned[legacyKey];
+    if (existing && typeof existing === 'number') return `${prefix}${existing}`;
+    return '';
+  };
+
+  const parseCertificateNumberInput = (type, inputValue) => {
+    const prefix = getCertificateNumberingPrefix(type);
+    const raw = String(inputValue || '').trim();
+    if (!raw) return { ok: true, number: null, error: '' };
+    const stripped = raw.startsWith(prefix) ? raw.slice(prefix.length) : raw;
+    const digits = stripped.replace(/\s+/g, '');
+    if (!/^\d+$/.test(digits)) {
+      return { ok: false, number: null, error: 'Certificate number must be digits (optionally with prefix).' };
+    }
+    const num = Number(digits);
+    if (!Number.isFinite(num) || num < 1) {
+      return { ok: false, number: null, error: 'Certificate number is invalid.' };
+    }
+    return { ok: true, number: num, error: '' };
+  };
+
+  const assignCertificateNumber = ({ type, userId = '', email = '', recipientName = '', institution = '', number }) => {
+    const { prefix, uniqueKey, legacyKey } = getCertificateIdentityKeys({ type, userId, email, recipientName, institution });
+    if (!prefix) return { ok: false, error: 'Certificate numbering not supported for this type.' };
+
+    const state = loadCertificateNumberingState();
+    const target = Number(number);
+    if (!Number.isFinite(target) || target < 1) return { ok: false, error: 'Certificate number is invalid.' };
+
+    // Collision check within this prefix.
+    const takenKey = Object.keys(state.assigned || {}).find((k) => {
+      if (!k.startsWith(prefix)) return false;
+      return state.assigned[k] === target && k !== uniqueKey && k !== legacyKey;
+    });
+    if (takenKey) {
+      return { ok: false, error: `Certificate number ${prefix}${target} is already assigned.` };
+    }
+
+    state.assigned[uniqueKey] = target;
+    state.assigned[legacyKey] = target;
+
+    const start = 101;
+    const nextExisting = Number.isFinite(state.nextByPrefix[prefix]) ? state.nextByPrefix[prefix] : start;
+    state.nextByPrefix[prefix] = Math.max(nextExisting, target + 1);
+
+    saveCertificateNumberingState(state);
+    return { ok: true, error: '' };
+  };
+
+  const migrateCertificateNumberIfNeeded = ({ type, oldIdentity, newIdentity }) => {
+    const { prefix: oldPrefix, uniqueKey: oldKey, legacyKey: oldLegacyKey } = getCertificateIdentityKeys({
+      type,
+      ...oldIdentity
+    });
+    const { prefix: newPrefix, uniqueKey: newKey, legacyKey: newLegacyKey } = getCertificateIdentityKeys({
+      type,
+      ...newIdentity
+    });
+    if (!oldPrefix || !newPrefix) return;
+    if (oldPrefix !== newPrefix) return;
+    if (oldKey === newKey) return;
+
+    const state = loadCertificateNumberingState();
+    const existingOld = state.assigned[oldKey] ?? state.assigned[oldLegacyKey];
+    const existingNew = state.assigned[newKey] ?? state.assigned[newLegacyKey];
+    if (!existingOld || typeof existingOld !== 'number') return;
+    if (existingNew && typeof existingNew === 'number') return;
+
+    // Move mapping to the new identity to preserve number after edits.
+    state.assigned[newKey] = existingOld;
+    state.assigned[newLegacyKey] = existingOld;
+    delete state.assigned[oldKey];
+    if (oldLegacyKey !== oldKey) delete state.assigned[oldLegacyKey];
+    saveCertificateNumberingState(state);
+  };
+
+  const getOrAssignCertificateNumber = ({ type, userId = '', email = '', recipientName = '', institution = '' }) => {
+    const { prefix, uniqueKey, legacyKey } = getCertificateIdentityKeys({ type, userId, email, recipientName, institution });
+    if (!prefix) return '';
+
+    const state = loadCertificateNumberingState();
+    const existing = state.assigned[uniqueKey] ?? state.assigned[legacyKey];
+    if (existing && typeof existing === 'number') {
+      // If the match came from legacyKey, promote it to the new key.
+      if (state.assigned[uniqueKey] !== existing) {
+        state.assigned[uniqueKey] = existing;
+        saveCertificateNumberingState(state);
+      }
+      return `${prefix}${existing}`;
+    }
+
+    const start = 101;
+    const next = Number.isFinite(state.nextByPrefix[prefix]) ? state.nextByPrefix[prefix] : start;
+    state.assigned[uniqueKey] = next;
+    state.nextByPrefix[prefix] = next + 1;
+    saveCertificateNumberingState(state);
+    return `${prefix}${next}`;
+  };
 
   useEffect(() => {
     fetchUsers();
@@ -40,13 +203,106 @@ const AdminCertificates = () => {
 
   // Reset reviewer upload state when switching away from reviewer certificates
   useEffect(() => {
-    if (certificateType !== 'reviewer') {
+    if (certificateType !== 'reviewer' && certificateType !== 'meta_reviewer') {
       setUseReviewerUploadList(false);
       setReviewerUploadFileName('');
       setUploadedReviewers([]);
       setSelectedUploadedReviewerIdxs([]);
+      setEditingUploadedReviewerIdx(null);
+      setUploadedReviewerEdit({ name: '', email: '', institution: '', certificateNumber: '' });
     }
   }, [certificateType]);
+
+  const startEditUploadedReviewer = (idx) => {
+    const current = uploadedReviewers[idx];
+    if (!current) return;
+    const existingNumber = peekAssignedCertificateNumber({
+      type: certificateType,
+      email: current.email || '',
+      recipientName: current.name || '',
+      institution: current.institution || ''
+    });
+    setEditingUploadedReviewerIdx(idx);
+    setUploadedReviewerEdit({
+      name: current.name || '',
+      email: current.email || '',
+      institution: current.institution || '',
+      certificateNumber: existingNumber
+    });
+  };
+
+  const cancelEditUploadedReviewer = () => {
+    setEditingUploadedReviewerIdx(null);
+    setUploadedReviewerEdit({ name: '', email: '', institution: '', certificateNumber: '' });
+  };
+
+  const saveEditUploadedReviewer = () => {
+    if (editingUploadedReviewerIdx === null) return;
+    const nextName = String(uploadedReviewerEdit.name || '').trim();
+    if (!nextName) {
+      setError('Name cannot be empty');
+      return;
+    }
+
+    const parsed = parseCertificateNumberInput(certificateType, uploadedReviewerEdit.certificateNumber);
+    if (!parsed.ok) {
+      setError(parsed.error);
+      return;
+    }
+
+    const idx = editingUploadedReviewerIdx;
+
+    const prev = uploadedReviewers[idx];
+    const nextEmail = String(uploadedReviewerEdit.email || '').trim();
+    const nextInstitution = String(uploadedReviewerEdit.institution || '').trim();
+
+    // Preserve existing assigned number when identity fields change.
+    if (prev) {
+      migrateCertificateNumberIfNeeded({
+        type: certificateType,
+        oldIdentity: {
+          email: prev.email || '',
+          recipientName: prev.name || '',
+          institution: prev.institution || ''
+        },
+        newIdentity: {
+          email: nextEmail,
+          recipientName: nextName,
+          institution: nextInstitution
+        }
+      });
+    }
+
+    // If user explicitly entered a number, force-assign it.
+    if (parsed.number !== null) {
+      const res = assignCertificateNumber({
+        type: certificateType,
+        email: nextEmail,
+        recipientName: nextName,
+        institution: nextInstitution,
+        number: parsed.number
+      });
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+    }
+
+    setUploadedReviewers((prev) =>
+      prev.map((r, i) =>
+        i === idx
+          ? {
+              ...r,
+              name: nextName,
+              email: nextEmail,
+              institution: nextInstitution
+            }
+          : r
+      )
+    );
+    setEditingUploadedReviewerIdx(null);
+    setUploadedReviewerEdit({ name: '', email: '', institution: '', certificateNumber: '' });
+  };
 
   // Refetch users when certificate type changes
   useEffect(() => {
@@ -60,6 +316,7 @@ const AdminCertificates = () => {
       participation: ['author', 'participant', 'attendee', 'user'],
       author: [],
       reviewer: ['reviewer'],
+      meta_reviewer: ['meta_reviewer', 'meta reviewer', 'meta-reviewer', 'metareviewer'],
       session_chair: ['session_chair', 'chair']
     };
     return roleMapping[certType] || [];
@@ -107,7 +364,7 @@ const AdminCertificates = () => {
             const { data, error } = await query.in('role', allowedRoles);
             if (error) {
               console.error('Role filtering error:', error);
-              if (certType === 'reviewer' || certType === 'session_chair') {
+              if (certType === 'reviewer' || certType === 'meta_reviewer' || certType === 'session_chair') {
                 setUsers([]);
               } else {
                 throw error;
@@ -203,7 +460,7 @@ const AdminCertificates = () => {
     setSelectedUploadedReviewerIdxs([]);
   };
 
-  const isReviewerUploadMode = certificateType === 'reviewer' && useReviewerUploadList;
+  const isReviewerUploadMode = (certificateType === 'reviewer' || certificateType === 'meta_reviewer') && useReviewerUploadList;
 
   const selectedCount = isReviewerUploadMode ? selectedUploadedReviewerIdxs.length : selectedUsers.length;
   const totalCount = isReviewerUploadMode ? uploadedReviewers.length : users.length;
@@ -436,6 +693,8 @@ const AdminCertificates = () => {
 
     try {
       let successCount = 0;
+      const isDownloadOnlyType = certificateType === 'reviewer' || certificateType === 'meta_reviewer';
+      const filePrefix = certificateType === 'meta_reviewer' ? 'MetaReviewer' : 'Reviewer';
       
       // Generate certificates one by one
       for (let i = 0; i < selectedUsers.length; i++) {
@@ -449,22 +708,47 @@ const AdminCertificates = () => {
           current: `Processing: ${userName}`
         });
 
-        const result = await generateSingleCertificate(userId, certificateType, userName, paperTitle, '');
-        
-        if (result.success) {
+        if (isDownloadOnlyType) {
+          const user = users.find(u => u.login_id === userId);
+          const certificateNumber = getOrAssignCertificateNumber({
+            type: certificateType,
+            userId,
+            email: user?.email || '',
+            recipientName: userName,
+            institution: ''
+          });
+          const safeName = userName.replace(/[^a-z0-9\-_ ]/gi, '').trim().replace(/\s+/g, '_') || 'recipient';
+          const blob = await generateLocalCertificateBlob(certificateType, userName, '', '', certificateNumber);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${filePrefix}_${safeName}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
           successCount++;
+        } else {
+          const result = await generateSingleCertificate(userId, certificateType, userName, paperTitle, '');
+          if (result.success) {
+            successCount++;
+          }
         }
         
         // Update progress
         setProgress({
           completed: i + 1,
           total: selectedUsers.length,
-          current: result.success ? `Completed: ${userName}` : `Failed: ${userName}`
+          current: isDownloadOnlyType ? `Completed (download): ${userName}` : `Completed: ${userName}`
         });
       }
 
-      setSuccess(`Successfully generated ${successCount} certificates out of ${selectedUsers.length} selected users`);
-      fetchCertificates(); // Refresh the certificates list
+      if (isDownloadOnlyType) {
+        setSuccess(`Downloaded ${successCount} certificates out of ${selectedUsers.length} selected users`);
+      } else {
+        setSuccess(`Successfully generated ${successCount} certificates out of ${selectedUsers.length} selected users`);
+        fetchCertificates(); // Refresh the certificates list
+      }
       
     } catch (err) {
       console.error('Error generating certificates:', err);
@@ -475,7 +759,7 @@ const AdminCertificates = () => {
     }
   };
 
-  const generateLocalCertificateBlob = async (type, recipientName, paperTitle = '', institution = '') => {
+  const generateLocalCertificateBlob = async (type, recipientName, paperTitle = '', institution = '', certificateNumber = '') => {
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'absolute';
     tempContainer.style.left = '-9999px';
@@ -489,6 +773,7 @@ const AdminCertificates = () => {
       recipientName,
       paperTitle,
       institution,
+      certificateNumber,
       isPreview: false
     });
 
@@ -498,19 +783,17 @@ const AdminCertificates = () => {
 
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const imageBlob = await generateCertificateImage(
-      tempContainer,
-      `certificate_${type}_${recipientName.replace(/\s+/g, '_')}`
-    );
+    const pdfBlob = await generateCertificatePdfBlob(tempContainer);
 
     root.unmount();
     document.body.removeChild(tempContainer);
-    return imageBlob;
+    return pdfBlob;
   };
 
   const generateCertificatesForUploadedReviewers = async () => {
-    if (certificateType !== 'reviewer') {
-      setError('Uploaded list generation is only available for reviewer certificates.');
+    const supportsUploadList = certificateType === 'reviewer' || certificateType === 'meta_reviewer';
+    if (!supportsUploadList) {
+      setError('Uploaded list generation is only available for reviewer/meta reviewer certificates.');
       return;
     }
 
@@ -525,14 +808,16 @@ const AdminCertificates = () => {
     setProgress({ completed: 0, total: selectedUploadedReviewers.length, current: '' });
 
     try {
-      let downloadOnlyCount = 0;
-      let uploadedCount = 0;
+      let downloadedCount = 0;
+
+      const label = certificateType === 'meta_reviewer' ? 'Meta Reviewer' : 'Reviewer';
+      const filePrefix = certificateType === 'meta_reviewer' ? 'MetaReviewer' : 'Reviewer';
 
       for (let i = 0; i < selectedUploadedReviewers.length; i++) {
         const reviewer = selectedUploadedReviewers[i];
         const recipientName = reviewer.name;
-        const email = reviewer.email;
         const institution = reviewer.institution;
+        const email = reviewer.email;
 
         setProgress({
           completed: i,
@@ -540,79 +825,39 @@ const AdminCertificates = () => {
           current: `Processing: ${recipientName}`
         });
 
-        // Try to map to an existing user by email so the reviewer can see it in their dashboard.
-        let userId = null;
-        if (email) {
-          const { data: loginRow, error: loginErr } = await supabase
-            .from('login')
-            .select('login_id, email')
-            .eq('email', email)
-            .maybeSingle();
-          if (!loginErr && loginRow?.login_id) {
-            userId = loginRow.login_id;
-          }
-        }
+        const safeName = recipientName.replace(/[^a-z0-9\-_ ]/gi, '').trim().replace(/\s+/g, '_') || 'recipient';
 
-        const safeName = recipientName.replace(/[^a-z0-9\-_ ]/gi, '').trim().replace(/\s+/g, '_') || 'reviewer';
+        const certificateNumber = getOrAssignCertificateNumber({
+          type: certificateType,
+          email,
+          recipientName,
+          institution
+        });
 
-        if (!userId) {
-          const blob = await generateLocalCertificateBlob('reviewer', recipientName, '', institution);
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `ICTEST2026_Reviewer_${safeName}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          downloadOnlyCount++;
+        const blob = await generateLocalCertificateBlob(certificateType, recipientName, '', institution, certificateNumber);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${filePrefix}_${safeName}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        downloadedCount++;
 
-          setProgress({
-            completed: i + 1,
-            total: selectedUploadedReviewers.length,
-            current: `Completed (download only): ${recipientName}`
-          });
-        } else {
-          const result = await generateSingleCertificate(userId, 'reviewer', recipientName, '', institution);
-          if (result?.success) {
-            uploadedCount++;
-            setProgress({
-              completed: i + 1,
-              total: selectedUploadedReviewers.length,
-              current: `Completed (stored): ${recipientName}`
-            });
-          } else {
-            const blob = await generateLocalCertificateBlob('reviewer', recipientName, '', institution);
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `ICTEST2026_Reviewer_${safeName}.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            downloadOnlyCount++;
-
-            setProgress({
-              completed: i + 1,
-              total: selectedUploadedReviewers.length,
-              current: `Completed (download only): ${recipientName}`
-            });
-          }
-        }
-      }
-
-      // Refresh the certificates list for any successfully stored certs
-      if (uploadedCount > 0) {
-        fetchCertificates();
+        setProgress({
+          completed: i + 1,
+          total: selectedUploadedReviewers.length,
+          current: `Completed (download): ${recipientName}`
+        });
       }
 
       setSuccess(
-        `Reviewer certificates done. Stored in system: ${uploadedCount}. Download-only: ${downloadOnlyCount}.`
+        `${label} certificates done. Downloaded: ${downloadedCount}.`
       );
     } catch (err) {
       console.error('Error generating uploaded reviewer certificates:', err);
-      setError('Failed to generate reviewer certificates from file: ' + (err.message || err));
+      setError('Failed to generate certificates from file: ' + (err.message || err));
     } finally {
       setIsGenerating(false);
       setProgress({ completed: 0, total: 0, current: '' });
@@ -652,15 +897,16 @@ const AdminCertificates = () => {
       // Wait a bit for rendering
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Generate certificate image only (PNG matching template size)
-      const imageBlob = await generateCertificateImage(tempContainer, `certificate_${type}_${recipientName.replace(/\s+/g, '_')}`);
+      // Generate certificate PDF (single-page)
+      const pdfBlob = await generateCertificatePdfBlob(tempContainer);
 
       // Upload to storage
       const uploadResult = await uploadCertificateToSupabase(
         supabase,
         userId,
         type,
-        imageBlob
+        pdfBlob,
+        { ext: 'pdf', contentType: 'application/pdf' }
       );
 
       // Save record to database
@@ -669,10 +915,10 @@ const AdminCertificates = () => {
         certificate_type: type,
         recipient_name: recipientName,
         paper_title: paperTitle || null,
-        pdf_url: null, // No PDF generated
-        image_url: uploadResult.imageUrl,
-        pdf_path: null, // No PDF generated
-        image_path: uploadResult.imagePath,
+        pdf_url: uploadResult.fileUrl,
+        image_url: null,
+        pdf_path: uploadResult.filePath,
+        image_path: null,
         generated_by: JSON.parse(localStorage.getItem('ictest26_user'))?.login_id,
         created_at: new Date().toISOString()
       });
@@ -763,11 +1009,12 @@ const AdminCertificates = () => {
                 <option value="participation">Participation</option>
                 <option value="author">Author Appreciation</option>
                 <option value="reviewer">Reviewer Appreciation</option>
+                <option value="meta_reviewer">Meta Reviewer Appreciation</option>
                 <option value="session_chair">Session Chair Appreciation</option>
               </select>
             </div>
 
-            {certificateType === 'reviewer' && (
+            {(certificateType === 'reviewer' || certificateType === 'meta_reviewer') && (
               <div className="reviewer-upload-controls">
                 <div className="reviewer-upload-row">
                   <label className="reviewer-upload-toggle">
@@ -794,7 +1041,7 @@ const AdminCertificates = () => {
                       <span>Upload a file with columns like <strong>First Name</strong>, <strong>Last Name</strong>, <strong>Institution</strong> (email optional).</span>
                     )}
                     <span className="reviewer-upload-note">
-                      If an uploaded reviewer email matches an existing user in <strong>login</strong>, the certificate is stored for that user; otherwise it’s generated as a direct download only.
+                      Certificates from uploaded lists are generated as direct PDF downloads (not stored to any user account).
                     </span>
                   </div>
                 )}
@@ -838,6 +1085,15 @@ const AdminCertificates = () => {
                       : '(Showing only users with reviewer role)'}
                 </span>
               )}
+              {certificateType === 'meta_reviewer' && (
+                <span className="filter-info">
+                  {isReviewerUploadMode
+                    ? '(Using uploaded reviewers list)'
+                    : users.length === 0
+                      ? '(No meta reviewers assigned yet)'
+                      : '(Showing only users with meta reviewer role)'}
+                </span>
+              )}
               {certificateType === 'session_chair' && (
                 <span className="filter-info">
                   {users.length === 0 ? '(No session chairs assigned yet)' : '(Showing only users with session chair role)'}
@@ -876,15 +1132,21 @@ const AdminCertificates = () => {
 
           <div className="users-list">
             <div className="users-header">
-              <h3>{isReviewerUploadMode ? 'Select Reviewers from Uploaded List' : 'Select Users for Certificate Generation'}</h3>
+              <h3>
+                {isReviewerUploadMode
+                  ? certificateType === 'meta_reviewer'
+                    ? 'Select Meta Reviewers from Uploaded List'
+                    : 'Select Reviewers from Uploaded List'
+                  : 'Select Users for Certificate Generation'}
+              </h3>
             </div>
             <div className="users-grid">
               {isReviewerUploadMode ? (
                 uploadedReviewers.length === 0 ? (
                   <div className="no-users-message">
                     <div className="no-users-icon">📄</div>
-                    <h4>No reviewers loaded</h4>
-                    <p>Upload an Excel/CSV file to load reviewers.</p>
+                    <h4>No entries loaded</h4>
+                    <p>Upload an Excel/CSV file to load the list.</p>
                   </div>
                 ) : (
                   uploadedReviewers.map((reviewer, idx) => (
@@ -907,13 +1169,107 @@ const AdminCertificates = () => {
                           </div>
                         </label>
                       </div>
-                      <button
-                        className="preview-button"
-                        onClick={() => setPreviewUser({ id: idx, name: reviewer.name, paperTitle: '', institution: reviewer.institution })}
-                        disabled={isGenerating}
-                      >
-                        Preview
-                      </button>
+
+                      <div className="user-actions">
+                        <button
+                          className="preview-button"
+                          onClick={() =>
+                            setPreviewUser({
+                              id: idx,
+                              name: reviewer.name,
+                              paperTitle: '',
+                              institution: reviewer.institution,
+                              certificateNumber: peekAssignedCertificateNumber({
+                                type: certificateType,
+                                email: reviewer.email || '',
+                                recipientName: reviewer.name || '',
+                                institution: reviewer.institution || ''
+                              })
+                            })
+                          }
+                          disabled={isGenerating}
+                        >
+                          Preview
+                        </button>
+
+                        {editingUploadedReviewerIdx === idx ? (
+                          <>
+                            <button
+                              className="edit-button"
+                              onClick={saveEditUploadedReviewer}
+                              disabled={isGenerating}
+                              type="button"
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="edit-button secondary"
+                              onClick={cancelEditUploadedReviewer}
+                              disabled={isGenerating}
+                              type="button"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            className="edit-button"
+                            onClick={() => startEditUploadedReviewer(idx)}
+                            disabled={isGenerating}
+                            type="button"
+                          >
+                            Edit
+                          </button>
+                        )}
+                      </div>
+
+                      {editingUploadedReviewerIdx === idx && (
+                        <div className="uploaded-reviewer-edit">
+                          <div className="uploaded-reviewer-edit-row">
+                            <label>
+                              Name
+                              <input
+                                type="text"
+                                value={uploadedReviewerEdit.name}
+                                onChange={(e) => setUploadedReviewerEdit((prev) => ({ ...prev, name: e.target.value }))}
+                                disabled={isGenerating}
+                              />
+                            </label>
+                            <label>
+                              Certificate No.
+                              <input
+                                type="text"
+                                placeholder={`${getCertificateNumberingPrefix(certificateType)}101`}
+                                value={uploadedReviewerEdit.certificateNumber}
+                                onChange={(e) =>
+                                  setUploadedReviewerEdit((prev) => ({ ...prev, certificateNumber: e.target.value }))
+                                }
+                                disabled={isGenerating}
+                              />
+                            </label>
+                            <label>
+                              Email
+                              <input
+                                type="text"
+                                value={uploadedReviewerEdit.email}
+                                onChange={(e) => setUploadedReviewerEdit((prev) => ({ ...prev, email: e.target.value }))}
+                                disabled={isGenerating}
+                              />
+                            </label>
+                            <label>
+                              Institution
+                              <input
+                                type="text"
+                                value={uploadedReviewerEdit.institution}
+                                onChange={(e) =>
+                                  setUploadedReviewerEdit((prev) => ({ ...prev, institution: e.target.value }))
+                                }
+                                disabled={isGenerating}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))
                 )
@@ -927,6 +1283,9 @@ const AdminCertificates = () => {
                     )}
                     {certificateType === 'reviewer' && (
                       <p>No users have been assigned the reviewer role yet.</p>
+                    )}
+                    {certificateType === 'meta_reviewer' && (
+                      <p>No users have been assigned the meta reviewer role yet.</p>
                     )}
                     {certificateType === 'session_chair' && (
                       <p>No users have been assigned the session chair role yet.</p>
@@ -956,13 +1315,15 @@ const AdminCertificates = () => {
                           </div>
                         </label>
                       </div>
-                      <button
-                        className="preview-button"
-                        onClick={() => handlePreview(user.login_id)}
-                        disabled={isGenerating}
-                      >
-                        Preview
-                      </button>
+                      <div className="user-actions">
+                        <button
+                          className="preview-button"
+                          onClick={() => handlePreview(user.login_id)}
+                          disabled={isGenerating}
+                        >
+                          Preview
+                        </button>
+                      </div>
                     </div>
                   ))
                 )
@@ -991,12 +1352,12 @@ const AdminCertificates = () => {
                   </div>
                   <div className="certificate-actions">
                     <a 
-                      href={cert.image_url} 
+                      href={cert.pdf_url || cert.image_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="download-button"
                     >
-                      View Image
+                      {cert.pdf_url ? 'View PDF' : 'View Image'}
                     </a>
                     <button 
                       className="delete-button"
@@ -1026,6 +1387,7 @@ const AdminCertificates = () => {
                 recipientName={previewUser.name}
                 paperTitle={previewUser.paperTitle}
                 institution={previewUser.institution}
+                certificateNumber={previewUser.certificateNumber}
                 isPreview={true}
               />
             </div>

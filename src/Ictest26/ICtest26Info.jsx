@@ -7,14 +7,11 @@ import { SquareArrowOutUpRight } from "lucide-react";
 import Notifications26 from "./Notifications26";
 import Venue26 from "./Venue26";
 import Accommodations26 from "./Accommodations26";
-import GuideLines from "../guidelines/GuideLines.jsx";
 import Sessions26 from "./Sessions26";
 import ProgramSchedule26 from "./ProgramSchedule26";
-import GeneralInstructions26 from "./GeneralInstructions26";
 import GalaNight26 from "./GalaNight26";
 import Sponsors26 from "./Sponsors26";
 import PreConfTalk26 from "./PreConfTalk26";
-import PaperSchedule26 from "./PaperSchedule26";
 
 export default function ICtest26Info() {
   const openNewWindowHandler = (url, name) => {
@@ -22,6 +19,7 @@ export default function ICtest26Info() {
   };
 
   const menuSelectionHandler = (index, data) => {
+    if (!data.isActive) return;
     if (data.url) {
       window.open(data.url, data.name);
     } else {
@@ -43,18 +41,26 @@ export default function ICtest26Info() {
     {
       name: "Notifications",
       content: <Notifications26 />,
+      isActive: true,
+    },
+    {
+      name: "General Instructions for CRP",
+      url: "/docs/General Instructions for CRP - ICTEST 2026.pdf",
+      isActive: true,
+    },
+    {
+      name: "List of Accepted Papers ",
+      url: "/docs/Accepted Papers List - ICTEST2026.pdf",
+      isActive: true,
+    },
+    {
+      name: "Presentation Schedule",
+      url: "/docs/Presentation Schedule.pdf",
+      isActive: true,
     },
     {
       name: "Plenary sessions and speakers",
       content: <Sessions26 />,
-    },
-    {
-      name: "List of accepted papers ",
-      content: <ComingSoon />,
-    },
-    {
-      name: "General Instructions for CRP",
-      content: <GeneralInstructions26 />,
     },
     {
       name: "Venue",
@@ -63,10 +69,6 @@ export default function ICtest26Info() {
     {
       name: "Program Schedule",
       content: <ProgramSchedule26 />,
-    },
-    {
-      name: "Presentation Schedule",
-      content: <PaperSchedule26 />,
     },
     {
       name: "Gala Night",
@@ -95,7 +97,9 @@ export default function ICtest26Info() {
         {sections.map((data, index) => (
           <div
             className={
-              currentSection == index
+              !data.isActive
+                ? "navigation-btn navigation-btn-disabled"
+                : currentSection == index
                 ? "navigation-btn navigation-btn-active"
                 : "navigation-btn"
             }
@@ -110,11 +114,16 @@ export default function ICtest26Info() {
       </div>
       <div className="info-bg">{sections[currentSection].content}</div>
       <div className="info-bg-m">
-        <div className="info-container">
+        <div className="info-container info-container-mobile-header">
           <h2>Quick Links</h2>
+        </div>
+        {sections.map((data, index) =>
+          data.url ? null : data.isActive ? data.content : null
+        )}
+        <div className="info-container">
           <div className="button-container">
             {sections.map((data, index) =>
-              data.url ? (
+              data.url && data.isActive ? (
                 <button
                   onClick={() => {
                     openNewWindowHandler(data.url, data.name);
@@ -127,9 +136,6 @@ export default function ICtest26Info() {
             )}
           </div>
         </div>
-        {sections.map((data, index) =>
-          data.url ? null : data.cs ? null : data.content
-        )}
       </div>
     </div>
   );

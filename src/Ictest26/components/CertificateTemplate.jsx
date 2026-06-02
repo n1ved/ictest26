@@ -3,6 +3,7 @@ import React from 'react';
 import participantTemplate from '../../assets/certificates/PARTICIPANT.png';
 import authorTemplate from '../../assets/certificates/AUTHOR.png'; 
 import reviewerTemplate from '../../assets/certificates/REVIEWER.png';
+import metaReviewerTemplate from '../../assets/certificates/META_REVIEWER.png';
 import sessionChairTemplate from '../../assets/certificates/SESSION_CHAIR.png';
 
 const CertificateTemplate = ({ 
@@ -10,11 +11,19 @@ const CertificateTemplate = ({
   recipientName = '', 
   paperTitle = '',
   institution = '',
+  certificateNumber = '',
   isPreview = false,
   namePosition = null,
   paperTitlePosition = null,
   institutionPosition = null
 }) => {
+  const getPreviewCertificateNumber = () => {
+    if (type === 'reviewer') return 'ICTEST26/REVR/101';
+    if (type === 'meta_reviewer') return 'ICTEST26/MRVR/101';
+    return '';
+  };
+
+  const finalCertificateNumber = certificateNumber || (isPreview ? getPreviewCertificateNumber() : '');
   // Certificate template configurations
   const certificateConfig = {
     participation: {
@@ -32,6 +41,12 @@ const CertificateTemplate = ({
     reviewer: {
       templateImage: reviewerTemplate,
       namePosition: { top: '39%', left: '50%' },
+      paperTitlePosition: null,
+      institutionPosition: { top: '48%', left: '50%' }
+    },
+    meta_reviewer: {
+      templateImage: metaReviewerTemplate,
+      namePosition: { top: '40%', left: '50%' },
       paperTitlePosition: null,
       institutionPosition: { top: '48%', left: '50%' }
     },
@@ -133,6 +148,20 @@ const CertificateTemplate = ({
     letterSpacing: isPreview ? '0.3px' : '1px'
   } : null;
 
+  const certificateNumberStyle = {
+    position: 'absolute',
+    left: '2.5%',
+    bottom: '2.5%',
+    textAlign: 'left',
+    fontFamily: '"Times New Roman", serif',
+    fontSize: isPreview ? '10px' : '24px',
+    fontWeight: '600',
+    color: '#1a1a1a',
+    textShadow: isPreview ? '1px 1px 2px rgba(255,255,255,0.9)' : '2px 2px 4px rgba(255,255,255,0.9)',
+    lineHeight: '1',
+    letterSpacing: isPreview ? '-0.1px' : '-0.4px'
+  };
+
   return (
     <div style={certificateStyle}>
       {/* Background Certificate Template */}
@@ -154,6 +183,12 @@ const CertificateTemplate = ({
         {!!institution && institutionOverlayStyle && (
           <div style={institutionOverlayStyle}>
             {institution}
+          </div>
+        )}
+
+        {!!finalCertificateNumber && (
+          <div style={certificateNumberStyle}>
+            {finalCertificateNumber}
           </div>
         )}
         

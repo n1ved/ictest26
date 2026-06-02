@@ -309,6 +309,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   border: 2px solid transparent;
   transition: border-color 0.2s;
 }
@@ -376,6 +377,76 @@
   background: #8a7100;
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.user-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.edit-button {
+  background: #254a7c;
+  color: #e6eaff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px #001a3340;
+  letter-spacing: 0.5px;
+  transition: background 0.2s;
+}
+
+.edit-button:hover:not(:disabled) {
+  background: #2d5a8a;
+}
+
+.edit-button.secondary {
+  background: #1a3555;
+}
+
+.edit-button.secondary:hover:not(:disabled) {
+  background: #244769;
+}
+
+.edit-button:disabled {
+  background: #1a3555;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.uploaded-reviewer-edit {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #375a7f;
+}
+
+.uploaded-reviewer-edit-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.uploaded-reviewer-edit label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: #b3c6e0;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.uploaded-reviewer-edit input {
+  background: #001a33;
+  color: #e6eaff;
+  border: 1.5px solid #375a7f;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  font-weight: 600;
 }
 
 .manage-tab {
