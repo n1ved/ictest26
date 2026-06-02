@@ -114,11 +114,16 @@ export default function ICtest26Info() {
       </div>
       <div className="info-bg">{sections[currentSection].content}</div>
       <div className="info-bg-m">
-        <div className="info-container">
+        <div className="info-container info-container-mobile-header">
           <h2>Quick Links</h2>
+        </div>
+        {sections.map((data, index) =>
+          data.url ? null : data.isActive ? data.content : null
+        )}
+        <div className="info-container">
           <div className="button-container">
             {sections.map((data, index) =>
-              data.url ? (
+              data.url && data.isActive ? (
                 <button
                   onClick={() => {
                     openNewWindowHandler(data.url, data.name);
@@ -131,9 +136,6 @@ export default function ICtest26Info() {
             )}
           </div>
         </div>
-        {sections.map((data, index) =>
-          data.url ? null : data.cs ? null : data.content
-        )}
       </div>
     </div>
   );

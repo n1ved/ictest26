@@ -358,11 +358,45 @@ h3 {
   .info-bg-m {
     display: flex;
     padding: 100px 20px 40px 20px;
+    flex-direction: column;
   }
   .info-container {
     padding: 0;
     max-width: 100%;
     box-sizing: border-box;
+  }
+
+  .info-container-mobile-header {
+    text-align: center !important;
+    align-items: center !important;
+    margin-bottom: 20px;
+  }
+
+  .info-container-mobile-header h2 {
+    text-align: center;
+    font-size: 18px;
+    color: #4da6ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0 0 20px 0;
+    padding: 10px 0;
+    border-bottom: 2px solid rgba(77, 166, 255, 0.3);
+  }
+
+  .button-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .button-container button {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+
+  .instruction-content {
+    padding: 15px !important;
+    margin: 15px 0 !important;
   }
 
   .venue-container {
@@ -381,6 +415,8 @@ h3 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 1rem;
+    padding: 20px 0;
   }
   .session-details {
     align-items: center;
@@ -397,7 +433,12 @@ h3 {
 
   .schedule-table {
     width: 100%;
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  .schedule-table th,
+  .schedule-table td {
+    padding: 8px;
   }
 
   .venue-container,
@@ -421,5 +462,13 @@ h3 {
     margin-left: 0 !important;
     margin-right: 0 !important;
     max-width: 100% !important;
+  }
+
+  h3 {
+    font-size: 20px;
+  }
+
+  h4 {
+    font-size: 16px;
   }
 }
