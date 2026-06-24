@@ -111,19 +111,19 @@ export default function Navbar() {
           <ul>
             <li>
               <div className="hover-circle"></div>
-              <a href={"/"}>home</a>
+              <a href={"/"}>Home</a>
             </li>
             <li>
               <div className="hover-circle"></div>
-              <a href={"/forauthors"}>For Authors</a>
+              <a href={"/forauthors"}>Schedule</a>
             </li>
             <li>
               <div className="hover-circle"></div>
-              <a href={"/committee"}>committee </a>
+              <a href={"/committee"}>Committee </a>
             </li>
             <li>
               <div className="hover-circle"></div>
-              <a href={"/guidelines"}>guidelines </a>
+              <a href={"/guidelines"}>Author Guidelines </a>
             </li>
             <li
               className="dropdown"
