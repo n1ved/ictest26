@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import "./schedule.css";
 import Navbar from "../navbar/navbar.jsx";
 
@@ -9,7 +10,7 @@ export default function Schedule() {
     },
     {
       name: "Conference Location",
-      date: "Kochi 21, Kerala, India",
+      date: "The Renai Cochin, Palarivattom, Kochi - 25, Kerala, India",
     },
     {
       name: "Call For Papers Announcement",
@@ -51,8 +52,8 @@ export default function Schedule() {
         <h1>Schedule</h1>
         <div className="schedule">
           {events.map((event) => (
-            <>
-              <div className="event" key={event.name}>
+            <Fragment key={event.name}>
+              <div className="event">
                 <h2>{event.name}</h2>
                 <p>
                   {event.oldDate && <s>{event.oldDate}</s>}
@@ -60,7 +61,7 @@ export default function Schedule() {
                 </p>
               </div>
               <hr />
-            </>
+            </Fragment>
           ))}
         </div>
         {/*TODO : BUTTONS FOR REGISTRATION*/}
