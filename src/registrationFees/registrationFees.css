@@ -5,6 +5,17 @@
     margin-top: 20px;
 }
 
+.registration-fees-bg h1 {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    font-size: 3rem;
+    color: white;
+    text-transform: uppercase;
+    padding: 0;
+    margin: 0 0 2rem 0;
+}
+
 .register {
     display: flex;
     justify-content: center;
@@ -89,6 +100,13 @@
     }
 
     .registration-fees-bg h1 {
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+        color: white;
+        text-transform: uppercase;
+        padding: 0;
+        margin: 0 0 1rem 0;
         letter-spacing: 1px;
         line-height: 1.8rem;
         font-size: 26px;
@@ -106,13 +124,23 @@
         width: 90%; /* Make columns take more space in mobile view */
     }
 
+    .fees-box {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
     .fees-box h2 {
+        height: auto;
         letter-spacing: 1px;
         line-height: 1.5rem;
         font-size: 22px;
     }
 
     .fees-box p {
+        margin: 4px 0 0 0;
+        padding: 0;
         font-size: 16px; /* Adjust font size for better mobile readability */
     }
 
