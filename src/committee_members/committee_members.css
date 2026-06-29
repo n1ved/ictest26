@@ -1,49 +1,42 @@
-/* Design tokens */
-:root {
-    --accent: #2563eb; /* blue-600 */
-    --accent-weak: rgba(37, 99, 235, 0.12);
-    --bg-card: #ffffff;
-    --bg-page: #f6f7fb;
-    --text-strong: #1f2937; /* gray-800 */
-    --text: #4b5563; /* gray-600 */
-    --text-weak: #6b7280; /* gray-500 */
-    --border: #e5e7eb; /* gray-200 */
+/* Page wrapper */
+.committee-page {
+    min-height: 100vh;
+    background: #112240;
 }
 
 /* General layout */
 .committee-members {
-    padding: 32px 8vw;
+    padding: 32px 8vw 60px;
     text-align: center;
-    background: var(--bg-page);
 }
 
 .committee-members h1 {
     font-size: clamp(1.6rem, 2.5vw, 2.2rem);
     margin-top: 120px;
     margin-bottom: 12px;
-    color: var(--text-strong);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 /* Grid */
 .event-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* exactly 3 cards per row on wide screens */
+    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     padding: 20px 0;
 }
 
 /* Card */
 .event-card {
-    position: relative;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 12px;
     padding: 18px 16px 16px;
-    box-shadow: none; /* remove glow/shadow for a professional flat look */
     text-align: center;
-    display: flex;               /* ensure vertical stacking */
+    display: flex;
     flex-direction: column;
-    align-items: center;         /* center all contents horizontally */
+    align-items: center;
 }
 
 .event-card img {
@@ -52,9 +45,9 @@
     object-fit: cover;
     border-radius: 50%;
     margin: 4px auto 12px;
-    border: 1px solid var(--border);
-    display: block;              /* avoid inline alignment quirks */
-    float: none;                 /* prevent side-by-side flow */
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    display: block;
+    float: none;
 }
 
 .event-card h2 {
@@ -63,8 +56,8 @@
     letter-spacing: 0.02em;
     text-transform: uppercase;
     margin: 6px 0 8px;
-    color: var(--accent);
-    background: var(--accent-weak);
+    color: rgb(48, 123, 198);
+    background: rgba(48, 123, 198, 0.15);
     padding: 4px 10px;
     border-radius: 999px;
 }
@@ -73,13 +66,13 @@
     font-size: 1.05rem;
     font-weight: 600;
     margin: 4px 0 6px;
-    color: var(--text-strong);
+    color: white;
     text-align: center;
 }
 
 .event-card p {
     font-size: 0.92rem;
-    color: var(--text);
+    color: rgba(255, 255, 255, 0.75);
     margin: 0.15rem 0;
     text-align: center;
 }
@@ -98,16 +91,16 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: #f3f6ff;
-    border: 1px solid #e6ebff;
-    color: #1e3a8a;
+    background: rgba(48, 123, 198, 0.15);
+    border: 1px solid rgba(48, 123, 198, 0.3);
+    color: rgba(255, 255, 255, 0.9);
     padding: 6px 10px;
     border-radius: 999px;
     font-size: 0.88rem;
 }
 
 .event-contact .label {
-    color: var(--accent);
+    color: rgb(48, 123, 198);
     font-weight: 700;
 }
 
@@ -120,35 +113,49 @@
     text-decoration: underline;
 }
 
-/* No emojis/icons for contact badges as requested */
-
-@media screen and (max-width: 900px) {
-    .committee-members { padding: 24px 5vw; }
+/* Advisory Committee Section */
+.advisory-heading {
+    margin-top: 56px;
 }
 
-/* Responsive columns: 2 on medium screens, 1 on small screens */
+.advisory-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 20px 0;
+}
+
+.advisory-card {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 18px 20px;
+    text-align: left;
+}
+
+.advisory-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    margin: 0 0 6px;
+}
+
+.advisory-card p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+}
+
+@media screen and (max-width: 900px) {
+    .committee-members { padding: 24px 5vw 48px; }
+}
+
 @media screen and (max-width: 1024px) {
     .event-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media screen and (max-width: 640px) {
     .event-grid { grid-template-columns: 1fr; }
+    .advisory-grid { grid-template-columns: 1fr; }
     .event-card img { width: 140px; height: 140px; }
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-page: #0b1220;
-        --bg-card: #0f172a;
-        --text-strong: #e5e7eb;
-        --text: #cbd5e1;
-        --text-weak: #94a3b8;
-        --border: #1e293b;
-        --accent-weak: rgba(37, 99, 235, 0.18);
-    }
-    .event-contact p {
-        background: rgba(37, 99, 235, 0.12);
-        border-color: rgba(37, 99, 235, 0.25);
-        color: #bfdbfe;
-    }
 }
