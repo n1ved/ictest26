@@ -2,16 +2,17 @@
     display: flex;
     flex-direction: column;
     color: white;
-    margin-top: 20px;
+    margin-top: 60px;
 }
 
 .registration-fees-bg h1 {
     width: 100%;
     box-sizing: border-box;
     text-align: center;
-    font-size: 3rem;
+    font-size: 2rem;
     color: white;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
     padding: 0;
     margin: 0 0 2rem 0;
 }
@@ -21,8 +22,7 @@
     justify-content: center;
     width: 100%;
     gap: 50px;
-    align-items: center;
-    margin-left: 40px;
+    align-items: flex-start;
     margin-bottom: 50px;
 }
 .bank-details{
@@ -34,6 +34,14 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 200px;
+}
+
+.bank-details h2 {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+    margin: 0 0 8px;
 }
 .bank-details-container{
     display: flex;
@@ -83,7 +91,6 @@
 
 .fees-box h2 {
     font-size: 24px;
-    height: 24px;
 }
 
 @media (max-width: 1450px) {
@@ -107,9 +114,9 @@
         text-transform: uppercase;
         padding: 0;
         margin: 0 0 1rem 0;
-        letter-spacing: 1px;
+        letter-spacing: 0.05em;
         line-height: 1.8rem;
-        font-size: 26px;
+        font-size: 1.4rem;
     }
 
     .register {

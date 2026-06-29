@@ -23,7 +23,6 @@ import jibi_img from "../committee_images/jibi.jpg";
 import aparnadevi_img from "../committee_images/aparnadevi.jpg";
 import jayaram_img from "../committee_images/jayaram.jpg";
 import minu_img from "../committee_images/minukk.png";
-import { image } from "framer-motion/client";
 
 export default function Committee_members() {
   const events = [
@@ -184,11 +183,58 @@ export default function Committee_members() {
     },
   ];
 
+  const advisoryMembers = [
+    {
+      name: "Dr. Anjan Chakravorty",
+      position: "Professor, Department of Electrical Engineering, IIT Madras",
+    },
+    {
+      name: "Dr. Arvind Ajoy",
+      position: "Associate Professor, Department of Electrical Engineering, IIT Palakkad",
+    },
+    {
+      name: "Dr. B S Manoj",
+      position: "Professor, Department of Avionics, IIST Trivandrum",
+    },
+    {
+      name: "Dr. Cejo K Lonappan",
+      position: "Principal Systems Engineer, SiLC Technologies, Los Angeles, USA",
+    },
+    {
+      name: "Dr. Deepak P",
+      position: "Associate Professor, Queen's University, Belfast, UK",
+    },
+    {
+      name: "Prof. Jyothi John",
+      position: "Former Principal, Govt. Model Engineering College",
+    },
+    {
+      name: "Dr. Meena D",
+      position: "Scientist G, Electronics & Radar Development Establishment, LRDE, DRDO Bangalore",
+    },
+    {
+      name: "Dr. Nivethida T",
+      position: "Associate Professor, Department of Biosciences and Bioengineering, IIT Bombay",
+    },
+    {
+      name: "Dr. Rajeevan P P",
+      position: "Professor, Department of Avionics, IIST Trivandrum",
+    },
+    {
+      name: "Dr. Roy Paily",
+      position: "Professor, Department of Electronics and Electrical Engineering & Centre for Nanotechnology, IIT Guwahati",
+    },
+    {
+      name: "Dr. Sameer S M",
+      position: "Professor, Department of Electronics and Communication Engineering, NIT Calicut",
+    },
+  ];
+
   return (
     <>
       <Navbar />
       <div className="committee-members">
-        <h1>Committee Members</h1>
+        <h1>Organising Committee</h1>
         <div className="event-grid">
           {events.map((event, index) => (
             <div className="event-card" key={index}>
@@ -222,6 +268,16 @@ export default function Committee_members() {
                   )}
                 </div>
               )}
+            </div>
+          ))}
+        </div>
+
+        <h1 className="advisory-heading">Advisory Committee</h1>
+        <div className="advisory-grid">
+          {advisoryMembers.map((member, index) => (
+            <div className="advisory-card" key={index}>
+              <h3>{member.name}</h3>
+              <p>{member.position}</p>
             </div>
           ))}
         </div>
