@@ -77,6 +77,7 @@ export default function ICtest26Info() {
     {
       name: "Accomodation Details",
       content: <Accommodations26 />,
+      isActive: true,
     },
     {
       name: "Pre-Conference Events",
@@ -100,8 +101,8 @@ export default function ICtest26Info() {
               !data.isActive
                 ? "navigation-btn navigation-btn-disabled"
                 : currentSection == index
-                ? "navigation-btn navigation-btn-active"
-                : "navigation-btn"
+                  ? "navigation-btn navigation-btn-active"
+                  : "navigation-btn"
             }
             onClick={() => {
               menuSelectionHandler(index, data);
@@ -118,7 +119,7 @@ export default function ICtest26Info() {
           <h2>Quick Links</h2>
         </div>
         {sections.map((data, index) =>
-          data.url ? null : data.isActive ? data.content : null
+          data.url ? null : data.isActive ? data.content : null,
         )}
         <div className="info-container">
           <div className="button-container">
@@ -132,7 +133,7 @@ export default function ICtest26Info() {
                 >
                   {data.name}
                 </button>
-              ) : null
+              ) : null,
             )}
           </div>
         </div>
