@@ -83,6 +83,27 @@ export default function Accommodations26() {
       location: "Kaloor, Kochi",
       url: "https://maps.app.goo.gl/PunzW21Rd5ZDtvFU6",
     },
+    {
+      name: "YMCA International House",
+      location: "Chittoor Road, Ernakulam, Cochin 682035",
+      url: "https://www.ymcaernakulam.in/accommodation/international-house/",
+    },
+    {
+      name: "YMCA International Youth Centre",
+      location:
+        "YMCA Road Opp. Medical Centre Hospital Ernakulam, Palarivattom, Kochi, Kerala 682025",
+      url: "https://www.ymcaernakulam.in/accommodation/ymca-international-youth-centre/",
+    },
+    {
+      name: "YMCA Hostels",
+      location: "Palarivattom, Kadavanthra, Thrikkakara",
+      url: "https://www.ymcaernakulam.in/accommodation/",
+    },
+    {
+      name: "Hotel Kochi Crown",
+      location: "Pipeline Junction, Kochi, India",
+      url: "https://crown.kerala-hotels.net/en/?from=2026-07-01&to=2026-07-02&adults=2&children=0&clirder=1&_1782804648146https://crown.kerala-hotels.net/en/#rooms",
+    },
   ];
 
   return (
